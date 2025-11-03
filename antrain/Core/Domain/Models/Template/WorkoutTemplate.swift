@@ -175,11 +175,11 @@ enum TemplateValidationError: LocalizedError {
     }
 }
 
-// MARK: - Comparable
+// MARK: - Sorting Helpers
 
-@preconcurrency
-extension WorkoutTemplate: Comparable {
-    nonisolated static func < (lhs: WorkoutTemplate, rhs: WorkoutTemplate) -> Bool {
+extension WorkoutTemplate {
+    /// Compare two templates for sorting (presets first, then by name)
+    static func compare(_ lhs: WorkoutTemplate, _ rhs: WorkoutTemplate) -> Bool {
         // Presets first, then by name
         if lhs.isPreset != rhs.isPreset {
             return lhs.isPreset

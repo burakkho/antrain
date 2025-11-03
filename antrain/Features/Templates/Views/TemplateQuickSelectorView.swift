@@ -156,7 +156,7 @@ struct TemplateQuickSelectorView: View {
             if let viewModel {
                 if !viewModel.userTemplates.isEmpty {
                     Section {
-                        ForEach(viewModel.userTemplates.sorted()) { template in
+                        ForEach(viewModel.userTemplates.sorted(by: WorkoutTemplate.compare)) { template in
                             TemplateQuickRow(template: template) {
                                 onSelect(template)
                                 dismiss()
@@ -169,7 +169,7 @@ struct TemplateQuickSelectorView: View {
 
                 if !viewModel.presetTemplates.isEmpty {
                     Section {
-                        ForEach(viewModel.presetTemplates.sorted()) { template in
+                        ForEach(viewModel.presetTemplates.sorted(by: WorkoutTemplate.compare)) { template in
                             TemplateQuickRow(template: template) {
                                 onSelect(template)
                                 dismiss()

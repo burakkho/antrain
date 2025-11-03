@@ -183,7 +183,7 @@ struct TemplatesListView: View {
                     // User Templates Section
                     if !viewModel.userTemplates.isEmpty {
                         Section {
-                            ForEach(viewModel.userTemplates.sorted()) { template in
+                            ForEach(viewModel.userTemplates.sorted(by: WorkoutTemplate.compare)) { template in
                                 NavigationLink {
                                     TemplateDetailView(template: template)
                                 } label: {
@@ -212,7 +212,7 @@ struct TemplatesListView: View {
                     // Preset Templates Section
                     if !viewModel.presetTemplates.isEmpty {
                         Section {
-                            ForEach(viewModel.presetTemplates.sorted()) { template in
+                            ForEach(viewModel.presetTemplates.sorted(by: WorkoutTemplate.compare)) { template in
                                 NavigationLink {
                                     TemplateDetailView(template: template)
                                 } label: {
