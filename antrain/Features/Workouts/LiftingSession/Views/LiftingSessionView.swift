@@ -10,6 +10,9 @@ struct LiftingSessionView: View {
     @State private var viewModel: LiftingSessionViewModel?
     @State private var showCancelConfirmation = false
     @State private var showTemplateSelector = false
+    @State private var isKeyboardMode = false
+    @State private var showModeToast = false
+    @State private var modeToastMessage = ""
 
     init(initialTemplate: WorkoutTemplate? = nil) {
         self.initialTemplate = initialTemplate
@@ -39,6 +42,35 @@ struct LiftingSessionView: View {
                         } else {
                             dismiss()
                         }
+                    }
+                }
+
+                // Mode toggle button (center)
+                ToolbarItem(placement: .principal) {
+                    Button {
+                        isKeyboardMode.toggle()
+                        modeToastMessage = isKeyboardMode ? "Keyboard Mode" : "Swipe Mode"
+                        showModeToast = true
+
+                        // Haptic feedback
+                        let generator = UIImpactFeedbackGenerator(style: .medium)
+                        generator.impactOccurred()
+
+                        // Hide toast after 1.5 seconds
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                            showModeToast = false
+                        }
+                    } label: {
+                        HStack(spacing: 4) {
+                            Image(systemName: isKeyboardMode ? "keyboard" : "hand.tap.fill")
+                            Text(isKeyboardMode ? "Keyboard" : "Swipe")
+                                .font(.caption)
+                        }
+                        .foregroundStyle(isKeyboardMode ? .blue : .orange)
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 6)
+                        .background(isKeyboardMode ? Color.blue.opacity(0.1) : Color.orange.opacity(0.1))
+                        .clipShape(Capsule())
                     }
                 }
 
@@ -121,6 +153,22 @@ struct LiftingSessionView: View {
             } message: {
                 Text("Your workout data will be lost.")
             }
+            .overlay(alignment: .top) {
+                // Toast notification for mode switching
+                if showModeToast {
+                    Text(modeToastMessage)
+                        .font(.subheadline)
+                        .fontWeight(.medium)
+                        .foregroundStyle(.white)
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 10)
+                        .background(Color.black.opacity(0.8))
+                        .clipShape(Capsule())
+                        .padding(.top, 8)
+                        .transition(.move(edge: .top).combined(with: .opacity))
+                }
+            }
+            .animation(.spring(response: 0.3), value: showModeToast)
         }
     }
 
@@ -180,6 +228,7 @@ struct LiftingSessionView: View {
                 ForEach(viewModel.exercises) { workoutExercise in
                     ExerciseCard(
                         workoutExercise: workoutExercise,
+                        isKeyboardMode: isKeyboardMode,
                         onAddSet: {
                             viewModel.addSet(to: workoutExercise)
                         },
@@ -216,6 +265,7 @@ struct LiftingSessionView: View {
             }
             .padding(DSSpacing.md)
         }
+        .scrollDisabled(!isKeyboardMode) // Disable scroll in swipe mode
         .background(DSColors.backgroundPrimary)
     }
 }

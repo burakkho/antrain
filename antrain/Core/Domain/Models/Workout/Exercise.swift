@@ -35,10 +35,17 @@ final class Exercise: @unchecked Sendable {
         self.isCustom = isCustom
         self.version = version
     }
+
+    // MARK: - Computed Properties
+
+    /// Primary muscle group (first in the list) - for display purposes
+    var primaryMuscleGroup: MuscleGroup? {
+        muscleGroups.first
+    }
 }
 
 // MARK: - Exercise Category
-enum ExerciseCategory: String, Codable, Sendable {
+enum ExerciseCategory: String, Codable, Sendable, CaseIterable {
     case barbell
     case dumbbell
     case bodyweight
@@ -47,6 +54,23 @@ enum ExerciseCategory: String, Codable, Sendable {
     case cable
     case cardio
     case metcon
+
+    var displayName: String {
+        return rawValue.capitalized
+    }
+
+    var icon: String {
+        switch self {
+        case .barbell: return "figure.strengthtraining.traditional"
+        case .dumbbell: return "dumbbell.fill"
+        case .bodyweight: return "figure.run"
+        case .weightlifting: return "figure.strengthtraining.functional"
+        case .machine: return "gearshape.fill"
+        case .cable: return "cable.connector"
+        case .cardio: return "heart.fill"
+        case .metcon: return "flame.fill"
+        }
+    }
 }
 
 // MARK: - Muscle Group
@@ -63,6 +87,13 @@ enum MuscleGroup: String, Codable, Sendable, CaseIterable {
     case calves
     case core
     case fullBody
+
+    var displayName: String {
+        switch self {
+        case .fullBody: return "Full Body"
+        default: return rawValue.capitalized
+        }
+    }
 }
 
 // MARK: - Equipment

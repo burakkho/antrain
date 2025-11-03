@@ -1,75 +1,134 @@
 import SwiftUI
 
-/// Exercise card with sets list and add set button
+/// Exercise card with sets list, collapse/expand, and add set button
 struct ExerciseCard: View {
     let workoutExercise: WorkoutExercise
+    let isKeyboardMode: Bool
     let onAddSet: () -> Void
     let onUpdateSet: (WorkoutSet, Int, Double) -> Void
     let onCompleteSet: (WorkoutSet) -> Void
     let onDeleteSet: (WorkoutSet) -> Void
     let onDeleteExercise: () -> Void
 
+    @State private var isExpanded: Bool = true
+
     var body: some View {
         VStack(alignment: .leading, spacing: DSSpacing.md) {
-            // Header
-            HStack {
-                Text(workoutExercise.exercise?.name ?? "Unknown Exercise")
-                    .font(DSTypography.headline)
-                    .foregroundStyle(DSColors.textPrimary)
+            // Header (tappable to collapse/expand)
+            Button(action: { withAnimation { isExpanded.toggle() } }) {
+                HStack {
+                    // Exercise name and icon
+                    HStack(spacing: 8) {
+                        Image(systemName: workoutExercise.exercise?.category.icon ?? "dumbbell")
+                            .font(.title3)
+                            .foregroundStyle(DSColors.primary)
 
-                Spacer()
+                        Text(workoutExercise.exercise?.name ?? "Unknown Exercise")
+                            .font(DSTypography.headline)
+                            .foregroundStyle(DSColors.textPrimary)
+                    }
 
-                // Delete exercise button
+                    Spacer()
+
+                    // Collapsed state info
+                    if !isExpanded {
+                        collapsedInfo
+                    }
+
+                    // Chevron indicator
+                    Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
+                        .font(.caption)
+                        .foregroundStyle(DSColors.textSecondary)
+                        .padding(.horizontal, 8)
+                }
+            }
+            .buttonStyle(.plain)
+            .contextMenu {
+                // Delete via long press context menu
                 Button(role: .destructive, action: onDeleteExercise) {
-                    Image(systemName: "trash")
-                        .font(.subheadline)
-                        .foregroundStyle(DSColors.error)
+                    Label("Delete Exercise", systemImage: "trash")
                 }
             }
 
-            // Sets list
-            if workoutExercise.sets.isEmpty {
-                Text("No sets yet. Tap \"Add Set\" to start.")
-                    .font(DSTypography.caption)
-                    .foregroundStyle(DSColors.textSecondary)
-                    .padding(.vertical, DSSpacing.sm)
-            } else {
-                VStack(spacing: DSSpacing.xs) {
-                    ForEach(Array(workoutExercise.sets.enumerated()), id: \.element.id) { index, set in
-                        SetRow(
-                            set: set,
-                            setNumber: index + 1,
-                            onUpdate: { reps, weight in
-                                onUpdateSet(set, reps, weight)
-                            },
-                            onComplete: {
-                                onCompleteSet(set)
-                            },
-                            onDelete: {
-                                onDeleteSet(set)
-                            }
-                        )
+            // Expanded content
+            if isExpanded {
+                // Sets list
+                if workoutExercise.sets.isEmpty {
+                    Text("No sets yet. Tap \"Add Set\" to start.")
+                        .font(DSTypography.caption)
+                        .foregroundStyle(DSColors.textSecondary)
+                        .padding(.vertical, DSSpacing.sm)
+                } else {
+                    VStack(spacing: DSSpacing.xs) {
+                        ForEach(Array(workoutExercise.sets.enumerated()), id: \.element.id) { index, set in
+                            SetRow(
+                                set: set,
+                                setNumber: index + 1,
+                                isKeyboardMode: isKeyboardMode,
+                                onUpdate: { reps, weight in
+                                    onUpdateSet(set, reps, weight)
+                                },
+                                onComplete: {
+                                    onCompleteSet(set)
+                                },
+                                onDelete: {
+                                    onDeleteSet(set)
+                                }
+                            )
+                        }
                     }
                 }
-            }
 
-            // Add Set button
-            Button(action: onAddSet) {
-                HStack {
-                    Image(systemName: "plus.circle.fill")
-                    Text("Add Set")
+                // Add Set button
+                Button(action: onAddSet) {
+                    HStack {
+                        Image(systemName: "plus.circle.fill")
+                        Text("Add Set")
+                    }
+                    .font(DSTypography.subheadline)
+                    .foregroundStyle(DSColors.primary)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, DSSpacing.sm)
+                    .background(DSColors.primary.opacity(0.1))
+                    .clipShape(RoundedRectangle(cornerRadius: DSCornerRadius.md))
                 }
-                .font(DSTypography.subheadline)
-                .foregroundStyle(DSColors.primary)
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, DSSpacing.sm)
-                .background(DSColors.primary.opacity(0.1))
-                .clipShape(RoundedRectangle(cornerRadius: DSCornerRadius.md))
             }
         }
         .padding(DSSpacing.md)
         .background(DSColors.cardBackground)
         .clipShape(RoundedRectangle(cornerRadius: DSCornerRadius.lg))
+    }
+
+    // MARK: - Collapsed Info
+
+    @ViewBuilder
+    private var collapsedInfo: some View {
+        HStack(spacing: 12) {
+            // Set progress
+            Text("\(completedSets)/\(totalSets) sets")
+                .font(.caption)
+                .foregroundStyle(DSColors.textSecondary)
+
+            // Last set info
+            if let lastSet = workoutExercise.sets.last {
+                Text("•")
+                    .foregroundStyle(DSColors.textTertiary)
+
+                Text("\(lastSet.reps) × \(lastSet.weight, specifier: "%.1f")kg")
+                    .font(.caption)
+                    .foregroundStyle(DSColors.textSecondary)
+            }
+        }
+    }
+
+    // MARK: - Computed Properties
+
+    private var completedSets: Int {
+        workoutExercise.sets.filter { $0.isCompleted }.count
+    }
+
+    private var totalSets: Int {
+        workoutExercise.sets.count
     }
 }
 
@@ -97,6 +156,7 @@ struct ExerciseCard: View {
 
     return ExerciseCard(
         workoutExercise: workoutExercise,
+        isKeyboardMode: false,
         onAddSet: {},
         onUpdateSet: { _, _, _ in },
         onCompleteSet: { _ in },

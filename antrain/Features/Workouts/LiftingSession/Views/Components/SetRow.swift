@@ -1,32 +1,31 @@
 import SwiftUI
 
-/// Set row with inline editing and swipe gestures
-/// Swipe right = complete, swipe left = delete
+/// Set row with swipeable number fields for gesture-based editing
 struct SetRow: View {
     let set: WorkoutSet
     let setNumber: Int
+    let isKeyboardMode: Bool
     let onUpdate: (Int, Double) -> Void
     let onComplete: () -> Void
     let onDelete: () -> Void
 
     @State private var reps: Double
     @State private var weight: Double
-    @FocusState private var focusedField: Field?
+    @State private var offsetX: CGFloat = 0
+    @State private var showDeleteButton: Bool = false
     @AppStorage("weightUnit") private var weightUnit: String = "Kilograms"
-
-    enum Field {
-        case reps, weight
-    }
 
     init(
         set: WorkoutSet,
         setNumber: Int,
+        isKeyboardMode: Bool = false,
         onUpdate: @escaping (Int, Double) -> Void,
         onComplete: @escaping () -> Void,
         onDelete: @escaping () -> Void
     ) {
         self.set = set
         self.setNumber = setNumber
+        self.isKeyboardMode = isKeyboardMode
         self.onUpdate = onUpdate
         self.onComplete = onComplete
         self.onDelete = onDelete
@@ -41,76 +40,110 @@ struct SetRow: View {
     }
 
     var body: some View {
-        HStack(spacing: DSSpacing.sm) {
-            // Set number
-            Text("\(setNumber)")
-                .font(DSTypography.headline)
-                .foregroundStyle(DSColors.textSecondary)
-                .frame(width: 30)
-
-            // Reps input
-            TextField("Reps", value: $reps, format: .number)
-                .keyboardType(.numberPad)
-                .multilineTextAlignment(.center)
-                .font(DSTypography.body)
-                .padding(DSSpacing.sm)
-                .background(DSColors.backgroundSecondary)
-                .clipShape(RoundedRectangle(cornerRadius: DSCornerRadius.md))
-                .focused($focusedField, equals: .reps)
-                .onChange(of: reps) { _, newValue in
-                    onUpdate(Int(newValue), weight)
+        ZStack(alignment: .trailing) {
+            // Delete button background (revealed on swipe)
+            if showDeleteButton {
+                Button(role: .destructive) {
+                    withAnimation {
+                        onDelete()
+                    }
+                } label: {
+                    Image(systemName: "trash.fill")
+                        .font(.title3)
+                        .foregroundStyle(.white)
+                        .frame(width: 60)
+                        .frame(maxHeight: .infinity)
                 }
-
-            Text("×")
-                .font(DSTypography.body)
-                .foregroundStyle(DSColors.textTertiary)
-
-            // Weight input
-            TextField("Weight", value: $weight, format: .number.precision(.fractionLength(0...1)))
-                .keyboardType(.decimalPad)
-                .multilineTextAlignment(.center)
-                .font(DSTypography.body)
-                .padding(DSSpacing.sm)
-                .background(DSColors.backgroundSecondary)
+                .background(DSColors.error)
                 .clipShape(RoundedRectangle(cornerRadius: DSCornerRadius.md))
-                .focused($focusedField, equals: .weight)
-                .onChange(of: weight) { _, newValue in
-                    // Convert back to kg for storage if user is using lbs
-                    let weightInKg = weightUnit == "Pounds" ? newValue.lbsToKg() : newValue
-                    onUpdate(Int(reps), weightInKg)
+            }
+
+            // Main content
+            HStack(spacing: DSSpacing.sm) {
+                // Set number
+                Text("\(setNumber)")
+                    .font(DSTypography.headline)
+                    .foregroundStyle(DSColors.textSecondary)
+                    .strikethrough(set.isCompleted, color: DSColors.textSecondary)
+                    .frame(width: 30)
+
+                // Reps input with swipe gestures
+                SwipeableNumberField(
+                    type: .reps,
+                    value: $reps,
+                    placeholder: "Reps",
+                    isKeyboardMode: isKeyboardMode,
+                    onUpdate: {
+                        onUpdate(Int(reps), weightInKg)
+                    }
+                )
+                .strikethrough(set.isCompleted, color: DSColors.textPrimary)
+
+                Text("×")
+                    .font(DSTypography.body)
+                    .foregroundStyle(DSColors.textTertiary)
+                    .strikethrough(set.isCompleted, color: DSColors.textTertiary)
+
+                // Weight input with swipe gestures
+                SwipeableNumberField(
+                    type: .weight,
+                    value: $weight,
+                    placeholder: "Weight",
+                    isKeyboardMode: isKeyboardMode,
+                    onUpdate: {
+                        onUpdate(Int(reps), weightInKg)
+                    }
+                )
+                .strikethrough(set.isCompleted, color: DSColors.textPrimary)
+
+                Text(Double.weightUnitSymbol(weightUnit))
+                    .font(DSTypography.body)
+                    .foregroundStyle(DSColors.textSecondary)
+                    .strikethrough(set.isCompleted, color: DSColors.textSecondary)
+
+                // Complete button (checkmark only)
+                Button {
+                    onComplete()
+                } label: {
+                    Image(systemName: set.isCompleted ? "checkmark.circle.fill" : "circle")
+                        .font(.title2)
+                        .foregroundStyle(set.isCompleted ? DSColors.success : DSColors.textTertiary)
                 }
+            }
+            .padding(DSSpacing.sm)
+            .background(DSColors.cardBackground)
+            .clipShape(RoundedRectangle(cornerRadius: DSCornerRadius.md))
+            .offset(x: offsetX)
+            .gesture(
+                DragGesture()
+                    .onChanged { value in
+                        // Only allow left swipe
+                        if value.translation.width < 0 {
+                            offsetX = value.translation.width
+                        }
+                    }
+                    .onEnded { value in
+                        if value.translation.width < -60 {
+                            // Swipe threshold reached - show delete
+                            withAnimation(.spring(response: 0.3)) {
+                                offsetX = -70
+                                showDeleteButton = true
+                            }
+                        } else {
+                            // Not enough swipe - reset
+                            withAnimation(.spring(response: 0.3)) {
+                                offsetX = 0
+                                showDeleteButton = false
+                            }
+                        }
+                    }
+            )
+        }
+    }
 
-            Text(Double.weightUnitSymbol(weightUnit))
-                .font(DSTypography.body)
-                .foregroundStyle(DSColors.textSecondary)
-
-            // Completed indicator
-            if set.isCompleted {
-                Image(systemName: "checkmark.circle.fill")
-                    .font(.title3)
-                    .foregroundStyle(DSColors.success)
-            }
-        }
-        .padding(DSSpacing.sm)
-        .background(set.isCompleted ? DSColors.success.opacity(0.1) : DSColors.cardBackground)
-        .clipShape(RoundedRectangle(cornerRadius: DSCornerRadius.md))
-        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-            // Swipe right = complete
-            Button {
-                onComplete()
-            } label: {
-                Label("Complete", systemImage: "checkmark")
-            }
-            .tint(DSColors.success)
-        }
-        .swipeActions(edge: .leading, allowsFullSwipe: true) {
-            // Swipe left = delete
-            Button(role: .destructive) {
-                onDelete()
-            } label: {
-                Label("Delete", systemImage: "trash")
-            }
-        }
+    // Helper to convert weight to kg for storage
+    private var weightInKg: Double {
+        weightUnit == "Pounds" ? weight.lbsToKg() : weight
     }
 }
 
