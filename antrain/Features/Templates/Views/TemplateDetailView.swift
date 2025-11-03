@@ -97,8 +97,13 @@ struct TemplateDetailView: View {
             duplicateTemplateSheet
         }
         .sheet(isPresented: $showEditView) {
-            Text("Edit Template View")
-                .presentationDetents([.large])
+            if let viewModel {
+                CreateTemplateFlow(editingTemplate: viewModel.template) {
+                    Task {
+                        await viewModel.refresh()
+                    }
+                }
+            }
         }
         .task {
             if viewModel == nil {

@@ -42,8 +42,11 @@ struct TemplatesListView: View {
                 }
             }
             .sheet(isPresented: $showCreateTemplate) {
-                Text("Create Template")
-                    .presentationDetents([.large])
+                CreateTemplateFlow {
+                    Task {
+                        await viewModel?.fetchTemplates()
+                    }
+                }
             }
             .alert("Delete Template", isPresented: .constant(templateToDelete != nil)) {
                 Button("Cancel", role: .cancel) {
