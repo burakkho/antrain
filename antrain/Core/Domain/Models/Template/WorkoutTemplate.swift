@@ -175,22 +175,10 @@ enum TemplateValidationError: LocalizedError {
     }
 }
 
-// MARK: - Hashable
-
-extension WorkoutTemplate {
-    nonisolated func hash(into hasher: inout Hasher) {
-        hasher.combine(id)
-    }
-
-    nonisolated static func == (lhs: WorkoutTemplate, rhs: WorkoutTemplate) -> Bool {
-        lhs.id == rhs.id
-    }
-}
-
 // MARK: - Comparable
 
 extension WorkoutTemplate: Comparable {
-    nonisolated static func < (lhs: WorkoutTemplate, rhs: WorkoutTemplate) -> Bool {
+    static func < (lhs: WorkoutTemplate, rhs: WorkoutTemplate) -> Bool {
         // Presets first, then by name
         if lhs.isPreset != rhs.isPreset {
             return lhs.isPreset
