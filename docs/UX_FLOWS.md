@@ -690,6 +690,462 @@ Button("Save") {
 
 ---
 
-**Son Güncelleme:** 2025-02-11
-**Dosya Boyutu:** ~180 satır
-**Token Efficiency:** ASCII diagrams, table-heavy
+## Workout Templates Flow
+
+### Overview
+
+Templates sistemi kullanıcıların favori workout'larını kaydetmesini ve hızlıca yeniden kullanmasını sağlar.
+
+### Entry Points
+
+1. **WorkoutsView → "My Templates" Section**
+   - Quick access cards: Browse, Start from Template, Create
+2. **Templates Tab**
+   - Full template list with search and filtering
+3. **LiftingSessionView**
+   - "Start from Template" button when no exercises
+4. **WorkoutSummaryView**
+   - "Save as Template" button after completing workout
+
+---
+
+### Flow 1: Browse Templates
+
+```
+┌─────────────────────────────────────────┐
+│ Templates                        [+]     │  ← Create button (top-right)
+├─────────────────────────────────────────┤
+│ [Search bar]                             │
+├─────────────────────────────────────────┤
+│ Categories (horizontal scroll)           │
+│ [All] [Strength] [Hypertrophy] ...      │  ← Filter chips
+├─────────────────────────────────────────┤
+│ My Templates                             │
+│ ┌─────────────────────────────────────┐│
+│ │ 💪 My Upper Body                    ││
+│ │ Strength • 5 exercises              ││
+│ │ Last used: 2 days ago              ││  ← User template
+│ └─────────────────────────────────────┘│
+│                                          │
+│ Presets                                  │
+│ ┌─────────────────────────────────────┐│
+│ │ 🏋️ Powerlifting - Squat Day        ││
+│ │ Strength • 5 exercises              ││
+│ │ [Preset badge]                      ││  ← Preset template
+│ └─────────────────────────────────────┘│
+└─────────────────────────────────────────┘
+```
+
+**User Actions:**
+
+**Search:**
+- Type in search bar → Real-time filter by template name
+- Works with category filter (combined filtering)
+
+**Category Filter:**
+- Tap chip → Show only templates in that category
+- "All" chip resets filter
+- Active chip highlighted
+
+**Tap Template Card:**
+- Navigate to TemplateDetailView
+- Shows full exercise list, metadata, actions
+
+**Swipe Actions on User Templates:**
+- Swipe left → Duplicate, Edit, Delete
+- Preset templates: only Duplicate available
+
+**Empty States:**
+- No templates: "Create your first template" CTA
+- No results from search: "No templates found" message
+- Filtered category empty: "No {category} templates" message
+
+---
+
+### Flow 2: Create Template (3-Step Wizard)
+
+```
+Step 1: Template Info
+┌─────────────────────────────────────────┐
+│ < Back    Create Template    Cancel     │
+├─────────────────────────────────────────┤
+│ Step 1 of 3                              │
+├─────────────────────────────────────────┤
+│ Template Name                            │
+│ ┌─────────────────────────────────────┐│
+│ │ [Text field]                        ││
+│ └─────────────────────────────────────┘│
+│                                          │
+│ Category                                 │
+│ ┌───────┐ ┌───────┐ ┌───────┐         │
+│ │ 💪    │ │ 🏋️   │ │ 🤸    │         │
+│ │Strength│ │Hyper │ │Calis │         │  ← Grid picker
+│ └───────┘ └───────┘ └───────┘         │
+│                                          │
+│           [Continue →]                   │  ← Disabled until valid
+└─────────────────────────────────────────┘
+
+Step 2: Select Exercises
+┌─────────────────────────────────────────┐
+│ < Back    Create Template    Cancel     │
+├─────────────────────────────────────────┤
+│ Step 2 of 3                              │
+├─────────────────────────────────────────┤
+│ Selected: 3 exercises                    │
+│                                          │
+│ [Search exercises...]                    │
+│                                          │
+│ Barbell                                  │
+│ ☑ Barbell Bench Press                   │
+│ ☑ Barbell Back Squat                    │
+│ ☐ Barbell Deadlift                      │  ← Multi-select
+│                                          │
+│ Dumbbell                                 │
+│ ☑ Dumbbell Shoulder Press               │
+│                                          │
+│           [Continue →]                   │  ← Disabled if empty
+└─────────────────────────────────────────┘
+
+Step 3: Configure Sets & Reps
+┌─────────────────────────────────────────┐
+│ < Back    Create Template    Cancel     │
+├─────────────────────────────────────────┤
+│ Step 3 of 3                              │
+├─────────────────────────────────────────┤
+│ 1. Barbell Bench Press                   │
+│    Sets: [4 ▼]  Reps: [8] - [12]       │
+│    Notes: [Optional...]                  │
+│ ─────────────────────────────────────   │
+│ 2. Barbell Back Squat                    │
+│    Sets: [4 ▼]  Reps: [6] - [10]       │
+│    Notes: [Optional...]                  │
+│ ─────────────────────────────────────   │
+│ 3. Dumbbell Shoulder Press              │
+│    Sets: [3 ▼]  Reps: [10] - [12]      │
+│    Notes: [Optional...]                  │
+│                                          │
+│           [Create Template]              │
+└─────────────────────────────────────────┘
+```
+
+**State Transitions:**
+
+```
+[Step 1: Info]
+    ↓ name valid & category selected
+[Step 2: Exercises]
+    ↓ at least 1 exercise selected
+[Step 3: Configure]
+    ↓ all configs valid
+[Save] → TemplatesView (toast: "Template created")
+```
+
+**Validation:**
+- Step 1: Name required, must be unique (case-insensitive)
+- Step 2: Minimum 1 exercise
+- Step 3: repMin <= repMax for all exercises
+
+**Cancel Behavior:**
+- Tap Cancel → Confirmation alert: "Discard template?"
+- Tap Back from Step 1 → Same as Cancel
+
+**Edit Template:**
+- Same flow, pre-filled with existing data
+- Button text: "Update Template" instead of "Create"
+- If preset template → Create copy, don't edit original
+
+---
+
+### Flow 3: Start Workout from Template
+
+```
+Entry: WorkoutsView → "Start from Template" card
+       OR LiftingSessionView → "Start from Template" button
+
+┌─────────────────────────────────────────┐
+│ Select Template              [×]         │  ← Sheet presentation
+├─────────────────────────────────────────┤
+│ [Search...]                              │
+├─────────────────────────────────────────┤
+│ Recent                                   │
+│ ┌─────────────────────────────────────┐│
+│ │ 💪 My Upper Body                    ││
+│ │ Used 2 days ago                     ││  ← Recently used
+│ └─────────────────────────────────────┘│
+│                                          │
+│ All Templates                            │
+│ [Category filter chips...]               │
+│                                          │
+│ ┌─────────────────────────────────────┐│
+│ │ 🏋️ Powerlifting - Squat Day        ││  ← Tap to select
+│ └─────────────────────────────────────┘│
+│ ┌─────────────────────────────────────┐│
+│ │ 💪 PPL - Push Day                   ││
+│ └─────────────────────────────────────┘│
+└─────────────────────────────────────────┘
+
+↓ Tap template
+
+┌─────────────────────────────────────────┐
+│ Active Workout          [Finish] [...]   │
+├─────────────────────────────────────────┤
+│ Powerlifting - Squat Day                 │  ← Loaded from template
+├─────────────────────────────────────────┤
+│ 1. Barbell Back Squat                    │
+│    Set 1: [ ] reps  [  ] kg             │  ← Pre-populated structure
+│    Set 2: [ ] reps  [  ] kg             │
+│    Set 3: [ ] reps  [  ] kg             │
+│    Set 4: [ ] reps  [  ] kg             │
+│                                          │
+│ 2. Barbell Front Squat                   │
+│    Set 1: [ ] reps  [  ] kg             │
+│    ...                                   │
+└─────────────────────────────────────────┘
+```
+
+**Loading Logic:**
+
+1. User selects template
+2. Sheet dismisses
+3. LiftingSessionViewModel.loadFromTemplate():
+   - Clear existing exercises
+   - For each TemplateExercise:
+     - Fetch Exercise from library by UUID
+     - Create WorkoutExercise
+     - Create WorkoutSets (setCount times, pre-fill repRangeMin)
+   - Add to workout
+4. Mark template.lastUsedAt = now
+5. User can modify as needed (changes not saved to template)
+
+**Error Handling:**
+- Exercise not found by UUID → Skip exercise, log warning
+- Template exercises empty → Show error, don't load
+
+---
+
+### Flow 4: Save Workout as Template
+
+```
+Entry: WorkoutSummaryView (after finishing workout)
+
+┌─────────────────────────────────────────┐
+│ Workout Summary                          │
+├─────────────────────────────────────────┤
+│ Duration: 1h 23m                         │
+│ Exercises: 5                             │
+│ Total Volume: 4,250 kg                   │
+├─────────────────────────────────────────┤
+│ 1. Barbell Bench Press                   │
+│    4 sets completed                      │
+│ ...                                      │
+├─────────────────────────────────────────┤
+│ [Save as Template]                       │  ← New button
+│ [Done]                                   │
+└─────────────────────────────────────────┘
+
+↓ Tap "Save as Template"
+
+┌─────────────────────────────────────────┐
+│ Save as Template            [×]          │  ← Sheet
+├─────────────────────────────────────────┤
+│ Template Name                            │
+│ ┌─────────────────────────────────────┐│
+│ │ Workout on Nov 3                    ││  ← Auto-generated name
+│ └─────────────────────────────────────┘│
+│                                          │
+│ Category                                 │
+│ [Strength ▼]                             │
+│                                          │
+│ Exercises (5)                            │
+│ ✓ Barbell Bench Press (4 sets, 8-10 reps)│
+│ ✓ Barbell Back Squat (4 sets, 6-8 reps) │  ← Extracted from workout
+│ ✓ Dumbbell Shoulder Press (3×10-12)     │
+│ ...                                      │
+│                                          │
+│ [Save Template]                          │
+└─────────────────────────────────────────┘
+```
+
+**Extraction Logic:**
+
+1. For each WorkoutExercise:
+   - exerciseId = exercise.id
+   - exerciseName = exercise.name
+   - setCount = number of completed sets
+   - repRangeMin = min(reps across all sets)
+   - repRangeMax = max(reps across all sets)
+2. Create WorkoutTemplate with these TemplateExercises
+3. Save to repository
+4. Show toast: "Template created"
+
+**Edge Cases:**
+- Incomplete sets → Only count completed sets
+- Single set completed → repRangeMin = repRangeMax = reps
+- Name collision → Append "(2)" to name
+
+---
+
+### Flow 5: Template Detail View
+
+```
+┌─────────────────────────────────────────┐
+│ < Back    Powerlifting - Squat Day  [...] │
+├─────────────────────────────────────────┤
+│ [Preset] Strength • 5 exercises          │  ← Metadata
+│ Created: Nov 1, 2025                     │
+│ Last used: 2 days ago                    │
+├─────────────────────────────────────────┤
+│ Exercises                                │
+│                                          │
+│ 1. Barbell Back Squat                    │
+│    4 sets × 3-5 reps                     │
+│                                          │
+│ 2. Barbell Front Squat                   │
+│    3 sets × 5-8 reps                     │
+│                                          │
+│ 3. Leg Press                             │
+│    3 sets × 8-12 reps                    │
+│                                          │
+│ 4. Barbell Bulgarian Split Squat         │
+│    3 sets × 6-8 reps                     │
+│                                          │
+│ 5. Leg Curl (Lying)                      │
+│    3 sets × 10-12 reps                   │
+├─────────────────────────────────────────┤
+│ [Start Workout]                          │  ← Primary action
+│                                          │
+│ [Edit]  [Duplicate]  [Delete]            │  ← Secondary actions
+└─────────────────────────────────────────┘
+```
+
+**Actions:**
+
+**Start Workout:**
+- Same as Flow 3: Load template into LiftingSessionView
+- Dismiss detail view, navigate to active workout
+
+**Edit (User Templates Only):**
+- Navigate to EditTemplateView (same as CreateTemplateFlow)
+- Pre-fill all fields
+- Save updates template
+
+**Edit (Preset Templates):**
+- Show alert: "Preset templates can't be edited. Create a copy?"
+- If yes → Duplicate with same name (add "(Copy)")
+
+**Duplicate:**
+- Create copy with "(Copy)" suffix
+- Navigate to duplicated template detail
+- Show toast: "Template duplicated"
+
+**Delete (User Templates Only):**
+- Confirmation alert: "Delete template? This can't be undone."
+- If confirmed → Delete, navigate back
+- Show toast: "Template deleted"
+
+**Delete (Preset Templates):**
+- Button disabled, show tooltip: "Preset templates can't be deleted"
+
+**Menu (...):**
+- Share template (future)
+- View statistics (future)
+
+---
+
+### Template Navigation Architecture
+
+```
+WorkoutsView
+    ├─→ TemplatesView (tab/navigation)
+    │       ├─→ TemplateDetailView
+    │       │       ├─→ EditTemplateView (sheet)
+    │       │       └─→ LiftingSessionView (load template)
+    │       └─→ CreateTemplateFlow (sheet)
+    │
+    └─→ TemplateQuickSelectorView (sheet)
+            └─→ LiftingSessionView (load template)
+
+LiftingSessionView
+    └─→ TemplateQuickSelectorView (sheet)
+            └─→ Load template into current session
+
+WorkoutSummaryView
+    └─→ SaveWorkoutAsTemplateView (sheet)
+            └─→ Create template, dismiss
+```
+
+---
+
+### State Management
+
+**TemplatesViewModel (@Observable):**
+- templates: [WorkoutTemplate]
+- searchQuery: String
+- selectedCategory: TemplateCategory?
+- isLoading: Bool
+- error: Error?
+
+**Operations:**
+- loadTemplates() async
+- filterTemplates(category:) async
+- searchTemplates(query:)
+- deleteTemplate(id:) async
+- duplicateTemplate(id:) async
+
+**CreateTemplateViewModel (@Observable):**
+- currentStep: Int (1-3)
+- templateName: String
+- selectedCategory: TemplateCategory?
+- selectedExercises: [Exercise]
+- exerciseConfigs: [UUID: ExerciseConfig]
+- isValid: Bool
+
+**SaveWorkoutAsTemplateViewModel (@Observable):**
+- workout: Workout
+- templateName: String
+- selectedCategory: TemplateCategory
+- extractedExercises: [TemplateExerciseData]
+
+---
+
+### Loading & Error States
+
+**TemplatesView:**
+- Loading: Skeleton cards (3-4 placeholders)
+- Empty: "No templates yet. Create your first template!" CTA
+- Error: Alert with retry button
+
+**Template Quick Selector:**
+- Loading: Spinner in center
+- Empty recent: Hide "Recent" section
+- Error: Show error message, retry button
+
+**Template Detail:**
+- Loading exercises: Spinner
+- Exercise not found: "Exercise deleted" placeholder
+- Error loading: Alert with dismiss
+
+---
+
+### Accessibility
+
+**VoiceOver Labels:**
+- Template cards: "{template name}, {category}, {exercise count} exercises, {last used}"
+- Category chips: "{category name}, filter button"
+- Actions: "Start workout from template", "Edit template", etc.
+
+**Dynamic Type:**
+- All text respects user font size
+- Cards expand vertically to accommodate larger text
+
+**Haptic Feedback:**
+- Template selected: Light impact
+- Template created/deleted: Success notification
+- Error: Error notification
+
+---
+
+**Son Güncelleme:** 2025-11-03
+**Eklenen:** Template flows (v1.1 feature)
+**Dosya Boyutu:** ~220 satır
+**Token Efficiency:** ASCII diagrams, comprehensive UX documentation

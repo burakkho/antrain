@@ -8,7 +8,7 @@
 
 ## Current Sprint
 
-### Sprint 8: Custom Exercise/Food Creation UIs (PLANNED)
+### Sprint 9: Custom Exercise/Food Creation UIs (PLANNED)
 
 **Tarih:** TBD
 **Durum:** PLANNED
@@ -25,6 +25,301 @@
 ---
 
 ## Completed Sprints
+
+### Sprint 8: Workout Templates (v1.1) ✅
+
+**Tarih:** 2025-11-03 (Session 7)
+**Durum:** COMPLETED
+**Süre:** 1 gün (extremely efficient implementation!)
+**Hedef:** Implement full workout templates feature - save, browse, and reuse favorite workouts
+
+**Tamamlananlar:**
+
+**1. Domain & Data Layer** ✅
+- ✅ WorkoutTemplate model (@Model, @unchecked Sendable):
+  - Properties: id, name, category, isPreset, createdAt, lastUsedAt
+  - Relationship: 1:N TemplateExercise (cascade delete)
+  - Computed: exerciseCount, estimatedDuration
+  - Static compare() method (avoided MainActor conflicts with Comparable)
+  - Validation logic
+- ✅ TemplateExercise model (@Model, @unchecked Sendable):
+  - Properties: id, order, exerciseId, exerciseName, setCount, repRangeMin, repRangeMax, notes
+  - Denormalized exerciseName for display even if exercise deleted
+  - Static compare() for sorting
+- ✅ TemplateCategory enum (CaseIterable):
+  - Cases: strength, hypertrophy, calisthenics, weightlifting, beginner, custom
+  - Computed: icon, color, displayName
+- ✅ WorkoutTemplateRepositoryProtocol + Implementation (@ModelActor):
+  - CRUD operations with validation
+  - Preset management (seed, fetch)
+  - Duplication logic
+  - Usage tracking (lastUsedAt)
+  - Name uniqueness validation
+- ✅ PresetTemplateSeeder utility:
+  - 12 preset templates seeded on first launch
+  - Categories: Strength (3), Hypertrophy (4), Calisthenics (1), Weightlifting (1), Beginner (2)
+  - **Critical refactoring:** Accepts exerciseFinder closure to use SwiftData exercises (UUID consistency)
+- ✅ PersistenceController integration:
+  - Added models to Schema
+  - seedTemplatesIfNeeded() method
+  - Fetches exercises from SwiftData before seeding templates
+
+**2. Views & Navigation** ✅
+- ✅ TemplatesView (full template library):
+  - Search bar with real-time filtering
+  - Category filter chips (horizontal scroll)
+  - Grouped sections: My Templates, Presets
+  - Template cards with swipe actions
+  - Empty states (no templates, no search results, filtered category)
+  - Loading states (skeleton cards)
+- ✅ TemplateCard component:
+  - Template name, category, exercise count
+  - Category color accent
+  - Preset badge
+  - Swipe actions: Duplicate, Edit (user only), Delete (user only)
+- ✅ TemplateCategoryFilterView component:
+  - Horizontal scrolling chips
+  - Active state highlighting
+  - "All" option
+- ✅ TemplateDetailView:
+  - Template metadata (category, created, last used)
+  - Exercise list with set/rep display
+  - Action buttons: Start Workout, Edit, Duplicate, Delete
+  - Preset templates: Edit disabled, Delete disabled
+- ✅ TemplateQuickSelectorView (sheet):
+  - Recent templates section (sorted by lastUsedAt)
+  - Search functionality
+  - Category filtering
+  - Quick template selection for starting workouts
+- ✅ WorkoutsView integration:
+  - "My Templates" section with 3 quick cards
+  - TemplateQuickCard component (horizontal scroll)
+  - Browse All, Start from Template, Create New
+  - **Changed from HomeView per user feedback**
+
+**3. Create/Edit Template Flow (3-Step Wizard)** ✅
+- ✅ CreateTemplateViewModel (@Observable):
+  - Step management (1-3)
+  - Form state (name, category, exercises, configs)
+  - Validation logic
+  - Save/Update operations
+  - Error handling with clearError() method
+- ✅ CreateTemplateFlow (sheet):
+  - Step indicator (1/3, 2/3, 3/3)
+  - Navigation: Back, Continue, Cancel
+  - State preservation between steps
+- ✅ Step 1: TemplateInfoView:
+  - Name text field (unique validation)
+  - Category picker (grid layout with icons)
+- ✅ Step 2: TemplateExerciseSelectionView:
+  - Multi-select exercise picker
+  - Exercise count badge
+  - Reorderable list
+- ✅ Step 3: TemplateSetConfigView:
+  - Set count picker (1-10)
+  - Rep range inputs (min/max)
+  - Optional notes per exercise
+- ✅ EditTemplateView:
+  - Reuses CreateTemplateFlow
+  - Pre-fills all fields
+  - Preset templates → Create copy instead
+
+**4. Workout Integration** ✅
+- ✅ LiftingSessionViewModel.loadFromTemplate():
+  - Converts TemplateExercise → WorkoutExercise
+  - Pre-populates sets based on template config
+  - Fetches Exercise from library by UUID
+  - Marks template.lastUsedAt
+  - **Fixed: Exercise lookup by UUID from SwiftData**
+- ✅ LiftingSessionView:
+  - "Start from Template" button when empty
+  - Template selector sheet integration
+- ✅ SaveWorkoutAsTemplateViewModel (@Observable):
+  - Converts Workout → WorkoutTemplate
+  - Extracts set/rep ranges from completed sets
+  - Auto-generates template name
+- ✅ SaveWorkoutAsTemplateView (sheet):
+  - Pre-filled name (e.g., "Workout on Nov 3")
+  - Category selector
+  - Exercise preview list
+  - **Fixed: Binding issues with explicit wrappers**
+- ✅ WorkoutSummaryView:
+  - "Save as Template" button
+  - Saves completed workout as reusable template
+
+**5. Advanced Features** ✅
+- ✅ Search functionality (real-time filtering)
+- ✅ Category filtering (combined with search)
+- ✅ Template duplication (deep copy with "(Copy)" suffix)
+- ✅ Swipe actions (duplicate, edit, delete)
+- ✅ Preset template handling:
+  - Can't edit or delete presets
+  - Edit preset → Creates copy
+  - Preset badge displayed
+- ✅ Usage tracking (lastUsedAt updated on workout start)
+- ✅ Empty states for all scenarios
+- ✅ Loading states (skeleton cards, spinners)
+- ✅ Error handling (alerts, toasts)
+- ✅ Toast notifications (created, deleted, duplicated, saved)
+
+**Critical Bugs Fixed:** 🐛
+
+1. **UUID Mismatch Bug (Major):**
+   - **Problem:** ExerciseLibrary created new Exercise instances with new UUIDs each call
+   - **Impact:** Template exercises referenced different UUIDs than SwiftData exercises
+   - **Solution:** Refactored PresetTemplateSeeder to accept exerciseFinder closure, ensuring templates use actual SwiftData UUIDs
+   - **Files:** PresetTemplateSeeder.swift, PersistenceController.swift, WorkoutTemplateRepository.swift
+
+2. **Exercise Name Mismatches (23 errors):**
+   - **Problem:** PresetTemplateSeeder used different exercise names than ExerciseLibrary
+   - **Examples:** "Back Squat" → "Barbell Back Squat", "Pull-ups" → "Pull-Up"
+   - **Solution:** Updated all 23 exercise names in PresetTemplateSeeder to match ExerciseLibrary exactly
+   - **File:** PresetTemplateSeeder.swift
+
+3. **MainActor/Hashable Conflicts:**
+   - **Problem:** @Model generates MainActor-isolated Hashable conformance, conflicting with Comparable
+   - **Solution:** Removed Comparable conformance, added static compare() methods
+   - **Files:** WorkoutTemplate.swift, TemplateExercise.swift
+
+4. **Sendable Conformance Warnings:**
+   - **Problem:** @Model classes used across actor boundaries without Sendable
+   - **Solution:** Added @unchecked Sendable to WorkoutTemplate and TemplateExercise
+   - **Rationale:** SwiftData manages thread safety, @unchecked safe in this context
+
+5. **Environment Conformance Issues:**
+   - **Problem:** Mixing @Environment(AppDependencies.self) with ObservableObject
+   - **Solution:** Changed all to @EnvironmentObject for consistency
+   - **Files:** Multiple views
+
+6. **Binding Issues in Forms:**
+   - **Problem:** Implicit Binding creation failing in some contexts
+   - **Solution:** Explicit Binding wrappers in SaveWorkoutAsTemplateView
+   - **File:** SaveWorkoutAsTemplateView.swift
+
+**Architecture Decisions:** 🏗️
+
+1. **Templates accessible from WorkoutsView, not HomeView**
+   - User feedback: "bence template home da olmamalı. workouts bölümünden erişilebilmeli"
+   - Created TemplateQuickCard component for visual consistency
+
+2. **Static compare() instead of Comparable protocol**
+   - Avoids MainActor isolation conflicts with @Model
+   - Pattern: `static func compare(_ lhs: T, _ rhs: T) -> Bool`
+
+3. **Closure-based exercise seeding**
+   - PresetTemplateSeeder accepts exerciseFinder: (String) -> Exercise?
+   - Ensures single source of truth (SwiftData) for exercise UUIDs
+
+4. **@Observable instead of ObservableObject for ViewModels**
+   - Modern Swift concurrency pattern
+   - Consistent with codebase style
+
+5. **Denormalized exerciseName in TemplateExercise**
+   - Stores exercise name alongside UUID
+   - Ensures template displays correctly even if exercise deleted
+
+**User Feedback & Testing:** ✅
+
+- User tested all flows end-to-end
+- Created templates from scratch ✅
+- Started workout from template ✅
+- Saved workout as template ✅
+- Browsed and filtered templates ✅
+- Duplicated and edited templates ✅
+- **Final verdict:** "bence müko olduuu" (it's awesome!) 🎉
+
+**Documentation Updated:** 📚
+- ✅ TEMPLATES_SPRINTS.md (all sprints marked complete)
+- ✅ MODELS.md (Template domain section added)
+- ✅ UX_FLOWS.md (Template flows section added)
+- ✅ SPRINT_LOG.md (this entry)
+
+**Files Created/Modified:** 📁
+
+*Domain Models:*
+- antrain/Core/Domain/Models/Template/WorkoutTemplate.swift (new)
+- antrain/Core/Domain/Models/Template/TemplateExercise.swift (new)
+- antrain/Core/Domain/Models/Template/TemplateCategory.swift (new)
+
+*Repository:*
+- antrain/Core/Domain/Protocols/Repositories/WorkoutTemplateRepositoryProtocol.swift (new)
+- antrain/Core/Data/Repositories/WorkoutTemplateRepository.swift (new)
+- antrain/Core/Data/Seeders/PresetTemplateSeeder.swift (new)
+
+*ViewModels:*
+- antrain/Features/Templates/ViewModels/TemplatesViewModel.swift (new)
+- antrain/Features/Templates/ViewModels/TemplateDetailViewModel.swift (new)
+- antrain/Features/Templates/ViewModels/CreateTemplateViewModel.swift (new)
+- antrain/Features/Templates/ViewModels/SaveWorkoutAsTemplateViewModel.swift (new)
+
+*Views:*
+- antrain/Features/Templates/Views/TemplatesView.swift (new)
+- antrain/Features/Templates/Views/TemplateDetailView.swift (new)
+- antrain/Features/Templates/Views/TemplateQuickSelectorView.swift (new)
+- antrain/Features/Templates/Views/CreateTemplate/CreateTemplateFlow.swift (new)
+- antrain/Features/Templates/Views/CreateTemplate/TemplateInfoView.swift (new)
+- antrain/Features/Templates/Views/CreateTemplate/TemplateExerciseSelectionView.swift (new)
+- antrain/Features/Templates/Views/CreateTemplate/TemplateSetConfigView.swift (new)
+- antrain/Features/Templates/Views/CreateTemplate/EditTemplateView.swift (new)
+- antrain/Features/Templates/Views/SaveWorkoutAsTemplateView.swift (new)
+
+*Components:*
+- antrain/Features/Templates/Views/Components/TemplateCard.swift (new)
+- antrain/Features/Templates/Views/Components/TemplateCategoryFilterView.swift (new)
+
+*Integration:*
+- antrain/App/AppDependencies.swift (updated)
+- antrain/Core/Persistence/PersistenceController.swift (updated)
+- antrain/Features/Workouts/Views/WorkoutsView.swift (updated - added My Templates section)
+- antrain/Features/Workouts/LiftingSession/ViewModels/LiftingSessionViewModel.swift (updated)
+- antrain/Features/Workouts/LiftingSession/Views/LiftingSessionView.swift (updated)
+- antrain/Features/Workouts/LiftingSession/Views/WorkoutSummaryView.swift (updated)
+- antrain/Core/Domain/Models/Exercise.swift (updated - added displayName, primaryMuscleGroup)
+- antrain/Core/Data/Repositories/ExerciseRepository.swift (updated - added seedPresetExercises)
+
+**Metrics:** 📊
+- Total files created: ~20
+- Total lines of code: ~2,500
+- Sprint duration: 1 day
+- Preset templates: 12
+- User templates supported: Unlimited
+- Build errors fixed: 8+
+- User testing: Successful ✅
+
+**Key Learnings:** 💡
+
+1. **SwiftData @Model MainActor Isolation:**
+   - @Model auto-generates MainActor-isolated Hashable/Comparable
+   - Don't try to conform to Comparable manually
+   - Use static compare() methods instead
+
+2. **UUID Consistency in Seeding:**
+   - Always use single source of truth for entities
+   - Don't create new instances when referencing existing data
+   - Pass references (UUIDs or objects) from SwiftData to seeders
+
+3. **Exercise Name Consistency:**
+   - Keep exercise names identical between ExerciseLibrary and seeders
+   - Consider automated tests to verify name consistency
+   - Console warnings during development caught this bug
+
+4. **@unchecked Sendable for @Model:**
+   - SwiftData manages thread safety internally
+   - @unchecked Sendable appropriate for @Model classes used across actors
+   - Document rationale in code comments
+
+5. **User Feedback is Critical:**
+   - "build olmadan neden build oldu diyorsun" - verify builds before claiming success
+   - "template home da olmamalı" - navigation placement matters
+   - Testing by actual user caught UUID mismatch bug
+
+**Next Steps:** 🚀
+- Template usage statistics (future)
+- Template sharing (future)
+- Template recommendations based on goals (future)
+- Performance optimization for 100+ templates (if needed)
+
+---
 
 ### Sprint 7: Workout Tab UI Enhancement + Calendar View + Refactoring ✅
 

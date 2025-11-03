@@ -218,6 +218,171 @@ enum MetConType: String, Codable {
 
 ---
 
+## Template Domain
+
+### WorkoutTemplate
+
+**Amaç:** Workout şablonları (preset + custom) - Kullanıcıların favori workout'larını kaydetmesini sağlar
+
+| Property | Type | SwiftData | Validasyon | Notlar |
+|----------|------|-----------|-----------|--------|
+| id | UUID | @Attribute(.unique) | Required | Otomatik oluşur |
+| name | String | - | Required, max 100 char, unique | Şablon adı |
+| category | TemplateCategory | - | Required | Strength, hypertrophy, calisthenics, vb. |
+| isPreset | Bool | - | - | Preset mi yoksa kullanıcı şablonu mu? |
+| createdAt | Date | - | Required | Oluşturulma tarihi |
+| lastUsedAt | Date? | - | Optional | Son kullanım tarihi |
+| exercises | [TemplateExercise] | @Relationship(deleteRule: .cascade) | Min 1 | Şablondaki egzersizler |
+
+**İlişkiler:**
+- `1:N TemplateExercise` (cascade delete) - Template silinince exercises de silinir
+
+**Computed Properties:**
+```swift
+var exerciseCount: Int {
+    exercises.count
+}
+
+var estimatedDuration: TimeInterval {
+    // Rough estimate: 3 minutes per set + 1 minute per exercise
+    let totalSets = exercises.reduce(0) { $0 + $1.setCount }
+    return TimeInterval(totalSets * 180 + exercises.count * 60)
+}
+```
+
+**Business Rules:**
+- Template adı unique olmalı (case-insensitive)
+- Preset templates silinemez ve düzenlenemez
+- Minimum 1 egzersiz gerekli
+- lastUsedAt workout başlatıldığında güncellenir
+
+**Static Methods:**
+```swift
+static func compare(_ lhs: WorkoutTemplate, _ rhs: WorkoutTemplate) -> Bool {
+    // Preset templates önce, sonra alfabetik
+    if lhs.isPreset != rhs.isPreset {
+        return lhs.isPreset
+    }
+    return lhs.name < rhs.name
+}
+```
+
+**Validation:**
+```swift
+func validate() throws {
+    guard !name.trimmingCharacters(in: .whitespaces).isEmpty else {
+        throw ValidationError.nameRequired
+    }
+    guard exercises.count >= 1 else {
+        throw ValidationError.minimumOneExercise
+    }
+}
+```
+
+**Edge Cases:**
+- ⚠️ Preset template düzenleme isteği → kopyasını oluştur
+- ⚠️ Template'deki exercise silinirse → UUID ile lookup başarısız olur, warning göster
+- 💡 Duplication: `duplicate(newName:)` method ile deep copy
+
+---
+
+### TemplateExercise
+
+**Amaç:** Template içindeki bir egzersiz (Exercise referansı + set/rep konfigürasyonu)
+
+| Property | Type | SwiftData | Validasyon | Notlar |
+|----------|------|-----------|-----------|--------|
+| id | UUID | @Attribute(.unique) | Required | Otomatik oluşur |
+| order | Int | - | >= 0 | Egzersiz sırası |
+| exerciseId | UUID | - | Required | Exercise library'den UUID |
+| exerciseName | String | - | Required | Exercise adı (denormalized) |
+| setCount | Int | - | 1-10 | Önerilen set sayısı |
+| repRangeMin | Int | - | > 0 | Minimum tekrar sayısı |
+| repRangeMax | Int | - | >= repRangeMin | Maximum tekrar sayısı |
+| notes | String? | - | Max 200 char | Egzersiz notları |
+| template | WorkoutTemplate | Inverse relationship | Required | Parent template |
+
+**İlişkiler:**
+- `N:1 WorkoutTemplate` (inverse)
+
+**Business Rules:**
+- `exerciseId` Exercise library'deki bir egzersize referans
+- `exerciseName` denormalized olarak saklanır (exercise silinse bile adı görünsün)
+- `repRangeMin <= repRangeMax`
+- `setCount` 1-10 arasında olmalı
+
+**Static Methods:**
+```swift
+static func compare(_ lhs: TemplateExercise, _ rhs: TemplateExercise) -> Bool {
+    return lhs.order < rhs.order
+}
+```
+
+**Edge Cases:**
+- ⚠️ Exercise library'den silinmiş egzersiz → exerciseName ile göster, UUID lookup başarısız
+- 💡 Order değerleri template içinde unique olmalı
+- ⚠️ RepRange validation: min <= max kontrolü
+
+---
+
+### TemplateCategory
+
+**Enum:** Template kategorileri
+
+```swift
+enum TemplateCategory: String, Codable, CaseIterable {
+    case strength       // Powerlifting, strength focused
+    case hypertrophy    // Muscle building, volume focused
+    case calisthenics   // Bodyweight movements
+    case weightlifting  // Olympic lifting
+    case beginner       // Beginner-friendly programs
+    case custom         // User-defined category
+}
+```
+
+**Computed Properties:**
+```swift
+var icon: String {
+    switch self {
+    case .strength: return "figure.strengthtraining.traditional"
+    case .hypertrophy: return "figure.strengthtraining.functional"
+    case .calisthenics: return "figure.gymnastics"
+    case .weightlifting: return "figure.strengthtraining"
+    case .beginner: return "figure.walk"
+    case .custom: return "star.fill"
+    }
+}
+
+var color: Color {
+    switch self {
+    case .strength: return .red
+    case .hypertrophy: return .blue
+    case .calisthenics: return .green
+    case .weightlifting: return .orange
+    case .beginner: return .purple
+    case .custom: return .gray
+    }
+}
+
+var displayName: String {
+    switch self {
+    case .strength: return "Strength"
+    case .hypertrophy: return "Hypertrophy"
+    case .calisthenics: return "Calisthenics"
+    case .weightlifting: return "Weightlifting"
+    case .beginner: return "Beginner"
+    case .custom: return "Custom"
+    }
+}
+```
+
+**UX Mapping:**
+- Kategori filtreleme chip'lerinde kullanılır
+- Yeni template oluştururken seçilir
+- Preset templates otomatik kategorilendirilir
+
+---
+
 ## Nutrition Domain
 
 ### NutritionLog
