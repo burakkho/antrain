@@ -227,7 +227,7 @@ private struct ExerciseConfigCard: View {
                         Text("\(repMin)-\(repMax) reps")
                             .font(.subheadline)
                             .fontWeight(.semibold)
-                            .foregroundStyle(.accentColor)
+                            .foregroundStyle(Color.accentColor)
                     }
                     .padding(.top, 20)
                 }
