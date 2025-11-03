@@ -26,6 +26,117 @@
 
 ## Completed Sprints
 
+### Sprint 10: Nutrition Clean Architecture Refactoring ✅
+
+**Tarih:** 2025-11-04 (Session 8)
+**Durum:** COMPLETED
+**Süre:** 1 session (~3 saatlik refactoring)
+**Hedef:** Nutrition modülünü Clean Architecture prensipleri ve ARCHITECTURE.md dokümantasyonuna uygun hale getirmek
+
+**Problem:**
+- DailyNutritionView: 814 satır (300 satır limiti aşımı)
+- SmartNutritionGoalsEditor: View içinde 565 satır business logic
+- NutritionGoalsOnboardingWizard: View içinde business logic + repository erişimi
+- MacroPreset: Domain logic View dosyasında tanımlı
+- Macro calculations: View'larda duplicate logic
+- Clean Architecture violations: Business logic in Views, direct repository access
+
+**Tamamlananlar:**
+
+**1. ViewModels Oluşturuldu** ✅
+- ✅ NutritionGoalsEditorViewModel (220 satır):
+  - SmartNutritionGoalsEditor'dan 565 satır business logic extracted
+  - Macro/calorie calculations (MacroCalculator kullanarak)
+  - TDEE recommendations
+  - Preset application
+  - Profile validation
+  - Circular update prevention (isUpdating flag)
+  - @Observable @MainActor for SwiftUI
+
+- ✅ NutritionOnboardingViewModel (129 satır):
+  - NutritionGoalsOnboardingWizard'dan business logic extracted
+  - 5-step wizard navigation logic
+  - Profile update & weight entry orchestration
+  - TDEE calculation
+  - UserDefaults management
+  - Clean separation: View sadece UI, ViewModel iş mantığı
+
+**2. Domain Layer Güçlendirildi** ✅
+- ✅ MacroPreset → `/Core/Domain/Models/Nutrition/MacroPreset.swift` (87 satır):
+  - View dosyasından Domain layer'a taşındı
+  - Pure domain model, Sendable conformance
+  - 5 predefined preset (Balanced, High Protein, Keto, Low Carb, Endurance)
+  - calculateMacros() pure function
+
+- ✅ MacroCalculator → `/Core/Domain/Extensions/MacroCalculator.swift` (128 satır):
+  - Pure calculation functions enum
+  - Zero dependencies, fully testable
+  - Functions:
+    - calculateCalories(protein:carbs:fats:)
+    - scaleMacrosToCalories(currentProtein:currentCarbs:currentFats:targetCalories:)
+    - calculateMacroPercentages(protein:carbs:fats:)
+    - validateMacroPercentages(proteinPercent:carbsPercent:fatsPercent:tolerance:)
+  - Constants: calories per gram for each macro
+  - Used by NutritionGoalsEditorViewModel
+
+**3. View Layer Temizlendi** ✅
+- ✅ DailyNutritionView.swift: **814 → 246 satır** (399 satır azaldı!)
+  - ARCHITECTURE.md 300 satır limitinin altında ✅
+  - Sadece UI rendering kaldı
+  - Zero business logic
+  - SmartNutritionGoalsEditor ayrı dosyaya taşındı
+
+- ✅ SmartNutritionGoalsEditor.swift: Ayrı dosya (406 satır)
+  - DailyNutritionView'den extracted
+  - NutritionGoalsEditorViewModel kullanıyor
+  - @Bindable for ViewModel bindings
+  - Business logic yok, sadece UI
+  - TDEE calculator view, preset picker, goal difference view
+
+- ✅ NutritionGoalsOnboardingWizard.swift: Refactored
+  - NutritionOnboardingViewModel kullanıyor
+  - @Bindable pattern
+  - Business logic ViewModel'e taşındı
+  - 5-step wizard UI
+
+**4. Mimari İyileştirmeler** ✅
+- ✅ Separation of Concerns uygulandı
+- ✅ Single Responsibility: Her dosya tek bir şey yapıyor
+- ✅ Testability: Pure domain functions, zero dependencies
+- ✅ Maintainability: Küçük, odaklanmış dosyalar
+- ✅ ARCHITECTURE.md compliance:
+  - Views: NO business logic (line 67) ✅
+  - ViewModels: Business logic orchestration (line 68) ✅
+  - 300 line MAX per file (line 609) ✅
+  - Repository access through ViewModel only (line 123) ✅
+
+**İstatistikler:**
+- ViewModels oluşturuldu: 2 (349 satır total)
+- Domain models/extensions: 2 (215 satır total)
+- View satır azalması: 399 satır
+- DailyNutritionView: 645 → 246 satır (61.7% azalma)
+- Toplam dosya sayısı: 5 yeni dosya
+- Build status: ✅ Başarılı
+
+**Öğrenilenler:**
+1. **@Bindable Pattern**: Observable ViewModel'lerde binding için @Bindable wrapper kullanılmalı
+2. **Circular Update Prevention**: onChange handlers'da isUpdating flag pattern kullan
+3. **Pure Functions in Domain**: MacroCalculator gibi pure function'lar test edilebilir ve maintainable
+4. **ViewModel Extraction**: View'lardan business logic extraction dramatic satır azalması sağlıyor
+5. **Clean Architecture Benefits**: Kod okumak, test etmek ve maintain etmek çok daha kolay
+
+**Notlar:**
+- InlineProfileSetup (264 satır) zaten temiz, ViewModel eklenmedi (optional task)
+- Build successful ✅
+- Tüm functionality korundu
+- Zero regression
+
+**Referanslar:**
+- ARCHITECTURE.md: lines 67, 68, 123, 609
+- MODELS.md: Nutrition Domain, Nutrition ViewModels (updated)
+
+---
+
 ### Sprint 8: Workout Templates (v1.1) ✅
 
 **Tarih:** 2025-11-03 (Session 7)

@@ -10,39 +10,47 @@ import SwiftUI
 /// Onboarding wizard for first-time nutrition goals setup
 struct NutritionGoalsOnboardingWizard: View {
     @Environment(\.dismiss) private var dismiss
-    let viewModel: DailyNutritionViewModel
+    let userProfileRepository: UserProfileRepositoryProtocol
     let onComplete: (_ tdee: Double, _ recommendedCalories: Double, _ macros: (Double, Double, Double)) -> Void
 
-    @State private var currentStep = 0
-    @State private var dateOfBirth: Date = Calendar.current.date(byAdding: .year, value: -25, to: Date()) ?? Date()
-    @State private var height: Double = 170.0
-    @State private var weight: Double = 70.0
-    @State private var gender: UserProfile.Gender = .male
-    @State private var activityLevel: UserProfile.ActivityLevel = .moderatelyActive
-    @State private var selectedGoal: TDEECalculator.GoalType = .maintain
-    @State private var isSaving = false
-
-    private let totalSteps = 5
+    @State private var viewModel: NutritionOnboardingViewModel?
 
     var body: some View {
+        if let vm = viewModel {
+            wizardContent(viewModel: vm)
+        } else {
+            DSLoadingView()
+                .onAppear {
+                    if viewModel == nil {
+                        viewModel = NutritionOnboardingViewModel(
+                            userProfileRepository: userProfileRepository
+                        )
+                    }
+                }
+        }
+    }
+
+    @ViewBuilder
+    private func wizardContent(viewModel vm: NutritionOnboardingViewModel) -> some View {
+        @Bindable var viewModel = vm
         NavigationStack {
             VStack(spacing: 0) {
                 // Progress indicator
-                progressBar
+                progressBar(viewModel: viewModel)
 
                 // Content
-                TabView(selection: $currentStep) {
-                    step1_DateOfBirth.tag(0)
-                    step2_Height.tag(1)
-                    step3_Weight.tag(2)
-                    step4_Gender.tag(3)
-                    step5_ActivityAndGoal.tag(4)
+                TabView(selection: $viewModel.currentStep) {
+                    step1_DateOfBirth(viewModel: viewModel).tag(0)
+                    step2_Height(viewModel: viewModel).tag(1)
+                    step3_Weight(viewModel: viewModel).tag(2)
+                    step4_Gender(viewModel: viewModel).tag(3)
+                    step5_ActivityAndGoal(viewModel: viewModel).tag(4)
                 }
                 .tabViewStyle(.page(indexDisplayMode: .never))
-                .animation(.easeInOut, value: currentStep)
+                .animation(.easeInOut, value: viewModel.currentStep)
 
                 // Navigation buttons
-                navigationButtons
+                navigationButtons(viewModel: viewModel)
             }
             .navigationTitle("Personalize Your Goals")
             .navigationBarTitleDisplayMode(.inline)
@@ -58,18 +66,19 @@ struct NutritionGoalsOnboardingWizard: View {
 
     // MARK: - Progress Bar
 
-    private var progressBar: some View {
+    @ViewBuilder
+    private func progressBar(viewModel: NutritionOnboardingViewModel) -> some View {
         VStack(spacing: 4) {
             HStack(spacing: 4) {
-                ForEach(0..<totalSteps, id: \.self) { step in
+                ForEach(0..<viewModel.totalSteps, id: \.self) { step in
                     Rectangle()
-                        .fill(step <= currentStep ? DSColors.primary : DSColors.separator)
+                        .fill(step <= viewModel.currentStep ? DSColors.primary : DSColors.separator)
                         .frame(height: 4)
                 }
             }
             .clipShape(RoundedRectangle(cornerRadius: 2))
 
-            Text("Step \(currentStep + 1) of \(totalSteps)")
+            Text("Step \(viewModel.currentStep + 1) of \(viewModel.totalSteps)")
                 .font(DSTypography.caption)
                 .foregroundStyle(DSColors.textSecondary)
         }
@@ -78,7 +87,9 @@ struct NutritionGoalsOnboardingWizard: View {
 
     // MARK: - Steps
 
-    private var step1_DateOfBirth: some View {
+    @ViewBuilder
+    private func step1_DateOfBirth(viewModel vm: NutritionOnboardingViewModel) -> some View {
+        @Bindable var viewModel = vm
         VStack(spacing: 24) {
             VStack(spacing: 8) {
                 Image(systemName: "calendar")
@@ -98,14 +109,14 @@ struct NutritionGoalsOnboardingWizard: View {
 
             DatePicker(
                 "Date of Birth",
-                selection: $dateOfBirth,
+                selection: $viewModel.dateOfBirth,
                 in: ...Date(),
                 displayedComponents: .date
             )
             .datePickerStyle(.graphical)
             .padding()
 
-            if let age = calculateAge(from: dateOfBirth) {
+            if let age = viewModel.age {
                 Text("\(age) years old")
                     .font(DSTypography.body)
                     .fontWeight(.bold)
@@ -116,7 +127,9 @@ struct NutritionGoalsOnboardingWizard: View {
         }
     }
 
-    private var step2_Height: some View {
+    @ViewBuilder
+    private func step2_Height(viewModel vm: NutritionOnboardingViewModel) -> some View {
+        @Bindable var viewModel = vm
         VStack(spacing: 24) {
             VStack(spacing: 8) {
                 Image(systemName: "ruler")
@@ -135,15 +148,15 @@ struct NutritionGoalsOnboardingWizard: View {
             .padding(.top, 40)
 
             VStack(spacing: 12) {
-                Text("\(Int(height)) cm")
+                Text("\(Int(viewModel.height)) cm")
                     .font(.system(size: 48, weight: .bold))
                     .foregroundStyle(DSColors.primary)
 
-                Slider(value: $height, in: 100...250, step: 1)
+                Slider(value: $viewModel.height, in: 100...250, step: 1)
                     .tint(DSColors.primary)
                     .padding(.horizontal, 40)
 
-                Text("\(height.formattedHeight(unit: "Kilograms"))")
+                Text("\(viewModel.height.formattedHeight(unit: "Kilograms"))")
                     .font(DSTypography.caption)
                     .foregroundStyle(DSColors.textSecondary)
             }
@@ -153,7 +166,9 @@ struct NutritionGoalsOnboardingWizard: View {
         }
     }
 
-    private var step3_Weight: some View {
+    @ViewBuilder
+    private func step3_Weight(viewModel vm: NutritionOnboardingViewModel) -> some View {
+        @Bindable var viewModel = vm
         VStack(spacing: 24) {
             VStack(spacing: 8) {
                 Image(systemName: "scalemass")
@@ -172,15 +187,15 @@ struct NutritionGoalsOnboardingWizard: View {
             .padding(.top, 40)
 
             VStack(spacing: 12) {
-                Text("\(String(format: "%.1f", weight)) kg")
+                Text("\(String(format: "%.1f", viewModel.weight)) kg")
                     .font(.system(size: 48, weight: .bold))
                     .foregroundStyle(DSColors.primary)
 
-                Slider(value: $weight, in: 30...200, step: 0.5)
+                Slider(value: $viewModel.weight, in: 30...200, step: 0.5)
                     .tint(DSColors.primary)
                     .padding(.horizontal, 40)
 
-                Text("\(weight.formattedWeight(unit: "Kilograms"))")
+                Text("\(viewModel.weight.formattedWeight(unit: "Kilograms"))")
                     .font(DSTypography.caption)
                     .foregroundStyle(DSColors.textSecondary)
             }
@@ -190,7 +205,9 @@ struct NutritionGoalsOnboardingWizard: View {
         }
     }
 
-    private var step4_Gender: some View {
+    @ViewBuilder
+    private func step4_Gender(viewModel vm: NutritionOnboardingViewModel) -> some View {
+        @Bindable var viewModel = vm
         VStack(spacing: 24) {
             VStack(spacing: 8) {
                 Image(systemName: "person.circle")
@@ -211,22 +228,22 @@ struct NutritionGoalsOnboardingWizard: View {
             VStack(spacing: 12) {
                 ForEach(UserProfile.Gender.allCases, id: \.self) { genderOption in
                     Button {
-                        gender = genderOption
+                        viewModel.gender = genderOption
                     } label: {
                         HStack {
                             Text(genderOption.rawValue)
                                 .font(DSTypography.body)
-                                .foregroundStyle(gender == genderOption ? .white : DSColors.textPrimary)
+                                .foregroundStyle(viewModel.gender == genderOption ? .white : DSColors.textPrimary)
 
                             Spacer()
 
-                            if gender == genderOption {
+                            if viewModel.gender == genderOption {
                                 Image(systemName: "checkmark.circle.fill")
                                     .foregroundStyle(.white)
                             }
                         }
                         .padding()
-                        .background(gender == genderOption ? DSColors.primary : DSColors.cardBackground)
+                        .background(viewModel.gender == genderOption ? DSColors.primary : DSColors.cardBackground)
                         .clipShape(RoundedRectangle(cornerRadius: 12))
                     }
                 }
@@ -237,7 +254,9 @@ struct NutritionGoalsOnboardingWizard: View {
         }
     }
 
-    private var step5_ActivityAndGoal: some View {
+    @ViewBuilder
+    private func step5_ActivityAndGoal(viewModel vm: NutritionOnboardingViewModel) -> some View {
+        @Bindable var viewModel = vm
         VStack(spacing: 24) {
             VStack(spacing: 8) {
                 Image(systemName: "figure.run")
@@ -264,17 +283,17 @@ struct NutritionGoalsOnboardingWizard: View {
 
                         ForEach(UserProfile.ActivityLevel.allCases, id: \.self) { level in
                             Button {
-                                activityLevel = level
+                                viewModel.activityLevel = level
                             } label: {
                                 VStack(alignment: .leading, spacing: 4) {
                                     HStack {
                                         Text(level.rawValue)
                                             .font(DSTypography.body)
-                                            .foregroundStyle(activityLevel == level ? .white : DSColors.textPrimary)
+                                            .foregroundStyle(viewModel.activityLevel == level ? .white : DSColors.textPrimary)
 
                                         Spacer()
 
-                                        if activityLevel == level {
+                                        if viewModel.activityLevel == level {
                                             Image(systemName: "checkmark.circle.fill")
                                                 .foregroundStyle(.white)
                                         }
@@ -283,11 +302,11 @@ struct NutritionGoalsOnboardingWizard: View {
                                     if let tdeeLevel = TDEECalculator.ActivityLevel(rawValue: level.rawValue) {
                                         Text(tdeeLevel.description)
                                             .font(DSTypography.caption)
-                                            .foregroundStyle(activityLevel == level ? .white.opacity(0.8) : DSColors.textSecondary)
+                                            .foregroundStyle(viewModel.activityLevel == level ? .white.opacity(0.8) : DSColors.textSecondary)
                                     }
                                 }
                                 .padding()
-                                .background(activityLevel == level ? DSColors.primary : DSColors.cardBackground)
+                                .background(viewModel.activityLevel == level ? DSColors.primary : DSColors.cardBackground)
                                 .clipShape(RoundedRectangle(cornerRadius: 12))
                             }
                         }
@@ -300,17 +319,17 @@ struct NutritionGoalsOnboardingWizard: View {
 
                         ForEach(TDEECalculator.GoalType.allCases) { goal in
                             Button {
-                                selectedGoal = goal
+                                viewModel.selectedGoal = goal
                             } label: {
                                 VStack(alignment: .leading, spacing: 4) {
                                     HStack {
                                         Text(goal.rawValue)
                                             .font(DSTypography.body)
-                                            .foregroundStyle(selectedGoal == goal ? .white : DSColors.textPrimary)
+                                            .foregroundStyle(viewModel.selectedGoal == goal ? .white : DSColors.textPrimary)
 
                                         Spacer()
 
-                                        if selectedGoal == goal {
+                                        if viewModel.selectedGoal == goal {
                                             Image(systemName: "checkmark.circle.fill")
                                                 .foregroundStyle(.white)
                                         }
@@ -318,10 +337,10 @@ struct NutritionGoalsOnboardingWizard: View {
 
                                     Text(goal.description)
                                         .font(DSTypography.caption)
-                                        .foregroundStyle(selectedGoal == goal ? .white.opacity(0.8) : DSColors.textSecondary)
+                                        .foregroundStyle(viewModel.selectedGoal == goal ? .white.opacity(0.8) : DSColors.textSecondary)
                                 }
                                 .padding()
-                                .background(selectedGoal == goal ? DSColors.primary : DSColors.cardBackground)
+                                .background(viewModel.selectedGoal == goal ? DSColors.primary : DSColors.cardBackground)
                                 .clipShape(RoundedRectangle(cornerRadius: 12))
                             }
                         }
@@ -336,12 +355,13 @@ struct NutritionGoalsOnboardingWizard: View {
 
     // MARK: - Navigation Buttons
 
-    private var navigationButtons: some View {
+    @ViewBuilder
+    private func navigationButtons(viewModel: NutritionOnboardingViewModel) -> some View {
         HStack(spacing: 16) {
-            if currentStep > 0 {
+            if viewModel.currentStep > 0 {
                 Button {
                     withAnimation {
-                        currentStep -= 1
+                        viewModel.previousStep()
                     }
                 } label: {
                     HStack {
@@ -357,19 +377,19 @@ struct NutritionGoalsOnboardingWizard: View {
             }
 
             Button {
-                if currentStep < totalSteps - 1 {
+                if viewModel.currentStep < viewModel.totalSteps - 1 {
                     withAnimation {
-                        currentStep += 1
+                        viewModel.nextStep()
                     }
                 } else {
                     Task {
-                        await completeOnboarding()
+                        await completeOnboarding(viewModel: viewModel)
                     }
                 }
             } label: {
                 HStack {
-                    Text(currentStep < totalSteps - 1 ? "Next" : "Finish")
-                    if currentStep < totalSteps - 1 {
+                    Text(viewModel.currentStep < viewModel.totalSteps - 1 ? "Next" : "Finish")
+                    if viewModel.currentStep < viewModel.totalSteps - 1 {
                         Image(systemName: "chevron.right")
                     } else {
                         Image(systemName: "checkmark")
@@ -381,67 +401,24 @@ struct NutritionGoalsOnboardingWizard: View {
                 .foregroundStyle(.white)
                 .clipShape(RoundedRectangle(cornerRadius: 12))
             }
-            .disabled(isSaving)
+            .disabled(viewModel.isSaving)
         }
         .padding()
     }
 
     // MARK: - Helper Methods
 
-    private func calculateAge(from date: Date) -> Int? {
-        let calendar = Calendar.current
-        let ageComponents = calendar.dateComponents([.year], from: date, to: Date())
-        return ageComponents.year
-    }
-
-    private func completeOnboarding() async {
-        isSaving = true
-
-        // Calculate TDEE
-        guard let age = calculateAge(from: dateOfBirth) else { return }
-
-        let tdeeActivityLevel = TDEECalculator.ActivityLevel(rawValue: activityLevel.rawValue) ?? .moderatelyActive
-
-        let tdee = TDEECalculator.calculateTDEE(
-            weight: weight,
-            height: height,
-            age: age,
-            gender: gender,
-            activityLevel: tdeeActivityLevel
-        )
-
-        let recommendedCalories = TDEECalculator.recommendedCalories(tdee: tdee, goal: selectedGoal)
-        let recommendedMacros = TDEECalculator.recommendedMacros(calories: recommendedCalories, weight: weight, goal: selectedGoal)
-
-        // Save to profile
+    private func completeOnboarding(viewModel: NutritionOnboardingViewModel) async {
         do {
-            // Update profile with all info
-            if let profile = viewModel.userProfile {
-                profile.update(
-                    height: height,
-                    gender: gender,
-                    dateOfBirth: dateOfBirth,
-                    activityLevel: activityLevel
-                )
-            }
-
-            // Add weight entry
-            try await viewModel.userProfileRepository.addBodyweightEntry(
-                weight: weight,
-                date: Date(),
-                notes: "Initial weight from onboarding"
-            )
-
-            // Mark onboarding as complete
-            UserDefaults.standard.set(true, forKey: "hasCompletedNutritionOnboarding")
+            let result = try await viewModel.completeOnboarding()
 
             // Call completion handler
-            onComplete(tdee, recommendedCalories, recommendedMacros)
+            onComplete(result.tdee, result.recommendedCalories, result.macros)
 
             dismiss()
         } catch {
+            // Error is already handled in ViewModel
             print("Failed to save onboarding data: \(error)")
-            isSaving = false
         }
     }
 }

@@ -538,6 +538,241 @@ var fats: Double {
 
 ---
 
+### MacroPreset
+
+**Amaç:** Önceden tanımlı makro dağılımı şablonları (Balanced, Keto, High Protein, etc.)
+
+**Location:** `/Core/Domain/Models/Nutrition/MacroPreset.swift`
+
+| Property | Type | Notlar |
+|----------|------|--------|
+| id | UUID | Identifiable conformance |
+| name | String | Preset adı (e.g., "Balanced", "Keto") |
+| proteinPercent | Double | Protein yüzdesi (0.0-1.0) |
+| carbsPercent | Double | Karbonhidrat yüzdesi (0.0-1.0) |
+| fatsPercent | Double | Yağ yüzdesi (0.0-1.0) |
+| description | String | Açıklama (e.g., "30% P / 40% C / 30% F - General fitness") |
+
+**Pure Functions:**
+```swift
+func calculateMacros(calories: Double) -> (protein: Double, carbs: Double, fats: Double)
+```
+
+**Predefined Presets:**
+- **Balanced**: 30% P / 40% C / 30% F - General fitness
+- **High Protein**: 40% P / 30% C / 30% F - Muscle building
+- **Keto**: 30% P / 5% C / 65% F - Ketogenic diet
+- **Low Carb**: 35% P / 20% C / 45% F - Fat loss
+- **Endurance**: 20% P / 55% C / 25% F - Cardio performance
+
+**Conformances:**
+- `Identifiable`, `Sendable`
+
+**Design Notes:**
+- Pure domain model, zero dependencies
+- Calculation logic içerir (Domain layer'a uygun)
+- View layer'dan Domain layer'a taşındı (Clean Architecture compliance)
+
+---
+
+### MacroCalculator
+
+**Amaç:** Macro ↔ Calorie dönüşümleri için pure calculation functions
+
+**Location:** `/Core/Domain/Extensions/MacroCalculator.swift`
+
+**Static Functions:**
+
+| Function | Açıklama |
+|----------|----------|
+| `calculateCalories(protein:carbs:fats:)` | Macro gramlarından toplam kalori hesaplar |
+| `scaleMacrosToCalories(currentProtein:currentCarbs:currentFats:targetCalories:)` | Macro'ları hedef kaloriye proportional scale eder |
+| `calculateMacroPercentages(protein:carbs:fats:)` | Macro dağılımını yüzde olarak hesaplar |
+| `validateMacroPercentages(proteinPercent:carbsPercent:fatsPercent:tolerance:)` | Yüzdelerin toplamının %100 olduğunu validate eder |
+
+**Constants:**
+```swift
+static let caloriesPerGramProtein: Double = 4.0
+static let caloriesPerGramCarbs: Double = 4.0
+static let caloriesPerGramFats: Double = 9.0
+```
+
+**Design Notes:**
+- Pure functions, zero dependencies
+- Fully testable
+- Used by ViewModels for calculations
+- Domain layer extension (Clean Architecture compliance)
+
+---
+
+### TDEECalculator
+
+**Amaç:** TDEE (Total Daily Energy Expenditure) hesaplamaları ve makro önerileri
+
+**Location:** `/Core/Domain/Extensions/TDEECalculator.swift`
+
+**Activity Levels:**
+- Sedentary (1.2x multiplier)
+- Lightly Active (1.375x)
+- Moderately Active (1.55x)
+- Very Active (1.725x)
+- Extremely Active (1.9x)
+
+**Goal Types:**
+- Aggressive Cut (-500 kcal)
+- Cut (-300 kcal)
+- Maintain (0 kcal)
+- Lean Bulk (+200 kcal)
+- Bulk (+400 kcal)
+
+**Static Functions:**
+```swift
+static func calculateBMR(weight:height:age:gender:) -> Double
+static func calculateTDEE(weight:height:age:gender:activityLevel:) -> Double
+static func recommendedCalories(tdee:goal:) -> Double
+static func recommendedMacros(calories:weight:goal:) -> (protein: Double, carbs: Double, fats: Double)
+```
+
+**Design Notes:**
+- Uses Mifflin-St Jeor formula for BMR
+- Gender-specific calculations
+- Goal-based macro recommendations
+
+---
+
+## Nutrition ViewModels
+
+### NutritionGoalsEditorViewModel
+
+**Amaç:** Nutrition goals düzenleme iş mantığı
+
+**Location:** `/Features/Nutrition/ViewModels/NutritionGoalsEditorViewModel.swift`
+
+**Dependencies:**
+- `UserProfileRepositoryProtocol`
+
+**State Properties:**
+| Property | Type | Açıklama |
+|----------|------|----------|
+| calories | String | Kalori input (String for TextField) |
+| protein | String | Protein input |
+| carbs | String | Carbs input |
+| fats | String | Fats input |
+| isSaving | Bool | Save state |
+| errorMessage | String? | Error message |
+| userProfile | UserProfile? | Current user profile |
+| lastEditedField | EditedField? | Track last edited field |
+| isUpdating | Bool | Prevent circular updates |
+| calculationMode | CalculationMode | Macro→Calorie or Calorie→Macro |
+| showTDEECalculator | Bool | Show/hide TDEE section |
+| selectedGoalType | TDEECalculator.GoalType | Selected goal |
+| originalGoals | (calories, protein, carbs, fats)? | Original values for diff |
+
+**Business Logic:**
+```swift
+func loadCurrentGoals() async
+func handleMacroChange() // Uses MacroCalculator
+func handleCalorieChange(_ newCalorieString: String) // Uses MacroCalculator
+func applyTDEERecommendation(calories:macros:)
+func applyPreset(protein:carbs:fats:)
+func saveGoals() async throws
+func getTDEECalculationData() -> (age, height, gender, activityLevel, weight)?
+```
+
+**Design Notes:**
+- Extracted from SmartNutritionGoalsEditor View (565 lines of business logic)
+- Uses MacroCalculator for all calculations
+- Repository access through dependency injection
+- @Observable @MainActor for SwiftUI integration
+
+---
+
+### NutritionOnboardingViewModel
+
+**Amaç:** First-time nutrition goals onboarding wizard iş mantığı
+
+**Location:** `/Features/Nutrition/ViewModels/NutritionOnboardingViewModel.swift`
+
+**Dependencies:**
+- `UserProfileRepositoryProtocol`
+
+**State Properties:**
+| Property | Type | Açıklama |
+|----------|------|----------|
+| currentStep | Int | Current wizard step (0-4) |
+| dateOfBirth | Date | User's date of birth |
+| height | Double | Height in cm |
+| weight | Double | Weight in kg |
+| gender | UserProfile.Gender | User's gender |
+| activityLevel | UserProfile.ActivityLevel | Activity level |
+| selectedGoal | TDEECalculator.GoalType | Selected goal |
+| isSaving | Bool | Save state |
+| errorMessage | String? | Error message |
+| totalSteps | Int | Total wizard steps (5) |
+
+**Business Logic:**
+```swift
+func nextStep()
+func previousStep()
+func completeOnboarding() async throws -> (tdee, recommendedCalories, macros)
+```
+
+**Design Notes:**
+- Extracted from NutritionGoalsOnboardingWizard View
+- Orchestrates profile update, weight entry, TDEE calculation
+- Manages UserDefaults for onboarding completion
+- Returns calculated recommendations to View
+
+---
+
+### DailyNutritionViewModel
+
+**Amaç:** Daily nutrition tracking state management
+
+**Location:** `/Features/Nutrition/ViewModels/DailyNutritionViewModel.swift`
+
+**Dependencies:**
+- `NutritionRepositoryProtocol`
+- `UserProfileRepositoryProtocol`
+
+**State Properties:**
+| Property | Type | Açıklama |
+|----------|------|----------|
+| currentDate | Date | Selected date |
+| nutritionLog | NutritionLog? | Current day's log |
+| userProfile | UserProfile? | User profile |
+| isLoading | Bool | Loading state |
+| errorMessage | String? | Error message |
+| dailyCaloriesGoal | Double | Daily calorie goal |
+| dailyProteinGoal | Double | Daily protein goal |
+| dailyCarbsGoal | Double | Daily carbs goal |
+| dailyFatsGoal | Double | Daily fats goal |
+
+**Computed Properties:**
+```swift
+var totalCalories: Double
+var totalProtein: Double
+var totalCarbs: Double
+var totalFats: Double
+var caloriesProgress: Double
+var proteinProgress: Double
+var carbsProgress: Double
+var fatsProgress: Double
+```
+
+**Business Logic:**
+```swift
+func loadGoals() async
+func updateNutritionGoals(calories:protein:carbs:fats:) async throws
+func loadTodayLog() async
+func addFood(to:food:amount:) async
+func removeFood(from:foodEntryId:) async
+func getMeal(for:) -> Meal
+func changeDate(to:) async
+```
+
+---
+
 ## User Domain
 
 ### UserProfile
