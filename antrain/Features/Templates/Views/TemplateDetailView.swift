@@ -19,6 +19,7 @@ struct TemplateDetailView: View {
     @State private var showDuplicateSheet = false
     @State private var duplicateName = ""
     @State private var showEditView = false
+    @State private var showLiftingSession = false
 
     var body: some View {
         ScrollView {
@@ -104,6 +105,9 @@ struct TemplateDetailView: View {
                     }
                 }
             }
+        }
+        .fullScreenCover(isPresented: $showLiftingSession) {
+            LiftingSessionView(initialTemplate: template)
         }
         .task {
             if viewModel == nil {
@@ -235,10 +239,7 @@ struct TemplateDetailView: View {
         VStack(spacing: 12) {
             // Start Workout button
             Button {
-                Task {
-                    await viewModel.markAsUsed()
-                    // TODO: Navigate to workout screen
-                }
+                showLiftingSession = true
             } label: {
                 Label("Start Workout", systemImage: "play.fill")
                     .font(.headline)
