@@ -20,7 +20,7 @@ actor WorkoutTemplateRepository: WorkoutTemplateRepositoryProtocol {
         // Check name uniqueness
         let isUnique = try await isTemplateNameUnique(template.name, excludingId: nil)
         guard isUnique else {
-            throw RepositoryError.duplicateName
+            throw WorkoutTemplateRepositoryError.duplicateName
         }
 
         modelContext.insert(template)
@@ -79,7 +79,7 @@ actor WorkoutTemplateRepository: WorkoutTemplateRepositoryProtocol {
         // Check name uniqueness (excluding current template)
         let isUnique = try await isTemplateNameUnique(template.name, excludingId: template.id)
         guard isUnique else {
-            throw RepositoryError.duplicateName
+            throw WorkoutTemplateRepositoryError.duplicateName
         }
 
         try modelContext.save()
@@ -88,7 +88,7 @@ actor WorkoutTemplateRepository: WorkoutTemplateRepositoryProtocol {
     func deleteTemplate(_ template: WorkoutTemplate) async throws {
         // Prevent deleting preset templates
         guard !template.isPreset else {
-            throw RepositoryError.cannotDeletePreset
+            throw WorkoutTemplateRepositoryError.cannotDeletePreset
         }
 
         modelContext.delete(template)
@@ -173,7 +173,7 @@ actor WorkoutTemplateRepository: WorkoutTemplateRepositoryProtocol {
 
 // MARK: - Repository Errors
 
-enum RepositoryError: LocalizedError {
+enum WorkoutTemplateRepositoryError: LocalizedError {
     case duplicateName
     case cannotDeletePreset
     case templateNotFound
