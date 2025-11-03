@@ -128,16 +128,16 @@ final class WorkoutTemplate {
     }
 
     /// Validates the template data
-    /// - Throws: ValidationError if template is invalid
+    /// - Throws: TemplateValidationError if template is invalid
     func validate() throws {
         // Name must not be empty
         guard !name.trimmingCharacters(in: .whitespaces).isEmpty else {
-            throw ValidationError.emptyTemplateName
+            throw TemplateValidationError.emptyTemplateName
         }
 
         // Must have at least one exercise
         guard !exercises.isEmpty else {
-            throw ValidationError.templateRequiresExercises
+            throw TemplateValidationError.templateRequiresExercises
         }
 
         // Validate each exercise
@@ -149,7 +149,7 @@ final class WorkoutTemplate {
 
 // MARK: - Validation Errors
 
-enum ValidationError: LocalizedError {
+enum TemplateValidationError: LocalizedError {
     case emptyTemplateName
     case templateRequiresExercises
     case invalidSetCount
@@ -172,7 +172,7 @@ enum ValidationError: LocalizedError {
 // MARK: - Comparable
 
 extension WorkoutTemplate: Comparable {
-    static func < (lhs: WorkoutTemplate, rhs: WorkoutTemplate) -> Bool {
+    nonisolated static func < (lhs: WorkoutTemplate, rhs: WorkoutTemplate) -> Bool {
         // Presets first, then by name
         if lhs.isPreset != rhs.isPreset {
             return lhs.isPreset

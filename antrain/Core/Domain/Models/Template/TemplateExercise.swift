@@ -94,21 +94,21 @@ final class TemplateExercise {
     // MARK: - Business Logic
 
     /// Validates the exercise configuration
-    /// - Throws: ValidationError if configuration is invalid
+    /// - Throws: TemplateValidationError if configuration is invalid
     func validate() throws {
         // Set count must be between 1 and 10
         guard setCount >= 1 && setCount <= 10 else {
-            throw ValidationError.invalidSetCount
+            throw TemplateValidationError.invalidSetCount
         }
 
         // Rep range must be valid
         guard repRangeMin > 0 && repRangeMax > 0 && repRangeMin <= repRangeMax else {
-            throw ValidationError.invalidRepRange
+            throw TemplateValidationError.invalidRepRange
         }
 
         // Exercise name must not be empty
         guard !exerciseName.trimmingCharacters(in: .whitespaces).isEmpty else {
-            throw ValidationError.emptyTemplateName
+            throw TemplateValidationError.emptyTemplateName
         }
     }
 }
