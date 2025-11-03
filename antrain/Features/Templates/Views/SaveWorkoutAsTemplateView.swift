@@ -10,7 +10,7 @@ import SwiftUI
 /// Sheet for saving a completed workout as a template
 struct SaveWorkoutAsTemplateView: View {
     @Environment(\.dismiss) private var dismiss
-    @Environment(AppDependencies.self) private var dependencies
+    @EnvironmentObject private var dependencies: AppDependencies
 
     let workout: Workout
     let exercises: [WorkoutExercise]
@@ -147,12 +147,12 @@ struct SaveWorkoutAsTemplateView: View {
     workoutExercise.sets.append(WorkoutSet(reps: 10, weight: 100, isCompleted: true))
     workoutExercise.sets.append(WorkoutSet(reps: 8, weight: 110, isCompleted: true))
 
-    return SaveWorkoutAsTemplateView(
+    SaveWorkoutAsTemplateView(
         workout: workout,
         exercises: [workoutExercise],
         onSaved: {
             print("Template saved!")
         }
     )
-    .environment(AppDependencies.preview)
+    .environmentObject(AppDependencies.preview)
 }

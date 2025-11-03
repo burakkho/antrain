@@ -9,7 +9,7 @@ import SwiftUI
 
 /// Main view for displaying workout templates list
 struct TemplatesListView: View {
-    @Environment(AppDependencies.self) private var dependencies
+    @EnvironmentObject private var dependencies: AppDependencies
     @State private var viewModel: TemplatesViewModel?
     @State private var showCreateTemplate = false
     @State private var templateToDelete: WorkoutTemplate?
@@ -268,5 +268,5 @@ struct TemplatesListView: View {
 
 #Preview {
     TemplatesListView()
-        .environment(AppDependencies.preview)
+        .environmentObject(AppDependencies.preview)
 }

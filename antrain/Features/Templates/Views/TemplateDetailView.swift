@@ -10,7 +10,7 @@ import SwiftUI
 /// Detailed view of a workout template
 struct TemplateDetailView: View {
     @Environment(\.dismiss) private var dismiss
-    @Environment(AppDependencies.self) private var dependencies
+    @EnvironmentObject private var dependencies: AppDependencies
 
     let template: WorkoutTemplate
 
@@ -380,5 +380,5 @@ private struct MetadataRow: View {
             )
         )
     }
-    .environment(AppDependencies.preview)
+    .environmentObject(AppDependencies.preview)
 }

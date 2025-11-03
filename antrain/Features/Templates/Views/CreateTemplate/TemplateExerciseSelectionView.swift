@@ -9,7 +9,7 @@ import SwiftUI
 
 /// Step 2: Multi-select exercise picker with reorder
 struct TemplateExerciseSelectionView: View {
-    @Environment(AppDependencies.self) private var dependencies
+    @EnvironmentObject private var dependencies: AppDependencies
     @Bindable var viewModel: CreateTemplateViewModel
 
     @State private var showExercisePicker = false
@@ -383,5 +383,5 @@ private struct FilterChip: View {
             exerciseRepository: AppDependencies.preview.exerciseRepository
         )
     )
-    .environment(AppDependencies.preview)
+    .environmentObject(AppDependencies.preview)
 }

@@ -10,7 +10,7 @@ import SwiftUI
 /// Multi-step wizard for creating workout templates
 struct CreateTemplateFlow: View {
     @Environment(\.dismiss) private var dismiss
-    @Environment(AppDependencies.self) private var dependencies
+    @EnvironmentObject private var dependencies: AppDependencies
 
     @State private var viewModel: CreateTemplateViewModel
     @State private var showCancelConfirmation = false
@@ -221,7 +221,7 @@ struct CreateTemplateFlow: View {
     CreateTemplateFlow {
         print("Template created!")
     }
-    .environment(AppDependencies.preview)
+    .environmentObject(AppDependencies.preview)
 }
 
 #Preview("Edit Existing") {
@@ -231,8 +231,8 @@ struct CreateTemplateFlow: View {
         exercises: []
     )
 
-    return CreateTemplateFlow(editingTemplate: template) {
+    CreateTemplateFlow(editingTemplate: template) {
         print("Template updated!")
     }
-    .environment(AppDependencies.preview)
+    .environmentObject(AppDependencies.preview)
 }

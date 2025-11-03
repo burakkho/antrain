@@ -10,7 +10,7 @@ import SwiftUI
 /// Quick template selector sheet for starting workouts
 struct TemplateQuickSelectorView: View {
     @Environment(\.dismiss) private var dismiss
-    @Environment(AppDependencies.self) private var dependencies
+    @EnvironmentObject private var dependencies: AppDependencies
 
     let onSelect: (WorkoutTemplate) -> Void
 
@@ -271,5 +271,5 @@ private struct TemplateQuickRow: View {
     TemplateQuickSelectorView { template in
         print("Selected: \(template.name)")
     }
-    .environment(AppDependencies.preview)
+    .environmentObject(AppDependencies.preview)
 }
