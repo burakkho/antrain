@@ -19,6 +19,7 @@ final class AppDependencies: ObservableObject {
     let nutritionRepository: NutritionRepositoryProtocol
     let userProfileRepository: UserProfileRepositoryProtocol
     let personalRecordRepository: PersonalRecordRepositoryProtocol
+    let workoutTemplateRepository: WorkoutTemplateRepositoryProtocol
 
     // MARK: - Libraries
     let exerciseLibrary: ExerciseLibraryProtocol
@@ -35,6 +36,7 @@ final class AppDependencies: ObservableObject {
         self.nutritionRepository = NutritionRepository(modelContainer: modelContainer)
         self.userProfileRepository = UserProfileRepository(modelContainer: modelContainer)
         self.personalRecordRepository = PersonalRecordRepository(modelContainer: modelContainer)
+        self.workoutTemplateRepository = WorkoutTemplateRepository(modelContainer: modelContainer)
 
         // Initialize libraries (stateless)
         self.exerciseLibrary = ExerciseLibrary()

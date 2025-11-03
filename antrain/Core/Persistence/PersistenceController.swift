@@ -29,7 +29,9 @@ final class PersistenceController {
                 FoodItem.self,
                 UserProfile.self,
                 BodyweightEntry.self,
-                PersonalRecord.self
+                PersonalRecord.self,
+                WorkoutTemplate.self,
+                TemplateExercise.self
             ])
 
             let modelConfiguration = ModelConfiguration(
@@ -45,6 +47,7 @@ final class PersistenceController {
             // Seed libraries and create default profile if needed
             Task {
                 await seedLibrariesIfNeeded()
+                await seedTemplatesIfNeeded()
                 await createDefaultProfileIfNeeded()
             }
 
@@ -88,6 +91,35 @@ final class PersistenceController {
             print("✅ Libraries seeded successfully (\(presetExercises.count) exercises, \(presetFoods.count) foods)")
         } catch {
             print("❌ Failed to seed libraries: \(error)")
+        }
+    }
+
+    /// Seed preset workout templates on first launch
+    private func seedTemplatesIfNeeded() async {
+        let hasSeeded = UserDefaults.standard.bool(forKey: "hasSeededTemplates")
+
+        guard !hasSeeded else {
+            print("✅ Templates already seeded")
+            return
+        }
+
+        print("🌱 Seeding preset templates...")
+
+        let context = modelContainer.mainContext
+
+        // Seed preset templates
+        let presetTemplates = PresetTemplateSeeder.createPresetTemplates()
+
+        for template in presetTemplates {
+            context.insert(template)
+        }
+
+        do {
+            try context.save()
+            UserDefaults.standard.set(true, forKey: "hasSeededTemplates")
+            print("✅ Preset templates seeded successfully (\(presetTemplates.count) templates)")
+        } catch {
+            print("❌ Failed to seed templates: \(error)")
         }
     }
 
@@ -138,7 +170,9 @@ extension PersistenceController {
                 FoodItem.self,
                 UserProfile.self,
                 BodyweightEntry.self,
-                PersonalRecord.self
+                PersonalRecord.self,
+                WorkoutTemplate.self,
+                TemplateExercise.self
             ])
 
             let modelConfiguration = ModelConfiguration(
