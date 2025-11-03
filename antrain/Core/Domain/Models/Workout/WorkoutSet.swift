@@ -10,7 +10,7 @@ import SwiftData
 
 /// Bir egzersizin tek bir seti (reps + weight + completion state)
 @Model
-final class WorkoutSet: @unchecked Sendable {
+final class WorkoutSet {
     @Attribute(.unique) var id: UUID
     var reps: Int
     var weight: Double  // kg cinsinden
