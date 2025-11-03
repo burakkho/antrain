@@ -99,7 +99,7 @@ Antrain is built with privacy in mind. Our code is available for review to ensur
 ## Contact Us
 
 If you have questions about this Privacy Policy, please contact us:
-- **GitHub:** github.com/burakkho
+- **GitHub:** https://github.com/burakkho/antrain
 - **Email:** burakkho@gmail.com
 
 ## Compliance

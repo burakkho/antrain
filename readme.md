@@ -1,743 +1,452 @@
-# Antrain - Comprehensive Fitness Tracking App
+# Antrain
 
-## Project Overview
+<div align="center">
 
-**Antrain** is a comprehensive fitness tracking application designed to compete with Hevy while offering broader functionality. It targets the entire fitness community - from powerlifters to CrossFit athletes to hybrid training enthusiasts.
+![iOS](https://img.shields.io/badge/iOS-17.0%2B-blue)
+![Swift](https://img.shields.io/badge/Swift-6.0-orange)
+![SwiftUI](https://img.shields.io/badge/SwiftUI-Native-green)
+![License](https://img.shields.io/badge/License-MIT-yellow)
+![Status](https://img.shields.io/badge/Status-v1.0-success)
 
-### Key Features
-- **Lifting**: Real-time session tracking with Hevy-style UX
-- **Cardio & MetCon**: Post-workout quick logging
-- **Nutrition**: Simple macro and calorie tracking
-- **History & Progress**: Comprehensive workout and nutrition tracking
+**A comprehensive fitness tracking app for strength athletes, CrossFit enthusiasts, and hybrid training.**
 
-### Target Users
-- Strength training athletes
+[English](#english) • [Türkçe](#turkish)
+
+</div>
+
+---
+
+<a name="english"></a>
+
+## 📱 About Antrain
+
+**Antrain** is a modern fitness tracking application built with Swift 6 and SwiftUI, designed to provide a seamless experience for tracking workouts and nutrition. The app features real-time lifting session tracking, quick cardio/MetCon logging, and comprehensive nutrition tracking - all stored locally with complete privacy.
+
+### ✨ Key Features
+
+- **🏋️ Lifting Sessions**: Real-time workout tracking with set, rep, and weight logging
+- **🏃 Quick Logging**: Post-workout cardio and MetCon logging with detailed metrics
+- **🥗 Nutrition Tracking**: Daily macro tracking (calories, protein, carbs, fats) with meal logging
+- **📊 History & Progress**: Comprehensive workout and nutrition history with detailed views
+- **👤 User Profile**: Goals management and bodyweight tracking with history
+- **📚 Libraries**: 150+ preset exercises and 100+ food items, with custom entry support
+
+### 🎯 Target Users
+
+- Strength training athletes (powerlifting, bodybuilding)
 - CrossFit and functional fitness enthusiasts
 - Hybrid athletes (Hyrox, etc.)
 - Anyone seeking comprehensive fitness tracking
 
----
+### 🔒 Privacy First
 
-## Tech Stack
-
-- **Language**: Swift 6 (strict concurrency)
-- **UI Framework**: SwiftUI
-- **Data Persistence**: SwiftData
-- **Minimum iOS**: 17.0+
-- **Localization**: String Catalog (English base, Turkish planned for future)
-- **Architecture**: Clean Architecture (Simplified) + MVVM
-- **Design**: Apple HIG compliant, modern best practices
+- **100% Local Storage**: All data stored on your device using SwiftData
+- **No Cloud Sync**: No data transmitted to external servers
+- **No Analytics**: Zero tracking or telemetry
+- **No Account Required**: Start using immediately
+- **You Own Your Data**: Complete control over your fitness information
 
 ---
 
-## Architecture
+## 🛠 Tech Stack
 
-### Three-Layer Clean Architecture
+| Technology | Description |
+|---|---|
+| **Language** | Swift 6 (strict concurrency) |
+| **UI Framework** | SwiftUI |
+| **Data Persistence** | SwiftData (local-only) |
+| **Minimum iOS** | 17.0+ |
+| **Architecture** | Clean Architecture + MVVM |
+| **Design** | Apple HIG compliant |
+
+---
+
+## 🏗 Architecture
+
+Antrain follows **Clean Architecture** principles with three distinct layers:
 
 ```
 ┌─────────────────────────────────┐
 │   PRESENTATION LAYER            │
 │   (SwiftUI Views + ViewModels)  │
-│   - User Interface              │
-│   - User Interaction            │
 └─────────────────────────────────┘
             ↓ ↑
 ┌─────────────────────────────────┐
 │   DOMAIN LAYER                  │
-│   (Business Logic)              │
-│   - Entities (Models)           │
-│   - Repository Protocols        │
+│   (Business Logic & Protocols)  │
 └─────────────────────────────────┘
             ↓ ↑
 ┌─────────────────────────────────┐
 │   DATA LAYER                    │
-│   (Data Management)             │
-│   - Repositories (concrete)     │
-│   - SwiftData Storage           │
-│   - Libraries (Exercise/Food)   │
+│   (Repositories & SwiftData)    │
 └─────────────────────────────────┘
 ```
 
 ### Key Principles
-- **SOLID Principles**: Single Responsibility, Open/Closed, Liskov Substitution, Interface Segregation, Dependency Inversion
-- **Protocol-Oriented**: All repositories defined as protocols
-- **Dependency Injection**: Through AppDependencies container
-- **Repository Pattern**: Abstraction over data sources
-- **Single Target**: No frameworks, organized by folders
 
-### Dependency Flow
-```
-Presentation → Domain ← Data
-(Views/VMs)   (Protocols) (Repos)
-```
+- **SOLID Principles**: Single responsibility, dependency inversion, interface segregation
+- **Protocol-Oriented**: All repositories defined as protocols for testability
+- **Dependency Injection**: Through `AppDependencies` container
+- **Repository Pattern**: Clean abstraction over data sources
+- **Micro-Modular**: Files kept to 100-200 lines for optimal maintainability
+
+For detailed architecture documentation, see [ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
 ---
 
-## Folder Structure
+## 📸 Screenshots
 
-### Micro-Modular Approach
-Each file should be **100-200 lines maximum** (300 absolute max) for optimal AI readability and maintainability. Extract components early and often.
+<div align="center">
 
-```
-Antrain/
-├── App/
-│   ├── AntrainApp.swift
-│   └── AppDependencies.swift
-│
-├── Core/
-│   ├── Domain/
-│   │   ├── Models/
-│   │   │   ├── Workout/
-│   │   │   │   ├── Workout.swift
-│   │   │   │   ├── WorkoutType.swift
-│   │   │   │   └── WorkoutSet.swift
-│   │   │   ├── Exercise/
-│   │   │   │   ├── Exercise.swift
-│   │   │   │   ├── ExerciseCategory.swift
-│   │   │   │   ├── MuscleGroup.swift
-│   │   │   │   └── Equipment.swift
-│   │   │   ├── Nutrition/
-│   │   │   │   ├── NutritionLog.swift
-│   │   │   │   ├── Meal.swift
-│   │   │   │   ├── FoodItem.swift
-│   │   │   │   ├── FoodEntry.swift
-│   │   │   │   └── FoodCategory.swift
-│   │   │   └── User/
-│   │   │       ├── UserProfile.swift
-│   │   │       └── BodyweightEntry.swift
-│   │   │
-│   │   └── Protocols/
-│   │       ├── Repositories/
-│   │       │   ├── WorkoutRepositoryProtocol.swift
-│   │       │   ├── ExerciseRepositoryProtocol.swift
-│   │       │   └── NutritionRepositoryProtocol.swift
-│   │       └── Libraries/
-│   │           ├── ExerciseLibraryProtocol.swift
-│   │           └── FoodLibraryProtocol.swift
-│   │
-│   ├── Data/
-│   │   ├── Repositories/
-│   │   │   ├── WorkoutRepository.swift
-│   │   │   ├── ExerciseRepository.swift
-│   │   │   └── NutritionRepository.swift
-│   │   │
-│   │   └── Libraries/
-│   │       ├── ExerciseLibrary/
-│   │       │   ├── ExerciseLibrary.swift
-│   │       │   ├── ExerciseDTO.swift
-│   │       │   ├── BarbellExercises.swift
-│   │       │   ├── DumbbellExercises.swift
-│   │       │   ├── BodyweightExercises.swift
-│   │       │   ├── CardioExercises.swift
-│   │       │   └── MetConExercises.swift
-│   │       │
-│   │       └── FoodLibrary/
-│   │           ├── FoodLibrary.swift
-│   │           ├── FoodDTO.swift
-│   │           ├── ProteinFoods.swift
-│   │           ├── CarbFoods.swift
-│   │           ├── FatFoods.swift
-│   │           └── VegetableFoods.swift
-│   │
-│   └── Persistence/
-│       └── PersistenceController.swift
-│
-├── Features/
-│   ├── Home/
-│   │   ├── Views/
-│   │   │   ├── HomeView.swift
-│   │   │   └── Components/
-│   │   │       ├── TodaySummaryCard.swift
-│   │   │       ├── QuickActionButtons.swift
-│   │   │       └── RecentWorkoutsList.swift
-│   │   └── ViewModels/
-│   │       └── HomeViewModel.swift
-│   │
-│   ├── Workouts/
-│   │   ├── LiftingSession/
-│   │   │   ├── Views/
-│   │   │   │   ├── LiftingSessionView.swift
-│   │   │   │   ├── ExerciseSelectionView.swift
-│   │   │   │   └── Components/
-│   │   │   │       ├── ActiveSetRow.swift
-│   │   │   │       ├── CompletedSetRow.swift
-│   │   │   │       └── ExerciseCard.swift
-│   │   │   └── ViewModels/
-│   │   │       ├── LiftingSessionViewModel.swift
-│   │   │       └── ExerciseSelectionViewModel.swift
-│   │   │
-│   │   ├── QuickLog/
-│   │   │   ├── Views/
-│   │   │   │   ├── QuickLogView.swift
-│   │   │   │   ├── CardioLogView.swift
-│   │   │   │   └── MetConLogView.swift
-│   │   │   └── ViewModels/
-│   │   │       └── QuickLogViewModel.swift
-│   │   │
-│   │   └── History/
-│   │       ├── Views/
-│   │       │   ├── WorkoutHistoryView.swift
-│   │       │   └── WorkoutDetailView.swift
-│   │       └── ViewModels/
-│   │           └── WorkoutHistoryViewModel.swift
-│   │
-│   ├── Nutrition/
-│   │   ├── LogMeal/
-│   │   │   ├── Views/
-│   │   │   │   ├── LogMealView.swift
-│   │   │   │   └── Components/
-│   │   │   │       ├── MealTypeSelector.swift
-│   │   │   │       └── FoodItemRow.swift
-│   │   │   └── ViewModels/
-│   │   │       └── LogMealViewModel.swift
-│   │   │
-│   │   ├── FoodSearch/
-│   │   │   ├── Views/
-│   │   │   │   ├── FoodSearchView.swift
-│   │   │   │   └── AddCustomFoodView.swift
-│   │   │   └── ViewModels/
-│   │   │       └── FoodSearchViewModel.swift
-│   │   │
-│   │   └── DailyLog/
-│   │       ├── Views/
-│   │       │   ├── DailyNutritionView.swift
-│   │       │   └── Components/
-│   │       │       ├── MacroProgressRing.swift
-│   │       │       └── MealCard.swift
-│   │       └── ViewModels/
-│   │           └── DailyNutritionViewModel.swift
-│   │
-│   └── Settings/
-│       ├── Views/
-│       │   ├── SettingsView.swift
-│       │   ├── ProfileView.swift
-│       │   └── GoalsView.swift
-│       └── ViewModels/
-│           └── SettingsViewModel.swift
-│
-├── Shared/
-│   ├── DesignSystem/
-│   │   ├── Tokens/
-│   │   │   ├── DSColors.swift
-│   │   │   ├── DSTypography.swift
-│   │   │   ├── DSSpacing.swift
-│   │   │   └── DSCornerRadius.swift
-│   │   │
-│   │   ├── Components/
-│   │   │   ├── Buttons/
-│   │   │   │   ├── DSPrimaryButton.swift
-│   │   │   │   ├── DSSecondaryButton.swift
-│   │   │   │   └── DSIconButton.swift
-│   │   │   ├── Cards/
-│   │   │   │   ├── DSCard.swift
-│   │   │   │   └── DSListCard.swift
-│   │   │   ├── TextFields/
-│   │   │   │   ├── DSTextField.swift
-│   │   │   │   └── DSNumberField.swift
-│   │   │   └── Other/
-│   │   │       ├── DSLoadingView.swift
-│   │   │       ├── DSEmptyState.swift
-│   │   │       └── DSErrorView.swift
-│   │   │
-│   │   └── Modifiers/
-│   │       ├── CardModifier.swift
-│   │       ├── ShadowModifier.swift
-│   │       └── ShimmerModifier.swift
-│   │
-│   ├── Extensions/
-│   │   ├── Date+Extensions.swift
-│   │   ├── Double+Extensions.swift
-│   │   ├── String+Extensions.swift
-│   │   └── View+Extensions.swift
-│   │
-│   ├── Protocols/
-│   │   └── Identifiable+Extensions.swift
-│   │
-│   └── Utilities/
-│       ├── Constants.swift
-│       ├── Logger.swift
-│       └── Formatters.swift
-│
-├── Resources/
-│   ├── Assets.xcassets
-│   └── Localizable.xcstrings
-│
-└── docs/
-    ├── README.md (this file)
-    ├── ARCHITECTURE.md
-    ├── SPRINT_LOG.md
-    ├── MODELS.md
-    └── DESIGN_SYSTEM.md
-```
+| Lifting Session | Nutrition Tracking | Profile & History |
+|---|---|---|
+| *Coming Soon* | *Coming Soon* | *Coming Soon* |
+
+</div>
 
 ---
 
-## Core Models
-
-### Workout Domain
-
-```
-Workout
-├── id: UUID
-├── date: Date
-├── type: WorkoutType (lifting, cardio, metcon)
-├── duration: TimeInterval
-├── notes: String?
-├── exercises: [Exercise]? (lifting only)
-└── quickLogData: QuickLogData? (cardio/metcon)
-
-WorkoutType
-├── lifting (real-time tracking)
-├── cardio (quick log)
-└── metcon (quick log)
-
-Exercise (from ExerciseLibrary)
-├── id: UUID
-├── name: String
-├── category: ExerciseCategory
-├── muscleGroups: [MuscleGroup]
-├── equipment: Equipment
-├── isCustom: Bool
-└── version: Int
-
-WorkoutSet
-├── id: UUID
-├── reps: Int
-├── weight: Double
-├── isCompleted: Bool
-├── notes: String?
-└── exercise: Exercise (relationship)
-
-QuickLogData (for cardio/metcon)
-├── cardioType: CardioType? (run, bike, row, etc.)
-├── distance: Double?
-├── pace: Double?
-├── metconType: MetConType? (amrap, emom, forTime)
-├── rounds: Int?
-└── result: String?
-```
-
-### Nutrition Domain
-
-```
-NutritionLog (daily log)
-├── id: UUID
-├── date: Date
-└── meals: [Meal]
-
-Computed Properties:
-├── totalCalories: Double
-├── totalProtein: Double
-├── totalCarbs: Double
-└── totalFats: Double
-
-Meal
-├── id: UUID
-├── name: String (Breakfast, Lunch, Dinner, Snack)
-├── timestamp: Date
-└── foodItems: [FoodEntry]
-
-FoodItem (from FoodLibrary)
-├── id: UUID
-├── name: String
-├── brand: String?
-├── calories: Double (per 100g)
-├── protein: Double (per 100g)
-├── carbs: Double (per 100g)
-├── fats: Double (per 100g)
-├── servingSize: Double (grams)
-├── category: FoodCategory
-├── isCustom: Bool
-├── isFavorite: Bool
-└── version: Int
-
-FoodEntry
-├── id: UUID
-├── food: FoodItem (relationship)
-├── servingAmount: Double (e.g., 150g)
-└── meal: Meal (relationship)
-
-Computed Properties:
-├── calories: Double
-├── protein: Double
-├── carbs: Double
-└── fats: Double
-```
-
-### User Domain
-
-```
-UserProfile
-├── id: UUID
-├── name: String?
-├── dailyCalorieGoal: Double
-├── dailyProteinGoal: Double
-├── dailyCarbsGoal: Double
-├── dailyFatsGoal: Double
-└── bodyweightHistory: [BodyweightEntry]
-
-BodyweightEntry
-├── id: UUID
-├── date: Date
-└── weight: Double
-```
-
-### SwiftData Relationships
-
-```
-Workout 1:N WorkoutSet (cascade delete)
-Workout 1:N Exercise (no cascade)
-NutritionLog 1:N Meal (cascade delete)
-Meal 1:N FoodEntry (cascade delete)
-FoodEntry N:1 FoodItem (no cascade)
-UserProfile 1:N BodyweightEntry (cascade delete)
-```
-
----
-
-## Design System
-
-### Principles
-- **Reusable**: All components are reusable across features
-- **Apple HIG Compliant**: Follows modern iOS design guidelines
-- **Accessible**: Dynamic Type support, VoiceOver ready
-- **Dark Mode Native**: Designed for both light and dark modes
-- **Consistent**: Design tokens ensure visual consistency
-
-### Design Tokens
-
-**Colors** (`DSColors.swift`)
-- Primary, Secondary, Tertiary
-- Success, Warning, Error
-- Background (primary, secondary, tertiary)
-- Text (primary, secondary, tertiary)
-
-**Typography** (`DSTypography.swift`)
-- Large Title, Title 1-3
-- Headline, Body, Callout
-- Subheadline, Footnote, Caption
-
-**Spacing** (`DSSpacing.swift`)
-- xxxs (2pt), xxs (4pt), xs (8pt)
-- sm (12pt), md (16pt), lg (24pt)
-- xl (32pt), xxl (48pt), xxxl (64pt)
-
-**Corner Radius** (`DSCornerRadius.swift`)
-- sm (4pt), md (8pt), lg (12pt), xl (16pt)
-
-### Component Library
-
-**Buttons**
-- `DSPrimaryButton`: Main action button
-- `DSSecondaryButton`: Secondary actions
-- `DSIconButton`: Icon-only actions
-
-**Cards**
-- `DSCard`: Generic container
-- `DSListCard`: List item container
-
-**Text Fields**
-- `DSTextField`: Text input
-- `DSNumberField`: Numeric input
-
-**Other**
-- `DSLoadingView`: Loading states
-- `DSEmptyState`: Empty state screens
-- `DSErrorView`: Error states
-
----
-
-## Development Workflow
-
-### Sprint-Based Development
-
-Development is organized into **focused sprints** of 2-5 days each. This approach is optimized for working with Claude Code, allowing for clean session management and clear progress tracking.
-
-#### Sprint Structure
-
-Each sprint should:
-1. Have a clear, achievable goal
-2. Be documented in `SPRINT_LOG.md`
-3. Result in working, testable features
-4. Include documentation updates
-
-#### Workflow
-
-1. **Start Sprint**: Open new Claude Code session
-2. **Read Context**: Review `SPRINT_LOG.md` and `CHANGELOG.md`
-3. **Define Goal**: Set clear sprint objective
-4. **Execute**: Build features following architecture
-5. **Document**: Update `SPRINT_LOG.md` with progress
-6. **Commit**: Push changes with meaningful commits
-7. **Close Sprint**: Mark sprint as complete
-
-#### Sprint Log Format
-
-See `SPRINT_LOG.md` for current sprint status and history. Claude Code maintains this file.
-
-### Git Workflow
-
-**Branch Strategy** (Simple, solo developer)
-```
-main (production ready)
-└── develop (active development)
-    └── feature/* (individual features)
-```
-
-**Commit Convention**
-```
-feat: Add new feature
-fix: Bug fix
-refactor: Code refactoring
-docs: Documentation updates
-style: Formatting changes
-chore: Maintenance tasks
-```
-
-**Workflow Steps**
-1. Create feature branch from `develop`
-2. Make changes and commit regularly
-3. Merge to `develop` when feature complete
-4. Merge `develop` to `main` for releases
-
----
-
-## Coding Standards
-
-### General Guidelines
-- **File Size**: 100-200 lines ideal, 300 lines absolute maximum
-- **Single Responsibility**: One clear purpose per file/class
-- **Extract Early**: Create components when code exceeds 150 lines
-- **Meaningful Names**: Use descriptive, self-documenting names
-- **Comments**: Only for complex logic; code should be self-explanatory
-
-### Swift 6 & Concurrency
-- Use `async/await` for asynchronous operations
-- Use `actor` for thread-safe state management
-- Repositories should be `actor` types
-- ViewModels use `@Observable` macro
-
-### SwiftUI Best Practices
-- Prefer composition over inheritance
-- Extract subviews at ~50 lines
-- Use `@State` for view-local state
-- Use `@Environment` for dependency injection
-- Keep Views focused on presentation only
-
-### SOLID Application
-- **S**: Each file has one clear responsibility
-- **O**: Use protocols for extensibility
-- **L**: Subtypes must be substitutable
-- **I**: Small, focused protocols
-- **D**: Depend on protocols, not concrete types
-
-### Naming Conventions
-- **Views**: `[Feature][Type]View` (e.g., `LiftingSessionView`)
-- **ViewModels**: `[Feature]ViewModel` (e.g., `LiftingSessionViewModel`)
-- **Components**: `DS[Type]` for design system (e.g., `DSPrimaryButton`)
-- **Repositories**: `[Entity]Repository` (e.g., `WorkoutRepository`)
-- **Protocols**: `[Entity]RepositoryProtocol` (e.g., `WorkoutRepositoryProtocol`)
-
----
-
-## MVP Scope
-
-### In Scope ✅
-
-**Workout Tracking**
-- Real-time lifting session tracking (Hevy-style UX)
-- Set, rep, weight logging
-- Exercise selection from library
-- Custom exercise creation
-- Workout history view
-
-**Quick Logging**
-- Cardio: type, duration, distance, pace
-- MetCon: type (AMRAP/EMOM/For Time), duration, rounds/result
-- Post-workout entry (not real-time)
-
-**Nutrition Tracking**
-- Daily macro goals (calories, protein, carbs, fats)
-- Meal logging (breakfast, lunch, dinner, snacks)
-- Food search from library
-- Custom food creation
-- Daily nutrition summary
-
-**User Profile**
-- Basic profile information
-- Daily nutrition goals
-- Bodyweight tracking (manual entry)
-
-**Libraries**
-- Preset exercise library (150+ exercises)
-- Preset food library (100+ common foods)
-- User can add custom exercises
-- User can add custom foods
-
-### Out of Scope ❌ (Future Phases)
-
-**Phase 2**
-- Routine/workout templates
-- Advanced analytics and progress charts
-- Personal records (PR) tracking
-- Workout notes and tags
-- Food favorites and recent items
-
-**Phase 3**
-- HealthKit integration
-- Cloud sync across devices
-- Data export (CSV, PDF)
-- Social features
-- Turkish localization
-
-**Phase 4**
-- Rest timer with notifications
-- Plate calculator
-- Exercise instruction videos/GIFs
-- Nutrition recommendations
-- Apple Watch app
-
----
-
-## Development Setup
+## 🚀 Getting Started
 
 ### Prerequisites
+
 - macOS 14.0+
 - Xcode 15.0+
-- iOS 17.0+ Simulator or Device
+- iOS 17.0+ device or simulator
 
-### Getting Started
+### Installation
 
-1. **Clone Repository**
+1. **Clone the repository**
    ```bash
-   git clone [repository-url]
-   cd Antrain
+   git clone https://github.com/burakkho/antrain.git
+   cd antrain
    ```
 
-2. **Open Project**
+2. **Open in Xcode**
    ```bash
-   open Antrain.xcodeproj
+   open antrain.xcodeproj
    ```
 
 3. **Build and Run**
-   - Select target device/simulator
+   - Select your target device/simulator
    - Press `Cmd + R` to build and run
-   - No external dependencies required
+   - No external dependencies required!
 
-### Project Configuration
-- **Bundle Identifier**: `com.yourname.Antrain` (update as needed)
-- **Team**: Set your development team in project settings
+### Configuration
+
+- **Bundle Identifier**: Update in project settings as needed
+- **Team**: Set your development team in Xcode
 - **Deployment Target**: iOS 17.0
 
 ---
 
-## Roadmap
+## 📖 Documentation
 
-### Sprint 1: Foundation ✅
-- [x] Project structure setup
-- [x] Core domain models
-- [x] SwiftData persistence layer
-- [x] Basic navigation structure
+Comprehensive documentation is available in the `/docs` directory:
 
-### Sprint 2: Nutrition Complete ✅
-- [x] Food models and protocols
-- [x] Food library implementation (103 foods)
-- [x] NutritionRepository with CRUD operations
-- [x] DailyNutritionView
-- [x] FoodSearchView
-- [x] Macro progress visualization
-
-### Sprint 3: Quick Log Features ✅
-- [x] CardioLogView implementation
-- [x] MetConLogView implementation
-- [x] Save quick log workouts
-- [x] HomeView integration
-
-### Sprint 4: Weight Unit System & UI ✅
-- [x] Comprehensive unit conversion (kg/lbs, g/oz, km/mi)
-- [x] Dual-value pattern implementation
-- [x] UI improvements (pull-to-refresh, auto-refresh, navigation)
-- [x] Theme switching support
-
-### Sprint 5: Settings & UserProfile ✅
-- [x] UserProfile model
-- [x] BodyweightEntry model
-- [x] SettingsView with all features
-- [x] Nutrition goals editing
-- [x] Bodyweight tracking with history
-
-### Sprint 6: Exercise Library Expansion ⚠️ CRITICAL
-- [ ] DumbbellExercises.swift (~40 exercises)
-- [ ] BodyweightExercises.swift (~30 exercises)
-- [ ] CardioExercises.swift (~20 exercises)
-- [ ] MetConExercises.swift (~15 exercises)
-- [ ] MachineExercises.swift (~45 exercises)
-- **Current:** 10/150+ exercises (93% shortage)
-
-### Sprint 7: Custom Creation UIs 🔜
-- [ ] AddCustomExerciseView
-- [ ] Exercise creation form
-- [ ] AddCustomFoodView
-- [ ] Food creation form
-- [ ] Integration with search views
-
-### Sprint 8: Lifting Session (COMPLETED) ✅
-- [x] LiftingSessionView UI
-- [x] ExerciseSelectionView
-- [x] Real-time set tracking
-- [x] Workout save/cancel flow
-- [x] WorkoutHistoryView list
-- [x] WorkoutDetailView
-
-### Sprint 9: Home Screen (COMPLETED) ✅
-- [x] HomeView implementation
-- [x] Today's summary
-- [x] Quick action buttons (4 actions)
-- [x] Recent workouts list
-
-### Sprint 10: Design System (COMPLETED) ✅
-- [x] Design tokens (colors, typography, spacing)
-- [x] Component library (buttons, cards, text fields)
-- [x] Apply design system across all views
-- [x] Dark mode fully functional
-
-### Sprint 11: Polish & Testing (IN PROGRESS) ⏳
-- [x] Empty states
-- [x] Loading states
-- [x] Error handling
-- [ ] Performance optimization
-- [x] Bug fixes (0 critical bugs)
-
-### Sprint 12: App Store Prep 🔜
-- [ ] App icon and launch screen
-- [ ] Screenshots
-- [ ] App Store description
-- [ ] Privacy policy
-- [ ] TestFlight beta
-
-**Progress:** 90% MVP Complete (8/12 sprints done, 2 in progress, 2 pending)
+- [**ARCHITECTURE.md**](docs/ARCHITECTURE.md) - Detailed architecture and design patterns
+- [**MODELS.md**](docs/MODELS.md) - Core domain models and relationships
+- [**DESIGN_SYSTEM.md**](docs/DESIGN_SYSTEM.md) - Design tokens and component library
+- [**SPRINT_LOG.md**](docs/SPRINT_LOG.md) - Development history and sprint tracking
+- [**PRIVACY_POLICY.md**](PRIVACY_POLICY.md) - Privacy policy and data handling
 
 ---
 
-## Contributing
+## 🗺 Roadmap
 
-This is currently a solo project. External contributions are not accepted at this time.
+### Current Status: v1.0 (90% Complete)
+
+#### ✅ Completed
+- Foundation & Core Architecture
+- Nutrition Tracking (complete with food library)
+- Quick Logging (cardio & MetCon)
+- Lifting Session Tracking
+- User Profile & Settings
+- Design System & Dark Mode
+- Weight Unit System (kg/lbs conversion)
+
+#### 🔜 Coming Soon (v1.1+)
+- Exercise library expansion (150+ exercises)
+- Custom exercise/food creation UI
+- Workout templates and routines
+- Advanced analytics and progress charts
+- Personal records (PR) tracking
+- HealthKit integration
+
+#### 🚀 Future Phases
+- Cloud sync across devices
+- Apple Watch app
+- Data export (CSV, PDF)
+- Rest timer with notifications
+- Exercise instruction videos
 
 ---
 
-## License
+## 🤝 Contributing
 
-Proprietary - All rights reserved
+This is currently a **portfolio showcase project**. While contributions are not accepted at this time, feel free to:
+
+- ⭐ Star the repository
+- 🐛 Report bugs via [Issues](https://github.com/burakkho/antrain/issues)
+- 💡 Suggest features via [Issues](https://github.com/burakkho/antrain/issues)
+- 📧 Contact for questions
+
+For more details, see [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ---
 
-## Contact
+## 📄 License
 
-For questions or support, contact [your-email]
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ---
 
-**Last Updated**: 2025-02-11
-**Current Sprint**: Sprint 6 - Exercise Library Expansion (CRITICAL)
-**Version**: 0.9.0 (90% MVP Complete - Exercise library expansion required)
-**Status**: BUILD SUCCEEDED ✅ | 0 Critical Bugs ✅ | Highly Functional 🚀# antrain
+## 📧 Contact
+
+**Burak Küçükhüseyinoğlu**
+
+- GitHub: [@burakkho](https://github.com/burakkho)
+- Email: burakkho@gmail.com
+- Repository: [github.com/burakkho/antrain](https://github.com/burakkho/antrain)
+
+---
+
+## 🙏 Acknowledgments
+
+- Built with [Swift 6](https://swift.org) and [SwiftUI](https://developer.apple.com/xcode/swiftui/)
+- Follows [Apple Human Interface Guidelines](https://developer.apple.com/design/human-interface-guidelines/)
+- Inspired by the fitness tracking community
+
+---
+
+<div align="center">
+
+**⚡ Built with passion for the fitness community ⚡**
+
+[Report Bug](https://github.com/burakkho/antrain/issues) • [Request Feature](https://github.com/burakkho/antrain/issues)
+
+</div>
+
+---
+---
+
+<a name="turkish"></a>
+
+# Antrain (Türkçe)
+
+<div align="center">
+
+**Güç sporcuları, CrossFit meraklıları ve hibrit antrenman için kapsamlı fitness takip uygulaması.**
+
+</div>
+
+---
+
+## 📱 Antrain Hakkında
+
+**Antrain**, Swift 6 ve SwiftUI ile geliştirilmiş modern bir fitness takip uygulamasıdır. Antrenman ve beslenme takibi için kusursuz bir deneyim sunmak üzere tasarlanmıştır. Uygulama, gerçek zamanlı ağırlık antrenmanı takibi, hızlı kardiyо/MetCon kaydı ve kapsamlı beslenme takibi sunar - tüm veriler tamamen gizlilik ile yerel olarak saklanır.
+
+### ✨ Öne Çıkan Özellikler
+
+- **🏋️ Ağırlık Antrenmanları**: Set, tekrar ve ağırlık kaydı ile gerçek zamanlı antrenman takibi
+- **🏃 Hızlı Kayıt**: Detaylı metriklerle antrenman sonrası kardiyо ve MetCon kaydı
+- **🥗 Beslenme Takibi**: Öğün kaydı ile günlük makro takibi (kalori, protein, karbonhidrat, yağ)
+- **📊 Geçmiş ve İlerleme**: Detaylı görünümlerle kapsamlı antrenman ve beslenme geçmişi
+- **👤 Kullanıcı Profili**: Hedef yönetimi ve geçmiş ile vücut ağırlığı takibi
+- **📚 Kütüphaneler**: 150+ hazır egzersiz ve 100+ besin öğesi, özel giriş desteği ile
+
+### 🎯 Hedef Kullanıcılar
+
+- Güç sporcuları (powerlifting, vücut geliştirme)
+- CrossFit ve fonksiyonel fitness meraklıları
+- Hibrit sporcular (Hyrox, vb.)
+- Kapsamlı fitness takibi arayan herkes
+
+### 🔒 Gizlilik Öncelikli
+
+- **%100 Yerel Depolama**: Tüm veriler SwiftData kullanılarak cihazınızda saklanır
+- **Cloud Senkronizasyonu Yok**: Harici sunuculara veri aktarımı yapılmaz
+- **Analitik Yok**: Sıfır izleme veya telemetri
+- **Hesap Gerekmez**: Hemen kullanmaya başlayın
+- **Verileriniz Size Ait**: Fitness bilgileriniz üzerinde tam kontrol
+
+---
+
+## 🛠 Teknoloji Yığını
+
+| Teknoloji | Açıklama |
+|---|---|
+| **Dil** | Swift 6 (katı eşzamanlılık) |
+| **UI Framework** | SwiftUI |
+| **Veri Kalıcılığı** | SwiftData (sadece yerel) |
+| **Minimum iOS** | 17.0+ |
+| **Mimari** | Clean Architecture + MVVM |
+| **Tasarım** | Apple HIG uyumlu |
+
+---
+
+## 🏗 Mimari
+
+Antrain, üç farklı katmanlı **Clean Architecture** prensiplerini takip eder:
+
+```
+┌─────────────────────────────────┐
+│   SUNUM KATMANI                 │
+│   (SwiftUI Views + ViewModels)  │
+└─────────────────────────────────┘
+            ↓ ↑
+┌─────────────────────────────────┐
+│   ALAN KATMANI                  │
+│   (İş Mantığı ve Protokoller)   │
+└─────────────────────────────────┘
+            ↓ ↑
+┌─────────────────────────────────┐
+│   VERİ KATMANI                  │
+│   (Repository'ler & SwiftData)  │
+└─────────────────────────────────┘
+```
+
+### Ana Prensipler
+
+- **SOLID Prensipleri**: Tek sorumluluk, bağımlılık tersine çevirme, arayüz ayrımı
+- **Protokol Odaklı**: Test edilebilirlik için tüm repository'ler protokol olarak tanımlanmıştır
+- **Bağımlılık Enjeksiyonu**: `AppDependencies` container üzerinden
+- **Repository Pattern**: Veri kaynakları üzerinde temiz soyutlama
+- **Mikro-Modüler**: Optimal sürdürülebilirlik için dosyalar 100-200 satırda tutulur
+
+Detaylı mimari dokümantasyonu için [ARCHITECTURE.md](docs/ARCHITECTURE.md) dosyasına bakın.
+
+---
+
+## 📸 Ekran Görüntüleri
+
+<div align="center">
+
+| Ağırlık Antrenmanı | Beslenme Takibi | Profil ve Geçmiş |
+|---|---|---|
+| *Yakında* | *Yakında* | *Yakında* |
+
+</div>
+
+---
+
+## 🚀 Başlarken
+
+### Ön Gereksinimler
+
+- macOS 14.0+
+- Xcode 15.0+
+- iOS 17.0+ cihaz veya simülatör
+
+### Kurulum
+
+1. **Repository'yi klonlayın**
+   ```bash
+   git clone https://github.com/burakkho/antrain.git
+   cd antrain
+   ```
+
+2. **Xcode'da açın**
+   ```bash
+   open antrain.xcodeproj
+   ```
+
+3. **Derleyin ve Çalıştırın**
+   - Hedef cihazınızı/simülatörünüzü seçin
+   - `Cmd + R` ile derleyin ve çalıştırın
+   - Harici bağımlılık gerektirmez!
+
+### Yapılandırma
+
+- **Bundle Identifier**: Proje ayarlarından gerektiği gibi güncelleyin
+- **Team**: Xcode'da geliştirme ekibinizi ayarlayın
+- **Deployment Target**: iOS 17.0
+
+---
+
+## 📖 Dokümantasyon
+
+Kapsamlı dokümantasyon `/docs` dizininde mevcuttur:
+
+- [**ARCHITECTURE.md**](docs/ARCHITECTURE.md) - Detaylı mimari ve tasarım desenleri
+- [**MODELS.md**](docs/MODELS.md) - Temel domain modelleri ve ilişkileri
+- [**DESIGN_SYSTEM.md**](docs/DESIGN_SYSTEM.md) - Tasarım token'ları ve bileşen kütüphanesi
+- [**SPRINT_LOG.md**](docs/SPRINT_LOG.md) - Geliştirme geçmişi ve sprint takibi
+- [**PRIVACY_POLICY.md**](PRIVACY_POLICY.md) - Gizlilik politikası ve veri işleme
+
+---
+
+## 🗺 Yol Haritası
+
+### Mevcut Durum: v1.0 (%90 Tamamlandı)
+
+#### ✅ Tamamlandı
+- Temel Yapı ve Çekirdek Mimari
+- Beslenme Takibi (besin kütüphanesi ile tam)
+- Hızlı Kayıt (kardiyо ve MetCon)
+- Ağırlık Antrenmanı Takibi
+- Kullanıcı Profili ve Ayarlar
+- Tasarım Sistemi ve Karanlık Mod
+- Ağırlık Birimi Sistemi (kg/lbs dönüşümü)
+
+#### 🔜 Yakında (v1.1+)
+- Egzersiz kütüphanesi genişletmesi (150+ egzersiz)
+- Özel egzersiz/besin oluşturma UI'ı
+- Antrenman şablonları ve rutinleri
+- Gelişmiş analitik ve ilerleme grafikleri
+- Kişisel rekorlar (PR) takibi
+- HealthKit entegrasyonu
+
+#### 🚀 Gelecek Aşamalar
+- Cihazlar arası cloud senkronizasyonu
+- Apple Watch uygulaması
+- Veri dışa aktarma (CSV, PDF)
+- Bildirimlerle dinlenme zamanlayıcısı
+- Egzersiz talimat videoları
+
+---
+
+## 🤝 Katkıda Bulunma
+
+Bu şu anda bir **portfolyo vitrin projesidir**. Katkılar şu anda kabul edilmemekle birlikte, şunları yapabilirsiniz:
+
+- ⭐ Repository'yi yıldızlayın
+- 🐛 [Issues](https://github.com/burakkho/antrain/issues) üzerinden hata bildirin
+- 💡 [Issues](https://github.com/burakkho/antrain/issues) üzerinden özellik önerin
+- 📧 Sorularınız için iletişime geçin
+
+Daha fazla detay için [CONTRIBUTING.md](CONTRIBUTING.md) dosyasına bakın.
+
+---
+
+## 📄 Lisans
+
+Bu proje MIT Lisansı altında lisanslanmıştır - detaylar için [LICENSE](LICENSE) dosyasına bakın.
+
+---
+
+## 📧 İletişim
+
+**Burak Küçükhüseyinoğlu**
+
+- GitHub: [@burakkho](https://github.com/burakkho)
+- Email: burakkho@gmail.com
+- Repository: [github.com/burakkho/antrain](https://github.com/burakkho/antrain)
+
+---
+
+## 🙏 Teşekkürler
+
+- [Swift 6](https://swift.org) ve [SwiftUI](https://developer.apple.com/xcode/swiftui/) ile geliştirildi
+- [Apple İnsan Arayüzü Yönergeleri](https://developer.apple.com/design/human-interface-guidelines/)'ni takip eder
+- Fitness takip topluluğundan ilham alındı
+
+---
+
+<div align="center">
+
+**⚡ Fitness topluluğu için tutkuyla geliştirildi ⚡**
+
+[Hata Bildir](https://github.com/burakkho/antrain/issues) • [Özellik İste](https://github.com/burakkho/antrain/issues)
+
+</div>
