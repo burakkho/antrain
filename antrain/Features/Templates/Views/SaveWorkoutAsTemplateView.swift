@@ -159,22 +159,21 @@ struct SaveWorkoutAsTemplateView: View {
 // MARK: - Preview
 
 #Preview {
-    @Previewable @State var workout = Workout(date: Date(), type: .lifting)
-    @Previewable @State var exercise = Exercise(
+    let exercise = Exercise(
         name: "Barbell Bench Press",
         category: .barbell,
         muscleGroups: [.chest],
         equipment: .barbell,
         isCustom: false
     )
-    @Previewable @State var workoutExercise = WorkoutExercise(exercise: exercise, orderIndex: 0)
 
-    let _ = {
-        workoutExercise.sets.append(WorkoutSet(reps: 10, weight: 100, isCompleted: true))
-        workoutExercise.sets.append(WorkoutSet(reps: 8, weight: 110, isCompleted: true))
-    }()
+    let workoutExercise = WorkoutExercise(exercise: exercise, orderIndex: 0)
+    workoutExercise.sets.append(WorkoutSet(reps: 10, weight: 100, isCompleted: true))
+    workoutExercise.sets.append(WorkoutSet(reps: 8, weight: 110, isCompleted: true))
 
-    SaveWorkoutAsTemplateView(
+    let workout = Workout(date: Date(), type: .lifting)
+
+    return SaveWorkoutAsTemplateView(
         workout: workout,
         exercises: [workoutExercise],
         onSaved: {

@@ -123,4 +123,26 @@ actor ExerciseRepository: ExerciseRepositoryProtocol {
         modelContext.delete(exercise)
         try modelContext.save()
     }
+
+    /// Seed preset exercises from ExerciseLibrary into SwiftData (idempotent)
+    func seedPresetExercises() async throws {
+        // Check if already seeded
+        let existingPresets = try await fetchPresetOnly()
+        guard existingPresets.isEmpty else {
+            return // Already seeded
+        }
+
+        // Get all preset exercises from library on MainActor
+        let presetExercises = await MainActor.run {
+            let library = ExerciseLibrary()
+            return library.getAllPresetExercisesAsModels()
+        }
+
+        // Insert all preset exercises
+        for exercise in presetExercises {
+            modelContext.insert(exercise)
+        }
+
+        try modelContext.save()
+    }
 }

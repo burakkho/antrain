@@ -38,7 +38,7 @@ final class TemplateDetailViewModel {
 
     /// Exercises sorted by order
     var sortedExercises: [TemplateExercise] {
-        template.exercises.sorted()
+        template.exercises.sorted(by: TemplateExercise.compare)
     }
 
     /// Whether this is a preset template (read-only)
@@ -55,7 +55,7 @@ final class TemplateDetailViewModel {
 
     /// Duplicate this template with new name
     func duplicateTemplate(newName: String) async throws {
-        try await repository.duplicateTemplate(template, newName: newName)
+        _ = try await repository.duplicateTemplate(template, newName: newName)
     }
 
     /// Mark template as used (when starting workout)

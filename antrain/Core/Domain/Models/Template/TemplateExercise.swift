@@ -11,7 +11,7 @@ import SwiftData
 /// Represents an exercise within a workout template
 /// Contains exercise reference and set/rep configuration
 @Model
-final class TemplateExercise {
+final class TemplateExercise: @unchecked Sendable {
     // MARK: - Identity
 
     /// Unique identifier for this template exercise
@@ -113,10 +113,11 @@ final class TemplateExercise {
     }
 }
 
-// MARK: - Comparable
+// MARK: - Sorting Helper
 
-extension TemplateExercise: Comparable {
-    static func < (lhs: TemplateExercise, rhs: TemplateExercise) -> Bool {
+extension TemplateExercise {
+    /// Compare two template exercises for sorting by order
+    static func compare(_ lhs: TemplateExercise, _ rhs: TemplateExercise) -> Bool {
         lhs.order < rhs.order
     }
 }

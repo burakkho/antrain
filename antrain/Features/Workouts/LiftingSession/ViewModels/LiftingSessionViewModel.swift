@@ -48,7 +48,7 @@ final class LiftingSessionViewModel {
             workout.exercises = []
 
             // Convert each template exercise to workout exercise
-            for templateExercise in template.exercises.sorted() {
+            for templateExercise in template.exercises.sorted(by: TemplateExercise.compare) {
                 // Fetch the actual exercise from repository
                 guard let exercise = try await exerciseRepository.fetchExercise(by: templateExercise.exerciseId) else {
                     print("⚠️ Exercise not found: \(templateExercise.exerciseName)")
@@ -71,10 +71,8 @@ final class LiftingSessionViewModel {
                     workoutExercise.sets.append(set)
                 }
 
-                // Add notes if available
-                if let notes = templateExercise.notes {
-                    workoutExercise.notes = notes
-                }
+                // Note: Template notes are not transferred to WorkoutExercise
+                // They're only used as guidance during template configuration
 
                 exercises.append(workoutExercise)
             }

@@ -9,6 +9,9 @@ struct WorkoutsView: View {
     @State private var showLiftingSession = false
     @State private var showCardioLog = false
     @State private var showMetConLog = false
+    @State private var showTemplatesList = false
+    @State private var showTemplateSelector = false
+    @State private var selectedTemplate: WorkoutTemplate?
 
     // Filter states
     @State private var selectedFilter: WorkoutTypeFilter = .all
@@ -43,9 +46,12 @@ struct WorkoutsView: View {
                     viewModeToggle
                 }
             }
-            .sheet(isPresented: $showLiftingSession) {
-                LiftingSessionView()
+            .fullScreenCover(isPresented: $showLiftingSession) {
+                LiftingSessionView(initialTemplate: selectedTemplate)
                     .environmentObject(appDependencies)
+                    .onDisappear {
+                        selectedTemplate = nil
+                    }
             }
             .sheet(isPresented: $showCardioLog) {
                 CardioLogView()
@@ -54,6 +60,19 @@ struct WorkoutsView: View {
             .sheet(isPresented: $showMetConLog) {
                 MetConLogView()
                     .environmentObject(appDependencies)
+            }
+            .sheet(isPresented: $showTemplatesList) {
+                NavigationStack {
+                    TemplatesListView()
+                        .environmentObject(appDependencies)
+                }
+            }
+            .sheet(isPresented: $showTemplateSelector) {
+                TemplateQuickSelectorView { template in
+                    selectedTemplate = template
+                    showLiftingSession = true
+                }
+                .environmentObject(appDependencies)
             }
             .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("WorkoutSaved"))) { _ in
                 Task {
@@ -80,6 +99,9 @@ struct WorkoutsView: View {
                 VStack(spacing: DSSpacing.md) {
                     // Quick Actions
                     quickActionsSection
+
+                    // My Templates Section
+                    myTemplatesSection
 
                     // PR Summary Card
                     DailyWorkoutSummary(limit: 5)
@@ -109,6 +131,66 @@ struct WorkoutsView: View {
         }
         .refreshable {
             await viewModel.loadWorkouts()
+        }
+    }
+
+    // MARK: - My Templates Section
+
+    private var myTemplatesSection: some View {
+        VStack(alignment: .leading, spacing: DSSpacing.sm) {
+            HStack {
+                Text("My Templates")
+                    .font(DSTypography.title3)
+                    .fontWeight(.semibold)
+
+                Spacer()
+
+                Button {
+                    showTemplatesList = true
+                } label: {
+                    Text("See All")
+                        .font(DSTypography.caption)
+                        .fontWeight(.medium)
+                        .foregroundStyle(DSColors.primary)
+                }
+            }
+            .padding(.horizontal, DSSpacing.md)
+
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: DSSpacing.sm) {
+                    // Recent/Most Used Templates (would need TemplatesViewModel)
+                    // For now, show "Browse Templates" and "Create New" cards
+
+                    // Browse Templates Card
+                    TemplateQuickCard(
+                        icon: "doc.text.fill",
+                        title: "Browse",
+                        subtitle: "All Templates"
+                    ) {
+                        showTemplatesList = true
+                    }
+
+                    // Start from Template Card
+                    TemplateQuickCard(
+                        icon: "play.fill",
+                        title: "Start",
+                        subtitle: "From Template"
+                    ) {
+                        showTemplateSelector = true
+                    }
+
+                    // Create Template Card
+                    TemplateQuickCard(
+                        icon: "plus.circle.fill",
+                        title: "Create",
+                        subtitle: "New Template"
+                    ) {
+                        // TODO: Navigate to CreateTemplateFlow
+                        showTemplatesList = true
+                    }
+                }
+                .padding(.horizontal, DSSpacing.md)
+            }
         }
     }
 
@@ -389,6 +471,42 @@ enum WorkoutTypeFilter: String, CaseIterable {
 enum ViewMode {
     case list
     case calendar
+}
+
+// MARK: - Template Quick Card
+
+private struct TemplateQuickCard: View {
+    let icon: String
+    let title: String
+    let subtitle: String
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            VStack(spacing: DSSpacing.xs) {
+                Image(systemName: icon)
+                    .font(.title2)
+                    .foregroundStyle(DSColors.primary)
+                    .frame(height: 32)
+
+                VStack(spacing: 2) {
+                    Text(title)
+                        .font(DSTypography.subheadline)
+                        .fontWeight(.semibold)
+                        .foregroundStyle(DSColors.textPrimary)
+
+                    Text(subtitle)
+                        .font(DSTypography.caption2)
+                        .foregroundStyle(DSColors.textSecondary)
+                }
+            }
+            .frame(width: 100)
+            .padding(.vertical, DSSpacing.sm)
+            .background(DSColors.cardBackground)
+            .clipShape(RoundedRectangle(cornerRadius: DSCornerRadius.md))
+        }
+        .buttonStyle(.plain)
+    }
 }
 
 // MARK: - Preview

@@ -322,7 +322,7 @@ final class CreateTemplateViewModel {
         selectedExercises = exercises
 
         // Create configs from template exercises
-        exerciseConfigs = template.exercises.sorted().compactMap { templateEx in
+        exerciseConfigs = template.exercises.sorted(by: TemplateExercise.compare).compactMap { templateEx in
             guard let exercise = exercises.first(where: { $0.id == templateEx.exerciseId }) else {
                 return nil
             }
@@ -336,6 +336,13 @@ final class CreateTemplateViewModel {
         }
 
         isLoading = false
+    }
+
+    // MARK: - Error Handling
+
+    /// Clear the current error
+    func clearError() {
+        error = nil
     }
 
     // MARK: - Reset

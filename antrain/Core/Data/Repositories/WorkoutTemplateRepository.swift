@@ -29,12 +29,11 @@ actor WorkoutTemplateRepository: WorkoutTemplateRepositoryProtocol {
 
     func fetchAllTemplates() async throws -> [WorkoutTemplate] {
         let descriptor = FetchDescriptor<WorkoutTemplate>(
-            sortBy: [
-                SortDescriptor(\.isPreset, order: .reverse), // Presets first
-                SortDescriptor(\.name)
-            ]
+            sortBy: [SortDescriptor(\.name)]
         )
-        return try modelContext.fetch(descriptor)
+        let templates = try modelContext.fetch(descriptor)
+        // Sort manually: presets first, then by name
+        return templates.sorted(by: WorkoutTemplate.compare)
     }
 
     func fetchTemplate(by id: UUID) async throws -> WorkoutTemplate? {
@@ -48,12 +47,11 @@ actor WorkoutTemplateRepository: WorkoutTemplateRepositoryProtocol {
     func fetchTemplatesByCategory(_ category: TemplateCategory) async throws -> [WorkoutTemplate] {
         let descriptor = FetchDescriptor<WorkoutTemplate>(
             predicate: #Predicate { $0.category == category },
-            sortBy: [
-                SortDescriptor(\.isPreset, order: .reverse),
-                SortDescriptor(\.name)
-            ]
+            sortBy: [SortDescriptor(\.name)]
         )
-        return try modelContext.fetch(descriptor)
+        let templates = try modelContext.fetch(descriptor)
+        // Sort manually: presets first, then by name
+        return templates.sorted(by: WorkoutTemplate.compare)
     }
 
     func fetchUserTemplates() async throws -> [WorkoutTemplate] {
@@ -104,8 +102,19 @@ actor WorkoutTemplateRepository: WorkoutTemplateRepositoryProtocol {
             return // Already seeded
         }
 
-        // Create all preset templates
-        let presets = PresetTemplateSeeder.createPresetTemplates()
+        // Fetch all exercises from SwiftData first
+        let allExercisesDescriptor = FetchDescriptor<Exercise>()
+        let allExercises = try modelContext.fetch(allExercisesDescriptor)
+
+        // Create exercise finder closure
+        let exerciseFinder: (String) -> Exercise? = { name in
+            allExercises.first { $0.name.lowercased() == name.lowercased() }
+        }
+
+        // Create all preset templates on MainActor (required by @Model)
+        let presets = await MainActor.run {
+            PresetTemplateSeeder.createPresetTemplates(exerciseFinder: exerciseFinder)
+        }
 
         // Insert all presets
         for preset in presets {
@@ -126,7 +135,7 @@ actor WorkoutTemplateRepository: WorkoutTemplateRepositoryProtocol {
 
     // MARK: - Duplication
 
-    func duplicateTemplate(_ template: WorkoutTemplate, newName: String) async throws {
+    func duplicateTemplate(_ template: WorkoutTemplate, newName: String) async throws -> WorkoutTemplate {
         // Create duplicate using template's duplicate method
         let duplicate = template.duplicate(newName: newName)
 
@@ -150,23 +159,19 @@ actor WorkoutTemplateRepository: WorkoutTemplateRepositoryProtocol {
     func isTemplateNameUnique(_ name: String, excludingId: UUID?) async throws -> Bool {
         let trimmedName = name.trimmingCharacters(in: .whitespaces).lowercased()
 
-        let descriptor: FetchDescriptor<WorkoutTemplate>
-        if let excludingId {
-            descriptor = FetchDescriptor<WorkoutTemplate>(
-                predicate: #Predicate { template in
-                    template.id != excludingId &&
-                    template.name.lowercased() == trimmedName
-                }
-            )
-        } else {
-            descriptor = FetchDescriptor<WorkoutTemplate>(
-                predicate: #Predicate { template in
-                    template.name.lowercased() == trimmedName
-                }
-            )
+        // Fetch all templates and filter manually (SwiftData predicates don't support lowercased())
+        let descriptor = FetchDescriptor<WorkoutTemplate>()
+        let allTemplates = try modelContext.fetch(descriptor)
+
+        let duplicates = allTemplates.filter { template in
+            let matches = template.name.lowercased() == trimmedName
+            if let excludingId {
+                return matches && template.id != excludingId
+            } else {
+                return matches
+            }
         }
 
-        let duplicates = try modelContext.fetch(descriptor)
         return duplicates.isEmpty
     }
 }

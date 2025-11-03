@@ -29,6 +29,8 @@ struct CreateTemplateFlow: View {
     }
 
     var body: some View {
+        @Bindable var viewModel = viewModel
+
         NavigationStack {
             VStack(spacing: 0) {
                 // Progress indicator
@@ -72,7 +74,7 @@ struct CreateTemplateFlow: View {
             }
             .alert("Error", isPresented: .constant(viewModel.error != nil)) {
                 Button("OK") {
-                    viewModel.clearError()
+                    self.viewModel.clearError()
                 }
             } message: {
                 if let error = viewModel.error {
@@ -81,15 +83,15 @@ struct CreateTemplateFlow: View {
             }
             .task {
                 // Initialize viewModel with proper dependencies
-                viewModel = CreateTemplateViewModel(
+                self.viewModel = CreateTemplateViewModel(
                     templateRepository: dependencies.workoutTemplateRepository,
                     exerciseRepository: dependencies.exerciseRepository,
-                    editingTemplate: viewModel.editingTemplate
+                    editingTemplate: self.viewModel.editingTemplate
                 )
 
                 // Load template data if editing
-                if viewModel.isEditing {
-                    await viewModel.loadTemplateForEdit()
+                if self.viewModel.isEditing {
+                    await self.viewModel.loadTemplateForEdit()
                 }
             }
         }

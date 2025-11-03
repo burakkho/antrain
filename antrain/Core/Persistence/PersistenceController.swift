@@ -107,8 +107,24 @@ final class PersistenceController {
 
         let context = modelContainer.mainContext
 
-        // Seed preset templates
-        let presetTemplates = PresetTemplateSeeder.createPresetTemplates()
+        // Fetch all exercises from SwiftData (already seeded)
+        let fetchDescriptor = FetchDescriptor<Exercise>()
+        let allExercises: [Exercise]
+
+        do {
+            allExercises = try context.fetch(fetchDescriptor)
+        } catch {
+            print("❌ Failed to fetch exercises for template seeding: \(error)")
+            return
+        }
+
+        // Helper to find exercise by name from SwiftData
+        func findExercise(_ name: String) -> Exercise? {
+            allExercises.first { $0.name.lowercased() == name.lowercased() }
+        }
+
+        // Seed preset templates using exercises from SwiftData
+        let presetTemplates = PresetTemplateSeeder.createPresetTemplates(exerciseFinder: findExercise)
 
         for template in presetTemplates {
             context.insert(template)
@@ -191,6 +207,10 @@ extension PersistenceController {
             // Sample user profile
             let sampleProfile = UserProfile(
                 name: "Burak",
+                height: 180,
+                gender: .male,
+                dateOfBirth: Calendar.current.date(byAdding: .year, value: -25, to: Date()),
+                activityLevel: .moderatelyActive,
                 dailyCalorieGoal: 2500,
                 dailyProteinGoal: 180,
                 dailyCarbsGoal: 250,

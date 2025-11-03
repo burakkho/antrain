@@ -11,7 +11,7 @@ import SwiftData
 /// Represents a workout template that can be reused for lifting sessions
 /// Templates contain a pre-defined list of exercises with set/rep configurations
 @Model
-final class WorkoutTemplate {
+final class WorkoutTemplate: @unchecked Sendable {
     // MARK: - Identity
 
     /// Unique identifier for the template

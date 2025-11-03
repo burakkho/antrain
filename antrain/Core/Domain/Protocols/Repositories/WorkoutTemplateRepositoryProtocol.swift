@@ -9,7 +9,6 @@ import Foundation
 
 /// Protocol defining operations for managing workout templates
 /// Repository handles persistence, retrieval, and business logic for templates
-@MainActor
 protocol WorkoutTemplateRepositoryProtocol: Actor {
     // MARK: - CRUD Operations
 

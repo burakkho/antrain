@@ -7,8 +7,6 @@ struct HomeView: View {
     @State private var showLiftingSession = false
     @State private var showCardioLog = false
     @State private var showMetConLog = false
-    @State private var showTemplateSelector = false
-    @State private var selectedTemplate: WorkoutTemplate?
 
     var body: some View {
         NavigationStack {
@@ -65,11 +63,8 @@ struct HomeView: View {
                 }
             }
             .fullScreenCover(isPresented: $showLiftingSession) {
-                LiftingSessionView(initialTemplate: selectedTemplate)
+                LiftingSessionView()
                     .environmentObject(appDependencies)
-                    .onDisappear {
-                        selectedTemplate = nil // Reset for next session
-                    }
             }
             .sheet(isPresented: $showCardioLog) {
                 CardioLogView()
@@ -78,12 +73,6 @@ struct HomeView: View {
             .sheet(isPresented: $showMetConLog) {
                 MetConLogView()
                     .environmentObject(appDependencies)
-            }
-            .sheet(isPresented: $showTemplateSelector) {
-                TemplateQuickSelectorView { template in
-                    selectedTemplate = template
-                    showLiftingSession = true
-                }
             }
         }
     }
@@ -157,36 +146,24 @@ struct HomeView: View {
                 .font(DSTypography.title3)
                 .foregroundStyle(DSColors.textPrimary)
 
-            VStack(spacing: DSSpacing.sm) {
-                // Row 1
-                HStack(spacing: DSSpacing.sm) {
-                    QuickActionButton(
-                        icon: "dumbbell.fill",
-                        title: "Start Workout",
-                        action: { showLiftingSession = true }
-                    )
+            HStack(spacing: DSSpacing.sm) {
+                QuickActionButton(
+                    icon: "dumbbell.fill",
+                    title: "Start Workout",
+                    action: { showLiftingSession = true }
+                )
 
-                    QuickActionButton(
-                        icon: "doc.text.fill",
-                        title: "From Template",
-                        action: { showTemplateSelector = true }
-                    )
-                }
+                QuickActionButton(
+                    icon: "figure.run",
+                    title: "Log Cardio",
+                    action: { showCardioLog = true }
+                )
 
-                // Row 2
-                HStack(spacing: DSSpacing.sm) {
-                    QuickActionButton(
-                        icon: "figure.run",
-                        title: "Log Cardio",
-                        action: { showCardioLog = true }
-                    )
-
-                    QuickActionButton(
-                        icon: "flame.fill",
-                        title: "Log MetCon",
-                        action: { showMetConLog = true }
-                    )
-                }
+                QuickActionButton(
+                    icon: "flame.fill",
+                    title: "Log MetCon",
+                    action: { showMetConLog = true }
+                )
             }
         }
     }

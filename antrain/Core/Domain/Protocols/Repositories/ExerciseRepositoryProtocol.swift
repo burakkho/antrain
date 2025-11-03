@@ -39,6 +39,9 @@ protocol ExerciseRepositoryProtocol: Actor {
 
     /// Delete an exercise (only if custom)
     func delete(_ exercise: Exercise) async throws
+
+    /// Seed preset exercises from ExerciseLibrary into SwiftData (idempotent)
+    func seedPresetExercises() async throws
 }
 
 // MARK: - Repository Error
