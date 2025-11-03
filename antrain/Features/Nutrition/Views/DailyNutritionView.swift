@@ -252,22 +252,90 @@ struct SmartNutritionGoalsEditor: View {
 
     // Track which field user is editing
     @State private var lastEditedField: EditedField? = nil
+    // Prevent circular updates when programmatically changing values
+    @State private var isUpdating = false
+
+    // Calculation mode
+    @State private var calculationMode: CalculationMode = .macroToCalorie
+    // TDEE Calculator
+    @State private var showTDEECalculator = false
+    @State private var selectedGoalType: TDEECalculator.GoalType = .maintain
+    // Original goals for difference indicator
+    @State private var originalGoals: (calories: Double, protein: Double, carbs: Double, fats: Double)?
+    // Onboarding wizard
+    @State private var showOnboarding = false
 
     enum EditedField {
         case calories, protein, carbs, fats
     }
 
+    enum CalculationMode: String, CaseIterable {
+        case macroToCalorie = "Macros → Calories"
+        case calorieToMacro = "Calories → Macros"
+    }
+
     var body: some View {
         NavigationStack {
             Form {
+                // MARK: - Calculation Mode Selector
                 Section {
-                    Text("Enter your protein, carbs, and fats - calories will be calculated automatically. Or adjust calories to scale all macros proportionally.")
-                        .font(DSTypography.caption)
-                        .foregroundStyle(DSColors.textSecondary)
+                    Picker("Calculation Mode", selection: $calculationMode) {
+                        ForEach(CalculationMode.allCases, id: \.self) { mode in
+                            Text(mode.rawValue).tag(mode)
+                        }
+                    }
+                    .pickerStyle(.segmented)
                 } header: {
-                    Text("How it works")
+                    Text("Calculation Mode")
+                } footer: {
+                    Text(calculationMode == .macroToCalorie ?
+                         "Enter macros and calories will be calculated automatically" :
+                         "Enter calories and macros will be scaled proportionally")
+                        .font(DSTypography.caption)
                 }
 
+                // MARK: - TDEE Calculator
+                Section {
+                    if hasMissingData {
+                        // Show inline setup for missing data
+                        InlineProfileSetup(
+                            profile: viewModel.userProfile,
+                            onSave: {
+                                // Profile is already updated, just trigger UI refresh
+                            }
+                        )
+                    } else if canCalculateTDEE {
+                        // Show full TDEE calculator
+                        Button(action: { showTDEECalculator.toggle() }) {
+                            HStack {
+                                Image(systemName: "calculator")
+                                Text("Calculate from TDEE")
+                                Spacer()
+                                Image(systemName: showTDEECalculator ? "chevron.up" : "chevron.down")
+                            }
+                        }
+
+                        if showTDEECalculator {
+                            tdeeCalculatorView
+                        }
+                    }
+                } header: {
+                    Text("Smart Calculator")
+                }
+
+                // MARK: - Preset Picker
+                Section {
+                    MacroPresetPicker(
+                        currentCalories: Double(calories) ?? 2000,
+                        onPresetSelected: { protein, carbs, fats in
+                            applyPreset(protein: protein, carbs: carbs, fats: fats)
+                        }
+                    )
+                } header: {
+                    Text("Quick Presets")
+                }
+
+                // MARK: - Daily Goals Input
                 Section("Daily Goals") {
                     HStack {
                         Text("Calories")
@@ -277,10 +345,14 @@ struct SmartNutritionGoalsEditor: View {
                             .multilineTextAlignment(.trailing)
                             .frame(width: 80)
                             .onChange(of: calories) { oldValue, newValue in
-                                if lastEditedField != .calories {
+                                guard !isUpdating else { return }
+                                guard lastEditedField == .calories else {
                                     lastEditedField = .calories
-                                    handleCalorieChange(newValue)
+                                    return
                                 }
+                                isUpdating = true
+                                defer { isUpdating = false }
+                                handleCalorieChange(newValue)
                             }
                         Text("kcal")
                             .foregroundStyle(DSColors.textSecondary)
@@ -294,10 +366,14 @@ struct SmartNutritionGoalsEditor: View {
                             .multilineTextAlignment(.trailing)
                             .frame(width: 80)
                             .onChange(of: protein) { oldValue, newValue in
-                                if lastEditedField != .protein {
+                                guard !isUpdating else { return }
+                                guard lastEditedField == .protein else {
                                     lastEditedField = .protein
-                                    handleMacroChange()
+                                    return
                                 }
+                                isUpdating = true
+                                defer { isUpdating = false }
+                                handleMacroChange()
                             }
                         Text("g")
                             .foregroundStyle(DSColors.textSecondary)
@@ -311,10 +387,14 @@ struct SmartNutritionGoalsEditor: View {
                             .multilineTextAlignment(.trailing)
                             .frame(width: 80)
                             .onChange(of: carbs) { oldValue, newValue in
-                                if lastEditedField != .carbs {
+                                guard !isUpdating else { return }
+                                guard lastEditedField == .carbs else {
                                     lastEditedField = .carbs
-                                    handleMacroChange()
+                                    return
                                 }
+                                isUpdating = true
+                                defer { isUpdating = false }
+                                handleMacroChange()
                             }
                         Text("g")
                             .foregroundStyle(DSColors.textSecondary)
@@ -328,13 +408,49 @@ struct SmartNutritionGoalsEditor: View {
                             .multilineTextAlignment(.trailing)
                             .frame(width: 80)
                             .onChange(of: fats) { oldValue, newValue in
-                                if lastEditedField != .fats {
+                                guard !isUpdating else { return }
+                                guard lastEditedField == .fats else {
                                     lastEditedField = .fats
-                                    handleMacroChange()
+                                    return
                                 }
+                                isUpdating = true
+                                defer { isUpdating = false }
+                                handleMacroChange()
                             }
                         Text("g")
                             .foregroundStyle(DSColors.textSecondary)
+                    }
+                }
+
+                // MARK: - Visual Feedback
+                if let proteinValue = Double(protein),
+                   let carbsValue = Double(carbs),
+                   let fatsValue = Double(fats),
+                   proteinValue > 0 || carbsValue > 0 || fatsValue > 0 {
+                    Section {
+                        MacroVisualFeedbackCompact(
+                            protein: proteinValue,
+                            carbs: carbsValue,
+                            fats: fatsValue
+                        )
+                    } header: {
+                        Text("Macro Distribution")
+                    }
+                }
+
+                // MARK: - Goal Difference
+                if let original = originalGoals,
+                   let cal = Double(calories),
+                   let pro = Double(protein),
+                   let car = Double(carbs),
+                   let fat = Double(fats) {
+                    Section {
+                        goalDifferenceView(
+                            original: original,
+                            new: (cal, pro, car, fat)
+                        )
+                    } header: {
+                        Text("Changes from Current")
                     }
                 }
 
@@ -368,11 +484,37 @@ struct SmartNutritionGoalsEditor: View {
         .onAppear {
             // Load current values
             if let profile = viewModel.userProfile {
-                calories = String(Int(profile.dailyCalorieGoal))
-                protein = String(Int(profile.dailyProteinGoal))
-                carbs = String(Int(profile.dailyCarbsGoal))
-                fats = String(Int(profile.dailyFatsGoal))
+                let cal = profile.dailyCalorieGoal
+                let pro = profile.dailyProteinGoal
+                let car = profile.dailyCarbsGoal
+                let fat = profile.dailyFatsGoal
+
+                calories = String(Int(cal))
+                protein = String(Int(pro))
+                carbs = String(Int(car))
+                fats = String(Int(fat))
+
+                // Store original goals for difference indicator
+                originalGoals = (cal, pro, car, fat)
+
+                // Check if should show onboarding wizard
+                let hasCompletedOnboarding = UserDefaults.standard.bool(forKey: "hasCompletedNutritionOnboarding")
+                if !hasCompletedOnboarding && hasMissingData {
+                    showOnboarding = true
+                }
             }
+        }
+        .sheet(isPresented: $showOnboarding) {
+            NutritionGoalsOnboardingWizard(
+                viewModel: viewModel,
+                onComplete: { tdee, recommendedCalories, macros in
+                    // Apply recommended values
+                    applyTDEERecommendation(
+                        calories: recommendedCalories,
+                        macros: macros
+                    )
+                }
+            )
         }
     }
 
@@ -463,6 +605,202 @@ struct SmartNutritionGoalsEditor: View {
         } catch {
             errorMessage = "Failed to save goals: \(error.localizedDescription)"
             isSaving = false
+        }
+    }
+
+    // MARK: - Helper Views
+
+    /// Check if user has required data for TDEE calculation
+    private var canCalculateTDEE: Bool {
+        guard let profile = viewModel.userProfile else { return false }
+        return profile.age != nil &&
+               profile.height != nil &&
+               profile.gender != nil &&
+               profile.activityLevel != nil &&
+               profile.currentBodyweight != nil
+    }
+
+    /// Check if user has any missing profile data
+    private var hasMissingData: Bool {
+        guard let profile = viewModel.userProfile else { return true }
+        return profile.age == nil ||
+               profile.height == nil ||
+               profile.gender == nil ||
+               profile.activityLevel == nil ||
+               profile.currentBodyweight == nil
+    }
+
+    /// TDEE Calculator View
+    @ViewBuilder
+    private var tdeeCalculatorView: some View {
+        if let profile = viewModel.userProfile,
+           let age = profile.age,
+           let height = profile.height,
+           let gender = profile.gender,
+           let activityLevel = profile.activityLevel,
+           let weight = profile.currentBodyweight?.weight {
+
+            // Convert UserProfile.ActivityLevel to TDEECalculator.ActivityLevel
+            let tdeeActivityLevel = TDEECalculator.ActivityLevel(
+                rawValue: activityLevel.rawValue
+            ) ?? .moderatelyActive
+
+            let tdee = TDEECalculator.calculateTDEE(
+                weight: weight,
+                height: height,
+                age: age,
+                gender: gender,
+                activityLevel: tdeeActivityLevel
+            )
+
+            VStack(alignment: .leading, spacing: 12) {
+                Text("Your TDEE: \(Int(tdee)) kcal/day")
+                    .font(DSTypography.body)
+                    .fontWeight(.bold)
+
+                Picker("Goal", selection: $selectedGoalType) {
+                    ForEach(TDEECalculator.GoalType.allCases) { goalType in
+                        Text(goalType.rawValue).tag(goalType)
+                    }
+                }
+                .pickerStyle(.segmented)
+
+                let recommendedCals = TDEECalculator.recommendedCalories(
+                    tdee: tdee,
+                    goal: selectedGoalType
+                )
+
+                let recommendedMacros = TDEECalculator.recommendedMacros(
+                    calories: recommendedCals,
+                    weight: weight,
+                    goal: selectedGoalType
+                )
+
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Recommended for \(selectedGoalType.rawValue):")
+                        .font(DSTypography.caption)
+                        .foregroundStyle(DSColors.textSecondary)
+
+                    HStack {
+                        VStack(alignment: .leading) {
+                            Text("\(Int(recommendedCals)) kcal")
+                                .font(DSTypography.body)
+                            Text("P: \(Int(recommendedMacros.protein))g • C: \(Int(recommendedMacros.carbs))g • F: \(Int(recommendedMacros.fats))g")
+                                .font(DSTypography.caption)
+                                .foregroundStyle(DSColors.textSecondary)
+                        }
+                        Spacer()
+                        Button("Apply") {
+                            applyTDEERecommendation(
+                                calories: recommendedCals,
+                                macros: recommendedMacros
+                            )
+                        }
+                        .buttonStyle(.borderedProminent)
+                    }
+                }
+            }
+        }
+    }
+
+    /// Apply TDEE recommendation
+    private func applyTDEERecommendation(
+        calories: Double,
+        macros: (protein: Double, carbs: Double, fats: Double)
+    ) {
+        isUpdating = true
+        defer { isUpdating = false }
+
+        self.calories = String(Int(calories))
+        self.protein = String(Int(macros.protein))
+        self.carbs = String(Int(macros.carbs))
+        self.fats = String(Int(macros.fats))
+    }
+
+    /// Apply preset macro ratio
+    private func applyPreset(protein: Double, carbs: Double, fats: Double) {
+        isUpdating = true
+        defer { isUpdating = false }
+
+        self.protein = String(Int(protein))
+        self.carbs = String(Int(carbs))
+        self.fats = String(Int(fats))
+
+        // Recalculate calories
+        let calculatedCalories = (protein * 4) + (carbs * 4) + (fats * 9)
+        self.calories = String(Int(calculatedCalories))
+    }
+
+    /// Goal difference view
+    @ViewBuilder
+    private func goalDifferenceView(
+        original: (calories: Double, protein: Double, carbs: Double, fats: Double),
+        new: (Double, Double, Double, Double)
+    ) -> some View {
+        VStack(spacing: 8) {
+            DifferenceRow(
+                name: "Calories",
+                original: original.calories,
+                new: new.0,
+                unit: "kcal"
+            )
+            DifferenceRow(
+                name: "Protein",
+                original: original.protein,
+                new: new.1,
+                unit: "g"
+            )
+            DifferenceRow(
+                name: "Carbs",
+                original: original.carbs,
+                new: new.2,
+                unit: "g"
+            )
+            DifferenceRow(
+                name: "Fats",
+                original: original.fats,
+                new: new.3,
+                unit: "g"
+            )
+        }
+    }
+}
+
+/// Row showing difference between original and new value
+private struct DifferenceRow: View {
+    let name: String
+    let original: Double
+    let new: Double
+    let unit: String
+
+    private var difference: Double {
+        new - original
+    }
+
+    private var differenceColor: Color {
+        if difference > 0 { return .green }
+        if difference < 0 { return .red }
+        return DSColors.textSecondary
+    }
+
+    var body: some View {
+        HStack {
+            Text(name)
+                .font(DSTypography.body)
+            Spacer()
+            if abs(difference) > 0.5 {
+                Text(difference > 0 ? "+\(Int(difference))" : "\(Int(difference))")
+                    .font(DSTypography.body)
+                    .fontWeight(.bold)
+                    .foregroundStyle(differenceColor)
+                Image(systemName: difference > 0 ? "arrow.up" : "arrow.down")
+                    .font(.caption)
+                    .foregroundStyle(differenceColor)
+            } else {
+                Text("No change")
+                    .font(DSTypography.caption)
+                    .foregroundStyle(DSColors.textSecondary)
+            }
         }
     }
 }

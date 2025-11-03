@@ -18,6 +18,8 @@ final class UserProfile: @unchecked Sendable {
     var name: String
     var height: Double? // in centimeters
     var gender: Gender?
+    var dateOfBirth: Date? // for age calculation in TDEE
+    var activityLevel: ActivityLevel? // for TDEE calculation
     var dailyCalorieGoal: Double
     var dailyProteinGoal: Double
     var dailyCarbsGoal: Double
@@ -34,6 +36,17 @@ final class UserProfile: @unchecked Sendable {
         case preferNotToSay = "Prefer not to say"
     }
 
+    // MARK: - Activity Level Enum
+
+    /// Physical activity levels (mirrors TDEECalculator.ActivityLevel)
+    enum ActivityLevel: String, Codable, CaseIterable {
+        case sedentary = "Sedentary"
+        case lightlyActive = "Lightly Active"
+        case moderatelyActive = "Moderately Active"
+        case veryActive = "Very Active"
+        case extraActive = "Extra Active"
+    }
+
     // MARK: - Relationships
 
     @Relationship(deleteRule: .cascade, inverse: \BodyweightEntry.userProfile)
@@ -45,6 +58,8 @@ final class UserProfile: @unchecked Sendable {
         name: String = "",
         height: Double? = nil,
         gender: Gender? = nil,
+        dateOfBirth: Date? = nil,
+        activityLevel: ActivityLevel? = nil,
         dailyCalorieGoal: Double = 2000,
         dailyProteinGoal: Double = 150,
         dailyCarbsGoal: Double = 200,
@@ -54,6 +69,8 @@ final class UserProfile: @unchecked Sendable {
         self.name = name
         self.height = height
         self.gender = gender
+        self.dateOfBirth = dateOfBirth
+        self.activityLevel = activityLevel
         self.dailyCalorieGoal = dailyCalorieGoal
         self.dailyProteinGoal = dailyProteinGoal
         self.dailyCarbsGoal = dailyCarbsGoal
@@ -63,6 +80,14 @@ final class UserProfile: @unchecked Sendable {
     }
 
     // MARK: - Computed Properties
+
+    /// Calculate age from date of birth
+    var age: Int? {
+        guard let dateOfBirth = dateOfBirth else { return nil }
+        let calendar = Calendar.current
+        let ageComponents = calendar.dateComponents([.year], from: dateOfBirth, to: Date())
+        return ageComponents.year
+    }
 
     /// Get most recent bodyweight entry
     var currentBodyweight: BodyweightEntry? {
@@ -83,6 +108,8 @@ final class UserProfile: @unchecked Sendable {
         name: String? = nil,
         height: Double? = nil,
         gender: Gender? = nil,
+        dateOfBirth: Date? = nil,
+        activityLevel: ActivityLevel? = nil,
         dailyCalorieGoal: Double? = nil,
         dailyProteinGoal: Double? = nil,
         dailyCarbsGoal: Double? = nil,
@@ -96,6 +123,12 @@ final class UserProfile: @unchecked Sendable {
         }
         if let gender = gender {
             self.gender = gender
+        }
+        if let dateOfBirth = dateOfBirth {
+            self.dateOfBirth = dateOfBirth
+        }
+        if let activityLevel = activityLevel {
+            self.activityLevel = activityLevel
         }
         if let dailyCalorieGoal = dailyCalorieGoal {
             self.dailyCalorieGoal = dailyCalorieGoal

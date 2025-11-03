@@ -65,6 +65,20 @@ final class SettingsViewModel {
         await loadProfile()
     }
 
+    /// Update date of birth
+    func updateDateOfBirth(_ dateOfBirth: Date) async throws {
+        guard let profile = userProfile else { return }
+        profile.update(dateOfBirth: dateOfBirth)
+        await loadProfile()
+    }
+
+    /// Update activity level
+    func updateActivityLevel(_ activityLevel: UserProfile.ActivityLevel) async throws {
+        guard let profile = userProfile else { return }
+        profile.update(activityLevel: activityLevel)
+        await loadProfile()
+    }
+
     // MARK: - Bodyweight Tracking
 
     /// Add bodyweight entry

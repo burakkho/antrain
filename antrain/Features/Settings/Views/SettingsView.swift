@@ -10,6 +10,8 @@ struct SettingsView: View {
     @State private var showNameEditor = false
     @State private var showHeightEditor = false
     @State private var showGenderEditor = false
+    @State private var showDateOfBirthEditor = false
+    @State private var showActivityLevelEditor = false
     @State private var showBodyweightEntry = false
     @State private var showBodyweightHistory = false
 
@@ -67,6 +69,37 @@ struct SettingsView: View {
                                 Text("Gender")
                                 Spacer()
                                 Text(viewModel.userProfile?.gender?.rawValue ?? "Not set")
+                                    .foregroundStyle(DSColors.textSecondary)
+                                Image(systemName: "chevron.right")
+                                    .font(.caption)
+                                    .foregroundStyle(DSColors.textTertiary)
+                            }
+                        }
+                        .foregroundStyle(DSColors.textPrimary)
+
+                        Button(action: { showDateOfBirthEditor = true }) {
+                            HStack {
+                                Text("Date of Birth")
+                                Spacer()
+                                if let age = viewModel.userProfile?.age {
+                                    Text("\(age) years old")
+                                        .foregroundStyle(DSColors.textSecondary)
+                                } else {
+                                    Text("Not set")
+                                        .foregroundStyle(DSColors.textSecondary)
+                                }
+                                Image(systemName: "chevron.right")
+                                    .font(.caption)
+                                    .foregroundStyle(DSColors.textTertiary)
+                            }
+                        }
+                        .foregroundStyle(DSColors.textPrimary)
+
+                        Button(action: { showActivityLevelEditor = true }) {
+                            HStack {
+                                Text("Activity Level")
+                                Spacer()
+                                Text(viewModel.userProfile?.activityLevel?.rawValue ?? "Not set")
                                     .foregroundStyle(DSColors.textSecondary)
                                 Image(systemName: "chevron.right")
                                     .font(.caption)
@@ -143,6 +176,12 @@ struct SettingsView: View {
                 }
                 .sheet(isPresented: $showGenderEditor) {
                     GenderEditorSheet(viewModel: viewModel)
+                }
+                .sheet(isPresented: $showDateOfBirthEditor) {
+                    DateOfBirthEditorSheet(viewModel: viewModel)
+                }
+                .sheet(isPresented: $showActivityLevelEditor) {
+                    ActivityLevelEditorSheet(viewModel: viewModel)
                 }
                 .sheet(isPresented: $showBodyweightEntry) {
                     SettingsBodyweightEntrySheet(viewModel: viewModel)
@@ -305,6 +344,184 @@ struct GenderEditorSheet: View {
             dismiss()
         } catch {
             errorMessage = "Failed to save gender: \(error.localizedDescription)"
+            isSaving = false
+        }
+    }
+}
+
+// MARK: - Date of Birth Editor Sheet
+
+struct DateOfBirthEditorSheet: View {
+    @Environment(\.dismiss) private var dismiss
+    @Bindable var viewModel: SettingsViewModel
+    @State private var selectedDate: Date = Calendar.current.date(byAdding: .year, value: -25, to: Date()) ?? Date()
+    @State private var isSaving = false
+    @State private var errorMessage: String?
+
+    var body: some View {
+        NavigationStack {
+            Form {
+                Section {
+                    DatePicker(
+                        "Date of Birth",
+                        selection: $selectedDate,
+                        in: ...Date(),
+                        displayedComponents: .date
+                    )
+                    .datePickerStyle(.graphical)
+
+                    if let age = calculateAge(from: selectedDate) {
+                        HStack {
+                            Text("Age")
+                            Spacer()
+                            Text("\(age) years old")
+                                .foregroundStyle(DSColors.textSecondary)
+                        }
+                    }
+                } header: {
+                    Text("Your Date of Birth")
+                } footer: {
+                    Text("Your age is used to calculate your TDEE (Total Daily Energy Expenditure) for personalized calorie recommendations.")
+                        .font(DSTypography.caption)
+                }
+
+                if let errorMessage {
+                    Section {
+                        Text(errorMessage)
+                            .font(DSTypography.caption)
+                            .foregroundStyle(DSColors.error)
+                    }
+                }
+            }
+            .navigationTitle("Edit Date of Birth")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel") {
+                        dismiss()
+                    }
+                }
+
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Save") {
+                        Task {
+                            await saveDateOfBirth()
+                        }
+                    }
+                    .disabled(isSaving)
+                }
+            }
+        }
+        .onAppear {
+            if let dateOfBirth = viewModel.userProfile?.dateOfBirth {
+                selectedDate = dateOfBirth
+            }
+        }
+    }
+
+    private func calculateAge(from date: Date) -> Int? {
+        let calendar = Calendar.current
+        let ageComponents = calendar.dateComponents([.year], from: date, to: Date())
+        return ageComponents.year
+    }
+
+    private func saveDateOfBirth() async {
+        isSaving = true
+        errorMessage = nil
+
+        do {
+            try await viewModel.updateDateOfBirth(selectedDate)
+            dismiss()
+        } catch {
+            errorMessage = "Failed to save date of birth: \(error.localizedDescription)"
+            isSaving = false
+        }
+    }
+}
+
+// MARK: - Activity Level Editor Sheet
+
+struct ActivityLevelEditorSheet: View {
+    @Environment(\.dismiss) private var dismiss
+    @Bindable var viewModel: SettingsViewModel
+    @State private var selectedActivityLevel: UserProfile.ActivityLevel = .moderatelyActive
+    @State private var isSaving = false
+    @State private var errorMessage: String?
+
+    var body: some View {
+        NavigationStack {
+            Form {
+                Section {
+                    Picker("Activity Level", selection: $selectedActivityLevel) {
+                        ForEach(UserProfile.ActivityLevel.allCases, id: \.self) { level in
+                            VStack(alignment: .leading) {
+                                Text(level.rawValue)
+                                    .font(DSTypography.body)
+                                Text(activityLevelDescription(level))
+                                    .font(DSTypography.caption)
+                                    .foregroundStyle(DSColors.textSecondary)
+                            }
+                            .tag(level)
+                        }
+                    }
+                    .pickerStyle(.inline)
+                    .labelsHidden()
+                } header: {
+                    Text("Your Activity Level")
+                } footer: {
+                    Text("Your activity level is used to calculate your TDEE (Total Daily Energy Expenditure) for personalized calorie recommendations.")
+                        .font(DSTypography.caption)
+                }
+
+                if let errorMessage {
+                    Section {
+                        Text(errorMessage)
+                            .font(DSTypography.caption)
+                            .foregroundStyle(DSColors.error)
+                    }
+                }
+            }
+            .navigationTitle("Edit Activity Level")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel") {
+                        dismiss()
+                    }
+                }
+
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Save") {
+                        Task {
+                            await saveActivityLevel()
+                        }
+                    }
+                    .disabled(isSaving)
+                }
+            }
+        }
+        .onAppear {
+            selectedActivityLevel = viewModel.userProfile?.activityLevel ?? .moderatelyActive
+        }
+    }
+
+    private func activityLevelDescription(_ level: UserProfile.ActivityLevel) -> String {
+        // Map to TDEECalculator.ActivityLevel to get description
+        if let tdeeLevel = TDEECalculator.ActivityLevel(rawValue: level.rawValue) {
+            return tdeeLevel.description
+        }
+        return ""
+    }
+
+    private func saveActivityLevel() async {
+        isSaving = true
+        errorMessage = nil
+
+        do {
+            try await viewModel.updateActivityLevel(selectedActivityLevel)
+            dismiss()
+        } catch {
+            errorMessage = "Failed to save activity level: \(error.localizedDescription)"
             isSaving = false
         }
     }

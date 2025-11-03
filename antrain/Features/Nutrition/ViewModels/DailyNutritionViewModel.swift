@@ -14,7 +14,7 @@ import SwiftUI
 final class DailyNutritionViewModel {
     // MARK: - Dependencies
     private let nutritionRepository: NutritionRepositoryProtocol
-    private let userProfileRepository: UserProfileRepositoryProtocol
+    let userProfileRepository: UserProfileRepositoryProtocol
 
     // MARK: - State
     var currentDate: Date = Date()
