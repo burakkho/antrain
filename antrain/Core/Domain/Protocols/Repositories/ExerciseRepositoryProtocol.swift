@@ -13,6 +13,12 @@ protocol ExerciseRepositoryProtocol: Actor {
     /// Fetch all exercises (preset + custom)
     func fetchAll() async throws -> [Exercise]
 
+    /// Fetch all exercises (alias for fetchAll for compatibility)
+    func fetchAllExercises() async throws -> [Exercise]
+
+    /// Fetch exercise by ID
+    func fetchExercise(by id: UUID) async throws -> Exercise?
+
     /// Fetch only preset exercises
     func fetchPresetOnly() async throws -> [Exercise]
 

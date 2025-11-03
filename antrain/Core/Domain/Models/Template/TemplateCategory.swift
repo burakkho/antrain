@@ -20,6 +20,11 @@ enum TemplateCategory: String, Codable, CaseIterable {
 
     // MARK: - Display Properties
 
+    /// Display name for the category
+    var displayName: String {
+        return rawValue
+    }
+
     /// SF Symbol icon for the category
     var icon: String {
         switch self {
@@ -110,5 +115,15 @@ enum TemplateCategory: String, Codable, CaseIterable {
         case .custom:
             return (8, 12)
         }
+    }
+
+    /// Minimum reps for default rep range
+    var defaultRepRangeMin: Int {
+        return defaultRepRange.min
+    }
+
+    /// Maximum reps for default rep range
+    var defaultRepRangeMax: Int {
+        return defaultRepRange.max
     }
 }
