@@ -35,6 +35,9 @@ final class WorkoutTemplate {
     /// When the template was last used to start a workout
     var lastUsedAt: Date?
 
+    /// Number of times this template has been used
+    var usageCount: Int = 0
+
     // MARK: - Relationships
 
     /// Exercises included in this template with their configurations
@@ -50,6 +53,7 @@ final class WorkoutTemplate {
         isPreset: Bool = false,
         createdAt: Date = Date(),
         lastUsedAt: Date? = nil,
+        usageCount: Int = 0,
         exercises: [TemplateExercise] = []
     ) {
         self.id = id
@@ -58,6 +62,7 @@ final class WorkoutTemplate {
         self.isPreset = isPreset
         self.createdAt = createdAt
         self.lastUsedAt = lastUsedAt
+        self.usageCount = usageCount
         self.exercises = exercises
     }
 
@@ -93,9 +98,10 @@ final class WorkoutTemplate {
 
     // MARK: - Business Logic
 
-    /// Marks the template as used (updates lastUsedAt)
+    /// Marks the template as used (updates lastUsedAt and increments usageCount)
     func markAsUsed() {
         lastUsedAt = Date()
+        usageCount += 1
     }
 
     /// Creates a deep copy of this template with a new name

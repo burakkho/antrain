@@ -15,6 +15,7 @@ struct TemplatesListView: View {
     @State private var templateToDelete: WorkoutTemplate?
     @State private var templateToDuplicate: WorkoutTemplate?
     @State private var duplicateName = ""
+    @State private var searchText = ""
 
     var body: some View {
         NavigationStack {
@@ -142,6 +143,29 @@ struct TemplatesListView: View {
     @ViewBuilder
     private func templatesList(viewModel: TemplatesViewModel) -> some View {
         VStack(spacing: 0) {
+            // Search bar
+            HStack {
+                Image(systemName: "magnifyingglass")
+                    .foregroundStyle(.secondary)
+
+                TextField("Search templates", text: $viewModel.searchText)
+                    .autocorrectionDisabled()
+
+                if !viewModel.searchText.isEmpty {
+                    Button {
+                        viewModel.searchText = ""
+                    } label: {
+                        Image(systemName: "xmark.circle.fill")
+                            .foregroundStyle(.secondary)
+                    }
+                }
+            }
+            .padding(10)
+            .background(Color(.secondarySystemBackground))
+            .clipShape(RoundedRectangle(cornerRadius: 10))
+            .padding(.horizontal)
+            .padding(.vertical, 8)
+
             // Category filter
             TemplateCategoryFilterView(
                 selectedCategory: viewModel.selectedCategory,

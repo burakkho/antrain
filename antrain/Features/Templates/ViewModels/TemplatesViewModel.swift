@@ -20,6 +20,9 @@ final class TemplatesViewModel {
     /// Currently selected category filter
     var selectedCategory: TemplateCategory? = nil
 
+    /// Search text
+    var searchText: String = ""
+
     /// Loading state
     private(set) var isLoading = false
 
@@ -38,12 +41,24 @@ final class TemplatesViewModel {
 
     // MARK: - Computed Properties
 
-    /// Filtered templates based on selected category
+    /// Filtered templates based on selected category and search
     var filteredTemplates: [WorkoutTemplate] {
-        guard let category = selectedCategory else {
-            return templates
+        var result = templates
+
+        // Category filter
+        if let category = selectedCategory {
+            result = result.filter { $0.category == category }
         }
-        return templates.filter { $0.category == category }
+
+        // Search filter
+        if !searchText.trimmingCharacters(in: .whitespaces).isEmpty {
+            result = result.filter { template in
+                template.name.localizedCaseInsensitiveContains(searchText) ||
+                template.category.displayName.localizedCaseInsensitiveContains(searchText)
+            }
+        }
+
+        return result
     }
 
     /// User-created templates (not presets)

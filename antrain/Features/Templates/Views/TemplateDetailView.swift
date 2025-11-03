@@ -219,6 +219,11 @@ struct TemplateDetailView: View {
                         value: "Never"
                     )
                 }
+
+                MetadataRow(
+                    label: "Times Used",
+                    value: "\(template.usageCount)"
+                )
             }
         }
     }
