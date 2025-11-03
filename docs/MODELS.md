@@ -20,11 +20,21 @@
 | duration | TimeInterval | - | >= 0 | Saniye cinsinden, otomatik hesaplanabilir |
 | notes | String? | - | Max 500 char | Kullanıcı notları |
 | exercises | [WorkoutExercise] | @Relationship(deleteRule: .cascade) | Lifting için gerekli | Egzersiz listesi |
-| quickLogData | QuickLogData? | @Relationship(deleteRule: .cascade) | Cardio/MetCon için gerekli | Hızlı log datası |
+| cardioType | String? | - | Optional | Cardio tipi (run, bike, row, etc.) |
+| cardioDistance | Double? | - | >= 0 | Mesafe (km) |
+| cardioPace | Double? | - | >= 0 | Tempo (dk/km) |
+| metconType | String? | - | Optional | MetCon tipi (AMRAP, EMOM, For Time) |
+| metconRounds | Int? | - | >= 0 | Tamamlanan round sayısı |
+| metconResult | String? | - | Max 200 char | Sonuç açıklaması |
 
 **İlişkiler:**
 - `1:N WorkoutExercise` (cascade delete) - Workout silinince exercises de silinir
-- `1:1 QuickLogData?` (cascade delete) - Sadece cardio/metcon için
+
+**QuickLogData İmplementasyonu:**
+> **Not:** MVP için basitleştirme amacıyla, cardio ve MetCon verileri ayrı bir model yerine
+> doğrudan Workout modeline embedded optional property'ler olarak eklenmiştir.
+> Bu yaklaşım daha az ilişki yönetimi ve daha basit kod anlamına gelir.
+> Gelecek versiyonlarda ayrı bir QuickLogData modeline çıkarılabilir.
 
 **Business Rules:**
 ```swift
@@ -35,9 +45,13 @@ func validate() throws {
         guard !exercises.isEmpty else {
             throw ValidationError.liftingRequiresExercises
         }
-    case .cardio, .metcon:
-        guard quickLogData != nil else {
-            throw ValidationError.quickLogRequired
+    case .cardio:
+        guard cardioType != nil else {
+            throw ValidationError.cardioTypeRequired
+        }
+    case .metcon:
+        guard metconType != nil else {
+            throw ValidationError.metconTypeRequired
         }
     }
 }
@@ -462,6 +476,54 @@ enum ValidationError: LocalizedError {
 
 ---
 
-**Son Güncelleme:** 2025-02-11
-**Dosya Boyutu:** ~220 satır
+## PersonalRecord
+
+**Amaç:** Kullanıcının egzersizlerdeki kişisel rekorlarını (PR) saklar ve takip eder.
+
+| Property | Type | SwiftData | Validasyon | Notlar |
+|----------|------|-----------|-----------|--------|
+| id | UUID | @Attribute(.unique) | Required | Otomatik oluşur |
+| exerciseId | UUID | - | Required | Egzersizin benzersiz ID'si |
+| exerciseName | String | - | Required | Egzersiz adı (snapshot) |
+| date | Date | - | Required | PR elde edildiği tarih |
+| weight | Double | - | > 0 | Kilogram cinsinden ağırlık |
+| reps | Int | - | > 0 | Tekrar sayısı |
+| oneRepMax | Double | - | > 0 | Hesaplanan 1RM (Brzycki formülü) |
+
+**İlişkiler:**
+- İlişkisiz model (denormalized) - Exercise'a doğrudan referans yok
+- Exercise silininse PR'lar kalır (historical record)
+
+**Business Rules:**
+```swift
+// 1RM Calculation (Brzycki Formula)
+func calculateOneRepMax() -> Double {
+    if reps == 1 {
+        return weight
+    }
+    return weight * (36.0 / (37.0 - Double(reps)))
+}
+
+// PR Detection
+func isPR(for exercise: Exercise, in context: ModelContext) -> Bool {
+    let existingPRs = fetchPRs(for: exercise.id, in: context)
+    let currentMax = calculateOneRepMax()
+    return existingPRs.allSatisfy { $0.oneRepMax < currentMax }
+}
+```
+
+**Özellikler:**
+- ✅ Otomatik PR tespiti (PRDetectionService)
+- ✅ 1RM hesaplaması (OneRepMaxCalculator extension)
+- ✅ Egzersiz bazında en iyi performans takibi
+- ✅ Tarihsel kayıt (exercise silinse bile PR kalır)
+
+**Edge Cases:**
+- ⚠️ Aynı exercise için birden fazla PR olabilir (tarih bazlı)
+- ⚠️ exerciseName snapshot olarak saklanır (name değişirse PR'da eski isim kalır)
+
+---
+
+**Son Güncelleme:** 2025-11-03
+**Dosya Boyutu:** ~260 satır
 **Token Efficiency:** Table-heavy, minimal prose

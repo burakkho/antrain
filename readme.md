@@ -28,8 +28,9 @@
 - **🏃 Quick Logging**: Post-workout cardio and MetCon logging with detailed metrics
 - **🥗 Nutrition Tracking**: Daily macro tracking (calories, protein, carbs, fats) with meal logging
 - **📊 History & Progress**: Comprehensive workout and nutrition history with detailed views
+- **🏆 Personal Records**: Automatic PR detection and tracking with 1RM calculations
 - **👤 User Profile**: Goals management and bodyweight tracking with history
-- **📚 Libraries**: 150+ preset exercises and 100+ food items, with custom entry support
+- **📚 Libraries**: 180+ preset exercises and 100+ food items, with custom entry support
 
 ### 🎯 Target Users
 
@@ -252,8 +253,9 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **🏃 Hızlı Kayıt**: Detaylı metriklerle antrenman sonrası kardiyо ve MetCon kaydı
 - **🥗 Beslenme Takibi**: Öğün kaydı ile günlük makro takibi (kalori, protein, karbonhidrat, yağ)
 - **📊 Geçmiş ve İlerleme**: Detaylı görünümlerle kapsamlı antrenman ve beslenme geçmişi
+- **🏆 Kişisel Rekorlar**: Otomatik PR tespiti ve 1RM hesaplamaları ile takip
 - **👤 Kullanıcı Profili**: Hedef yönetimi ve geçmiş ile vücut ağırlığı takibi
-- **📚 Kütüphaneler**: 150+ hazır egzersiz ve 100+ besin öğesi, özel giriş desteği ile
+- **📚 Kütüphaneler**: 180+ hazır egzersiz ve 100+ besin öğesi, özel giriş desteği ile
 
 ### 🎯 Hedef Kullanıcılar
 

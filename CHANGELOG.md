@@ -23,6 +23,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Quick logging for MetCon workouts (AMRAP, EMOM, For Time)
 - Comprehensive workout history view
 - Detailed workout view with all exercises and sets
+- Automatic Personal Record (PR) detection and tracking
+- 1RM calculations using Brzycki formula
+- PR history for all exercises
 
 ##### Nutrition Tracking
 - Daily macro tracking (calories, protein, carbs, fats)
@@ -40,7 +43,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Theme switching support (light/dark mode)
 
 ##### Libraries
-- 10+ preset exercises (barbell movements)
+- 180+ preset exercises (barbell, dumbbell, bodyweight, machine, cable, weightlifting)
 - 103 preset food items across all categories
 - Category-based organization (protein, carbs, fats, vegetables)
 
@@ -75,11 +78,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Planned for v1.1
 
 #### To Be Added
-- Exercise library expansion (150+ exercises total)
 - Custom exercise creation UI
 - Custom food creation UI
 - Food favorites and recent items
-- Exercise notes and personal records (PR) tracking
+- Exercise notes and attachments
 
 #### To Be Improved
 - Performance optimizations
