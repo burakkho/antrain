@@ -16,7 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 #### Added
 
 ##### Workout Tracking
-- Real-time lifting session tracking with Hevy-style UX
+- Real-time lifting session tracking
 - Set, rep, and weight logging for strength training
 - Exercise selection from preset library
 - Quick logging for cardio workouts (time, distance, pace)
