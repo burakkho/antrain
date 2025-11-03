@@ -148,8 +148,11 @@ struct TemplatesListView: View {
                 Image(systemName: "magnifyingglass")
                     .foregroundStyle(.secondary)
 
-                TextField("Search templates", text: $viewModel.searchText)
-                    .autocorrectionDisabled()
+                TextField("Search templates", text: Binding(
+                    get: { viewModel.searchText },
+                    set: { viewModel.searchText = $0 }
+                ))
+                .autocorrectionDisabled()
 
                 if !viewModel.searchText.isEmpty {
                     Button {
