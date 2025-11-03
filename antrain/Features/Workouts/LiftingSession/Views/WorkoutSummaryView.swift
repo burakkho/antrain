@@ -9,6 +9,7 @@ struct WorkoutSummaryView: View {
 
     @State private var notes: String = ""
     @State private var isSaving = false
+    @State private var showSaveAsTemplate = false
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {
@@ -38,6 +39,22 @@ struct WorkoutSummaryView: View {
                         isLoading: isSaving
                     )
                     .padding(.top, DSSpacing.md)
+
+                    // Save as Template Button
+                    Button {
+                        showSaveAsTemplate = true
+                    } label: {
+                        HStack {
+                            Image(systemName: "doc.badge.plus")
+                            Text("Save as Template")
+                        }
+                        .font(.headline)
+                        .foregroundStyle(.blue)
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(Color.blue.opacity(0.1))
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                    }
                 }
                 .padding(DSSpacing.md)
             }
@@ -47,6 +64,15 @@ struct WorkoutSummaryView: View {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel", action: onCancel)
                 }
+            }
+            .sheet(isPresented: $showSaveAsTemplate) {
+                SaveWorkoutAsTemplateView(
+                    workout: workout,
+                    exercises: exercises,
+                    onSaved: {
+                        // Template saved successfully
+                    }
+                )
             }
         }
     }

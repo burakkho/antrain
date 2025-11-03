@@ -75,12 +75,34 @@ actor WorkoutRepository: WorkoutRepositoryProtocol {
 
     /// Delete a workout
     func delete(_ workout: Workout) async throws {
+        // Delete associated personal records first
+        let workoutId = workout.id
+        let prDescriptor = FetchDescriptor<PersonalRecord>(
+            predicate: #Predicate { $0.workoutId == workoutId }
+        )
+        let prs = try modelContext.fetch(prDescriptor)
+        for pr in prs {
+            modelContext.delete(pr)
+        }
+
         modelContext.delete(workout)
         try modelContext.save()
     }
 
     /// Delete multiple workouts
     func deleteAll(_ workouts: [Workout]) async throws {
+        // Delete associated personal records for each workout
+        for workout in workouts {
+            let workoutId = workout.id
+            let prDescriptor = FetchDescriptor<PersonalRecord>(
+                predicate: #Predicate { $0.workoutId == workoutId }
+            )
+            let prs = try modelContext.fetch(prDescriptor)
+            for pr in prs {
+                modelContext.delete(pr)
+            }
+        }
+
         for workout in workouts {
             modelContext.delete(workout)
         }

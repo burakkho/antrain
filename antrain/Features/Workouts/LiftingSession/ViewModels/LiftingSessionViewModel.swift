@@ -34,6 +34,65 @@ final class LiftingSessionViewModel {
         self.workout = Workout(date: Date(), type: .lifting)
     }
 
+    // MARK: - Template Integration
+
+    /// Load workout from template
+    /// Converts template exercises to workout exercises with pre-populated sets
+    func loadFromTemplate(_ template: WorkoutTemplate, templateRepository: WorkoutTemplateRepositoryProtocol) async {
+        isLoading = true
+        errorMessage = nil
+
+        do {
+            // Clear existing exercises
+            exercises.removeAll()
+            workout.exercises = []
+
+            // Convert each template exercise to workout exercise
+            for templateExercise in template.exercises.sorted() {
+                // Fetch the actual exercise from repository
+                guard let exercise = try await exerciseRepository.fetchExercise(by: templateExercise.exerciseId) else {
+                    print("⚠️ Exercise not found: \(templateExercise.exerciseName)")
+                    continue
+                }
+
+                // Create workout exercise
+                let workoutExercise = WorkoutExercise(
+                    exercise: exercise,
+                    orderIndex: templateExercise.order
+                )
+
+                // Pre-populate sets based on template configuration
+                for _ in 0..<templateExercise.setCount {
+                    let set = WorkoutSet(
+                        reps: templateExercise.repRangeMin, // Start with min reps
+                        weight: 0, // User will fill in weight
+                        isCompleted: false
+                    )
+                    workoutExercise.sets.append(set)
+                }
+
+                // Add notes if available
+                if let notes = templateExercise.notes {
+                    workoutExercise.notes = notes
+                }
+
+                exercises.append(workoutExercise)
+            }
+
+            workout.exercises = exercises
+
+            // Mark template as used
+            try await templateRepository.markTemplateUsed(template)
+
+            print("✅ Loaded \(exercises.count) exercises from template: \(template.name)")
+        } catch {
+            errorMessage = "Failed to load template: \(error.localizedDescription)"
+            print("❌ Template load error: \(error)")
+        }
+
+        isLoading = false
+    }
+
     // MARK: - Exercise Management
 
     /// Add exercise to workout

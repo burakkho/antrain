@@ -5,8 +5,15 @@ struct LiftingSessionView: View {
     @EnvironmentObject private var appDependencies: AppDependencies
     @Environment(\.dismiss) private var dismiss
 
+    let initialTemplate: WorkoutTemplate?
+
     @State private var viewModel: LiftingSessionViewModel?
     @State private var showCancelConfirmation = false
+    @State private var showTemplateSelector = false
+
+    init(initialTemplate: WorkoutTemplate? = nil) {
+        self.initialTemplate = initialTemplate
+    }
 
     var body: some View {
         NavigationStack {
@@ -50,6 +57,16 @@ struct LiftingSessionView: View {
                         exerciseRepository: appDependencies.exerciseRepository,
                         prDetectionService: appDependencies.prDetectionService
                     )
+
+                    // Load initial template if provided
+                    if let template = initialTemplate {
+                        Task {
+                            await viewModel?.loadFromTemplate(
+                                template,
+                                templateRepository: appDependencies.workoutTemplateRepository
+                            )
+                        }
+                    }
                 }
             }
             .sheet(isPresented: Binding(
@@ -80,6 +97,18 @@ struct LiftingSessionView: View {
                     )
                 }
             }
+            .sheet(isPresented: $showTemplateSelector) {
+                TemplateQuickSelectorView { template in
+                    if let viewModel {
+                        Task {
+                            await viewModel.loadFromTemplate(
+                                template,
+                                templateRepository: appDependencies.workoutTemplateRepository
+                            )
+                        }
+                    }
+                }
+            }
             .confirmationDialog(
                 "Discard Workout?",
                 isPresented: $showCancelConfirmation,
@@ -98,15 +127,49 @@ struct LiftingSessionView: View {
     // MARK: - Empty State
 
     private func emptyState(viewModel: LiftingSessionViewModel) -> some View {
-        DSEmptyState(
-            icon: "dumbbell",
-            title: "No Exercises Yet",
-            message: "Add your first exercise to start tracking your workout.",
-            actionTitle: "Add Exercise",
-            action: {
-                viewModel.showExerciseSelection = true
+        VStack(spacing: 32) {
+            DSEmptyState(
+                icon: "dumbbell",
+                title: "No Exercises Yet",
+                message: "Start your workout from a template or add exercises manually.",
+                actionTitle: "Add Exercise",
+                action: {
+                    viewModel.showExerciseSelection = true
+                }
+            )
+
+            // Divider with "OR"
+            HStack {
+                Rectangle()
+                    .fill(Color(.systemGray4))
+                    .frame(height: 1)
+                Text("OR")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .padding(.horizontal, 8)
+                Rectangle()
+                    .fill(Color(.systemGray4))
+                    .frame(height: 1)
             }
-        )
+            .padding(.horizontal, 40)
+
+            // Start from Template button
+            Button {
+                showTemplateSelector = true
+            } label: {
+                HStack(spacing: 12) {
+                    Image(systemName: "doc.text.fill")
+                    Text("Start from Template")
+                }
+                .font(.headline)
+                .foregroundStyle(.white)
+                .frame(maxWidth: .infinity)
+                .padding()
+                .background(Color.blue)
+                .clipShape(RoundedRectangle(cornerRadius: 12))
+            }
+            .padding(.horizontal, 40)
+        }
     }
 
     // MARK: - Exercises List
