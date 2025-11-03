@@ -177,8 +177,9 @@ enum TemplateValidationError: LocalizedError {
 
 // MARK: - Comparable
 
+@preconcurrency
 extension WorkoutTemplate: Comparable {
-    static func < (lhs: WorkoutTemplate, rhs: WorkoutTemplate) -> Bool {
+    nonisolated static func < (lhs: WorkoutTemplate, rhs: WorkoutTemplate) -> Bool {
         // Presets first, then by name
         if lhs.isPreset != rhs.isPreset {
             return lhs.isPreset
