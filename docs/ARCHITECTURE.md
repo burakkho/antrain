@@ -504,7 +504,7 @@ enum RepositoryError: LocalizedError {
 
 ## State Management
 
-### @Observable Macro (iOS 17+)
+### @Observable Macro (iOS 17+, Standard in iOS 18)
 
 **Neden kullanıyoruz?**
 - ObservableObject'ten daha performanslı
@@ -805,7 +805,7 @@ struct AntrainApp: App {
 
 ## Localization Strategy
 
-### String Catalog (Xcode 15+ / iOS 17+)
+### String Catalog (Xcode 15+ / iOS 17+, Optimized in iOS 18)
 
 **Amaç:** Future-proof localization, şimdilik İngilizce, gelecekte Türkçe
 

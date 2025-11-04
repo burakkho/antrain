@@ -61,7 +61,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Clean Architecture (3-layer: Presentation, Domain, Data)
 - MVVM + Protocol-Oriented Design
 - Swift 6 with strict concurrency
-- iOS 17.0+ support
+- iOS 18.0+ support
 - No external dependencies
 - Complete privacy (no analytics, no tracking, no cloud)
 
