@@ -26,7 +26,7 @@ actor NutritionRepository: NutritionRepositoryProtocol {
         if let existing = logs.first {
             return existing
         } else {
-            let newLog = NutritionLog(date: date)
+            let newLog = NutritionLog(date: startOfDay)
 
             // Create all 4 meals upfront
             let breakfast = Meal.create(type: .breakfast)

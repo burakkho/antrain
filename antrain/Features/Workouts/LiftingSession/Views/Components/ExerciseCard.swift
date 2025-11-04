@@ -11,6 +11,7 @@ struct ExerciseCard: View {
     let onDeleteExercise: () -> Void
 
     @State private var isExpanded: Bool = true
+    @AppStorage("weightUnit") private var weightUnit: String = "Kilograms"
 
     var body: some View {
         VStack(alignment: .leading, spacing: DSSpacing.md) {
@@ -114,7 +115,7 @@ struct ExerciseCard: View {
                 Text("•")
                     .foregroundStyle(DSColors.textTertiary)
 
-                Text("\(lastSet.reps) × \(lastSet.weight, specifier: "%.1f")kg")
+                Text("\(lastSet.reps) × \(formattedWeight(lastSet.weight))")
                     .font(.caption)
                     .foregroundStyle(DSColors.textSecondary)
             }
@@ -129,6 +130,23 @@ struct ExerciseCard: View {
 
     private var totalSets: Int {
         workoutExercise.sets.count
+    }
+
+    // MARK: - Helpers
+
+    private func formattedWeight(_ weight: Double) -> String {
+        let displayWeight: Double
+        let unit: String
+
+        if weightUnit == "Pounds" {
+            displayWeight = weight * 2.20462 // kg to lbs
+            unit = "lbs"
+        } else {
+            displayWeight = weight
+            unit = "kg"
+        }
+
+        return String(format: "%.1f", displayWeight) + unit
     }
 }
 

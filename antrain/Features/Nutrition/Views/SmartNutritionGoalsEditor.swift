@@ -338,69 +338,30 @@ struct SmartNutritionGoalsEditor: View {
         new: (Double, Double, Double, Double)
     ) -> some View {
         VStack(spacing: 8) {
-            DifferenceRow(
+            GoalDifferenceRow(
                 name: "Calories",
                 original: original.calories,
                 new: new.0,
                 unit: "kcal"
             )
-            DifferenceRow(
+            GoalDifferenceRow(
                 name: "Protein",
                 original: original.protein,
                 new: new.1,
                 unit: "g"
             )
-            DifferenceRow(
+            GoalDifferenceRow(
                 name: "Carbs",
                 original: original.carbs,
                 new: new.2,
                 unit: "g"
             )
-            DifferenceRow(
+            GoalDifferenceRow(
                 name: "Fats",
                 original: original.fats,
                 new: new.3,
                 unit: "g"
             )
-        }
-    }
-}
-
-/// Row showing difference between original and new value
-private struct DifferenceRow: View {
-    let name: String
-    let original: Double
-    let new: Double
-    let unit: String
-
-    private var difference: Double {
-        new - original
-    }
-
-    private var differenceColor: Color {
-        if difference > 0 { return .green }
-        if difference < 0 { return .red }
-        return DSColors.textSecondary
-    }
-
-    var body: some View {
-        HStack {
-            Text(name)
-                .font(DSTypography.body)
-            Spacer()
-            if abs(difference) > 0.5 {
-                Text(difference > 0 ? "+\(Int(difference))" : "\(Int(difference))")
-                    .font(DSTypography.body)
-                    .fontWeight(.bold)
-                    .foregroundStyle(differenceColor)
-                Image(systemName: difference > 0 ? "arrow.up" : "arrow.down")
-                    .font(.caption)
-                    .foregroundStyle(differenceColor)
-            } else {
-                Text("No change")
-                    .font(DSTypography.caption)
-                    .foregroundStyle(DSColors.textSecondary)
-            }
         }
     }
 }

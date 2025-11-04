@@ -109,33 +109,13 @@ struct TemplatesListView: View {
     // MARK: - Empty State View
 
     private var emptyStateView: some View {
-        VStack(spacing: 20) {
-            Image(systemName: "doc.text.magnifyingglass")
-                .font(.system(size: 60))
-                .foregroundStyle(.secondary)
-
-            Text("No Templates Yet")
-                .font(.title2)
-                .fontWeight(.semibold)
-
-            Text("Create your first workout template to get started")
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
-                .multilineTextAlignment(.center)
-
-            Button {
-                showCreateTemplate = true
-            } label: {
-                Label("Create Template", systemImage: "plus")
-                    .font(.headline)
-                    .padding()
-                    .background(Color.accentColor)
-                    .foregroundStyle(.white)
-                    .clipShape(Capsule())
-            }
-            .padding(.top)
-        }
-        .padding()
+        DSEmptyState(
+            icon: "doc.text.magnifyingglass",
+            title: "No Templates Yet",
+            message: "Create your first workout template to get started",
+            actionTitle: "Create Template",
+            action: { showCreateTemplate = true }
+        )
     }
 
     // MARK: - Templates List
@@ -250,20 +230,13 @@ struct TemplatesListView: View {
     // MARK: - Filtered Empty State
 
     private var filteredEmptyStateView: some View {
-        VStack(spacing: 16) {
-            Image(systemName: "magnifyingglass")
-                .font(.system(size: 50))
-                .foregroundStyle(.secondary)
-
-            Text("No templates in this category")
-                .font(.headline)
-
-            Button("Clear Filter") {
-                viewModel?.clearFilter()
-            }
-            .buttonStyle(.bordered)
-        }
-        .padding()
+        DSEmptyState(
+            icon: "magnifyingglass",
+            title: "No Templates Found",
+            message: "No templates match your current filter or search",
+            actionTitle: "Clear Filter",
+            action: { viewModel?.clearFilter() }
+        )
     }
 }
 

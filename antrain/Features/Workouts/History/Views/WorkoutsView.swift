@@ -12,6 +12,7 @@ struct WorkoutsView: View {
     @State private var showTemplatesList = false
     @State private var showTemplateSelector = false
     @State private var selectedTemplate: WorkoutTemplate?
+    @State private var showCreateTemplate = false
 
     // Filter states
     @State private var selectedFilter: WorkoutTypeFilter = .all
@@ -71,6 +72,14 @@ struct WorkoutsView: View {
                 TemplateQuickSelectorView { template in
                     selectedTemplate = template
                     showLiftingSession = true
+                }
+                .environmentObject(appDependencies)
+            }
+            .sheet(isPresented: $showCreateTemplate) {
+                CreateTemplateFlow {
+                    Task {
+                        await viewModel?.loadWorkouts()
+                    }
                 }
                 .environmentObject(appDependencies)
             }
@@ -185,8 +194,7 @@ struct WorkoutsView: View {
                         title: "Create",
                         subtitle: "New Template"
                     ) {
-                        // TODO: Navigate to CreateTemplateFlow
-                        showTemplatesList = true
+                        showCreateTemplate = true
                     }
                 }
                 .padding(.horizontal, DSSpacing.md)
@@ -319,21 +327,11 @@ struct WorkoutsView: View {
     // MARK: - Empty Filtered State
 
     private var emptyFilteredState: some View {
-        VStack(spacing: DSSpacing.md) {
-            Image(systemName: "magnifyingglass")
-                .font(.system(size: 48))
-                .foregroundStyle(DSColors.textSecondary)
-
-            Text("No \(selectedFilter.rawValue) Workouts")
-                .font(DSTypography.title3)
-                .fontWeight(.semibold)
-
-            Text("Try adjusting your filter or log a new workout.")
-                .font(DSTypography.body)
-                .foregroundStyle(DSColors.textSecondary)
-                .multilineTextAlignment(.center)
-        }
-        .padding(DSSpacing.xl)
+        DSEmptyState(
+            icon: "magnifyingglass",
+            title: "No \(selectedFilter.rawValue) Workouts",
+            message: "Try adjusting your filter or log a new workout."
+        )
     }
 
     // MARK: - Workouts List Section

@@ -51,15 +51,18 @@ final class DailyNutritionViewModel {
     }
 
     var proteinProgress: Double {
-        min(totalProtein / dailyProteinGoal, 1.0)
+        guard dailyProteinGoal > 0 else { return 0 }
+        return min(totalProtein / dailyProteinGoal, 1.0)
     }
 
     var carbsProgress: Double {
-        min(totalCarbs / dailyCarbsGoal, 1.0)
+        guard dailyCarbsGoal > 0 else { return 0 }
+        return min(totalCarbs / dailyCarbsGoal, 1.0)
     }
 
     var fatsProgress: Double {
-        min(totalFats / dailyFatsGoal, 1.0)
+        guard dailyFatsGoal > 0 else { return 0 }
+        return min(totalFats / dailyFatsGoal, 1.0)
     }
 
     // MARK: - Initialization
@@ -152,7 +155,11 @@ final class DailyNutritionViewModel {
     }
 
     func getMeal(for type: Meal.MealType) -> Meal {
-        nutritionLog!.getMeal(type: type)
+        guard let log = nutritionLog else {
+            // Return empty meal if log hasn't loaded yet
+            return Meal.create(type: type)
+        }
+        return log.getMeal(type: type)
     }
 
     func changeDate(to newDate: Date) async {

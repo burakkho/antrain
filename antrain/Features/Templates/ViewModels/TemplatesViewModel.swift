@@ -20,8 +20,24 @@ final class TemplatesViewModel {
     /// Currently selected category filter
     var selectedCategory: TemplateCategory? = nil
 
-    /// Search text
-    var searchText: String = ""
+    /// Search text (immediate, for TextField binding)
+    var searchText: String = "" {
+        didSet {
+            searchDebounceTask?.cancel()
+            searchDebounceTask = Task {
+                try? await Task.sleep(for: .milliseconds(300))
+                if !Task.isCancelled {
+                    debouncedSearchText = searchText
+                }
+            }
+        }
+    }
+
+    /// Debounced search text (used for filtering)
+    private var debouncedSearchText: String = ""
+
+    /// Task for debouncing search
+    private var searchDebounceTask: Task<Void, Never>?
 
     /// Loading state
     private(set) var isLoading = false
@@ -51,10 +67,10 @@ final class TemplatesViewModel {
         }
 
         // Search filter
-        if !searchText.trimmingCharacters(in: .whitespaces).isEmpty {
+        if !debouncedSearchText.trimmingCharacters(in: .whitespaces).isEmpty {
             result = result.filter { template in
-                template.name.localizedCaseInsensitiveContains(searchText) ||
-                template.category.displayName.localizedCaseInsensitiveContains(searchText)
+                template.name.localizedCaseInsensitiveContains(debouncedSearchText) ||
+                template.category.displayName.localizedCaseInsensitiveContains(debouncedSearchText)
             }
         }
 
