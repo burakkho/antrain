@@ -104,13 +104,13 @@ struct HomeView: View {
         let hour = Calendar.current.component(.hour, from: Date())
         switch hour {
         case 5..<12:
-            return "Good Morning"
+            return String(localized: "Good Morning")
         case 12..<18:
-            return "Hello"
+            return String(localized: "Hello")
         case 18..<22:
-            return "Good Evening"
+            return String(localized: "Good Evening")
         default:
-            return "Hello"
+            return String(localized: "Hello")
         }
     }
 
