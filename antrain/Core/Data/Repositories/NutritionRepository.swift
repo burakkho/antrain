@@ -61,9 +61,15 @@ actor NutritionRepository: NutritionRepositoryProtocol {
 
     // MARK: - Meal Management
 
-    func addFood(to log: NutritionLog, mealType: Meal.MealType, food: FoodItem, amount: Double) async throws {
+    func addFood(
+        to log: NutritionLog,
+        mealType: Meal.MealType,
+        food: FoodItem,
+        amount: Double,
+        unit: sending ServingUnit
+    ) async throws {
         let meal = log.getMeal(type: mealType)
-        let foodEntry = FoodEntry(foodItem: food, servingAmount: amount)
+        let foodEntry = FoodEntry(foodItem: food, amount: amount, selectedUnit: unit)
         meal.foodEntries.append(foodEntry)
         try modelContext.save()
     }

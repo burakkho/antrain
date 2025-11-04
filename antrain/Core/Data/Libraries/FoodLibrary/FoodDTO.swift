@@ -7,6 +7,40 @@
 
 import Foundation
 
+/// Serving Unit Data Transfer Object
+struct ServingUnitDTO {
+    let unitType: ServingUnitType
+    let gramsPerUnit: Double
+    let description: String
+    let isDefault: Bool
+    let orderIndex: Int
+
+    init(
+        unitType: ServingUnitType,
+        gramsPerUnit: Double,
+        description: String,
+        isDefault: Bool = false,
+        orderIndex: Int = 0
+    ) {
+        self.unitType = unitType
+        self.gramsPerUnit = gramsPerUnit
+        self.description = description
+        self.isDefault = isDefault
+        self.orderIndex = orderIndex
+    }
+
+    /// Convert DTO to ServingUnit model
+    func toModel() -> ServingUnit {
+        ServingUnit(
+            unitType: unitType,
+            gramsPerUnit: gramsPerUnit,
+            description: description,
+            isDefault: isDefault,
+            orderIndex: orderIndex
+        )
+    }
+}
+
 /// Food Data Transfer Object
 /// Used for library data, converted to FoodItem model
 struct FoodDTO {
@@ -18,6 +52,7 @@ struct FoodDTO {
     let fats: Double          // per 100g (grams)
     let servingSize: Double   // default serving (grams)
     let category: FoodCategory
+    let servingUnits: [ServingUnitDTO]
     let version: Int
 
     init(
@@ -29,6 +64,7 @@ struct FoodDTO {
         fats: Double,
         servingSize: Double,
         category: FoodCategory,
+        servingUnits: [ServingUnitDTO] = [],
         version: Int = 1
     ) {
         self.name = name
@@ -39,12 +75,13 @@ struct FoodDTO {
         self.fats = fats
         self.servingSize = servingSize
         self.category = category
+        self.servingUnits = servingUnits
         self.version = version
     }
 
     /// Convert DTO to FoodItem model
     func toModel() -> FoodItem {
-        FoodItem(
+        let foodItem = FoodItem(
             name: name,
             brand: brand,
             calories: calories,
@@ -57,5 +94,10 @@ struct FoodDTO {
             isFavorite: false,
             version: version
         )
+
+        // Add serving units
+        foodItem.servingUnits = servingUnits.map { $0.toModel() }
+
+        return foodItem
     }
 }

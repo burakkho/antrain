@@ -9,7 +9,7 @@ import SwiftUI
 
 /// Progress bar showing macro progress toward goal
 struct MacroProgressBar: View {
-    let title: String
+    let title: LocalizedStringKey
     let current: Double
     let goal: Double
     let color: Color

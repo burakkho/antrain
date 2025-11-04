@@ -3,19 +3,17 @@ import SwiftUI
 /// Numeric input field with optional unit display
 /// Usage: Weight, reps, calories, macros
 struct DSNumberField: View {
-    let title: String
+    let title: LocalizedStringKey
     @Binding var value: Double
     var unit: String = ""
-    var placeholder: String = "0"
+    var placeholder: LocalizedStringKey = "0"
     var format: FloatingPointFormatStyle<Double> = .number.precision(.fractionLength(0...1))
 
     var body: some View {
         VStack(alignment: .leading, spacing: DSSpacing.xxs) {
-            if !title.isEmpty {
-                Text(title)
-                    .font(DSTypography.subheadline)
-                    .foregroundStyle(DSColors.textSecondary)
-            }
+            Text(title)
+                .font(DSTypography.subheadline)
+                .foregroundStyle(DSColors.textSecondary)
 
             HStack {
                 TextField(placeholder, value: $value, format: format)

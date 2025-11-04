@@ -15,6 +15,9 @@ struct antrainApp: App {
     @MainActor
     private let persistenceController = PersistenceController.shared
 
+    // App language preference
+    @AppStorage("appLanguage") private var appLanguage: String = "en"
+
     // Dependency injection container
     @MainActor
     private var dependencies: AppDependencies {
@@ -25,6 +28,7 @@ struct antrainApp: App {
         WindowGroup {
             MainTabView()
                 .environmentObject(dependencies)
+                .environment(\.locale, .init(identifier: appLanguage))
         }
         .modelContainer(persistenceController.modelContainer)
     }

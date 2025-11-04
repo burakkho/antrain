@@ -112,8 +112,8 @@ For detailed architecture documentation, see [ARCHITECTURE.md](docs/ARCHITECTURE
 ### Prerequisites
 
 - macOS 14.0+
-- Xcode 15.0+
-- iOS 17.0+ device or simulator
+- Xcode 16.0+
+- iOS 18.0+ device or simulator
 
 ### Installation
 
@@ -137,7 +137,7 @@ For detailed architecture documentation, see [ARCHITECTURE.md](docs/ARCHITECTURE
 
 - **Bundle Identifier**: Update in project settings as needed
 - **Team**: Set your development team in Xcode
-- **Deployment Target**: iOS 17.0
+- **Deployment Target**: iOS 18.0
 
 ---
 
@@ -337,8 +337,8 @@ Detaylı mimari dokümantasyonu için [ARCHITECTURE.md](docs/ARCHITECTURE.md) do
 ### Ön Gereksinimler
 
 - macOS 14.0+
-- Xcode 15.0+
-- iOS 17.0+ cihaz veya simülatör
+- Xcode 16.0+
+- iOS 18.0+ cihaz veya simülatör
 
 ### Kurulum
 
@@ -362,7 +362,7 @@ Detaylı mimari dokümantasyonu için [ARCHITECTURE.md](docs/ARCHITECTURE.md) do
 
 - **Bundle Identifier**: Proje ayarlarından gerektiği gibi güncelleyin
 - **Team**: Xcode'da geliştirme ekibinizi ayarlayın
-- **Deployment Target**: iOS 17.0
+- **Deployment Target**: iOS 18.0
 
 ---
 

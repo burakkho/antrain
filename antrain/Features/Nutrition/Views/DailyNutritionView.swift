@@ -23,9 +23,9 @@ struct DailyNutritionView: View {
                 .navigationBarTitleDisplayMode(.large)
                 .sheet(item: $selectedMealType) { mealType in
                     if let foodVM = foodSearchViewModel {
-                        FoodSearchView(viewModel: foodVM) { food, amount in
+                        FoodSearchView(viewModel: foodVM) { food, amount, unit in
                             Task {
-                                await viewModel?.addFood(to: mealType, food: food, amount: amount)
+                                await viewModel?.addFood(to: mealType, food: food, amount: amount, unit: unit)
                             }
                         }
                     } else {
@@ -69,7 +69,7 @@ struct DailyNutritionView: View {
                 DSLoadingView()
             } else if let error = viewModel.errorMessage {
                 DSErrorView(
-                    errorMessage: error,
+                    errorMessage: LocalizedStringKey(error),
                     retryAction: {
                         Task {
                             await viewModel.loadTodayLog()

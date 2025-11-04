@@ -26,7 +26,7 @@ struct WorkoutsView: View {
                         DSLoadingView(message: "Loading workouts...")
                     } else if let errorMessage = viewModel.errorMessage {
                         DSErrorView(
-                            errorMessage: errorMessage,
+                            errorMessage: LocalizedStringKey(errorMessage),
                             retryAction: {
                                 Task {
                                     await viewModel.loadWorkouts()

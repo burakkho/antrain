@@ -3,7 +3,7 @@ import SwiftUI
 /// Secondary action button with secondary background
 /// Usage: Cancel, skip, alternative actions
 struct DSSecondaryButton: View {
-    let title: String
+    let title: LocalizedStringKey
     let action: () -> Void
     var isDisabled: Bool = false
 

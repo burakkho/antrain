@@ -3,7 +3,7 @@ import SwiftUI
 /// Loading state view with spinner and message
 /// Usage: Async operations, data fetching
 struct DSLoadingView: View {
-    var message: String = "Loading..."
+    var message: LocalizedStringKey = "Loading..."
 
     var body: some View {
         VStack(spacing: DSSpacing.md) {

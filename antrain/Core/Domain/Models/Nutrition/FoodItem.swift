@@ -28,6 +28,10 @@ final class FoodItem: @unchecked Sendable {
     var isFavorite: Bool
     var version: Int
 
+    // Relationships
+    @Relationship(deleteRule: .cascade)
+    var servingUnits: [ServingUnit] = []
+
     init(
         name: String,
         brand: String? = nil,
@@ -68,5 +72,16 @@ extension FoodItem {
             carbs: carbs * multiplier,
             fats: fats * multiplier
         )
+    }
+
+    /// Get default serving unit
+    func getDefaultUnit() -> ServingUnit {
+        servingUnits.first(where: { $0.isDefault })
+            ?? ServingUnit(unitType: .gram, gramsPerUnit: 1.0, description: "g", isDefault: true)
+    }
+
+    /// Get serving units sorted by order index
+    func getSortedUnits() -> [ServingUnit] {
+        servingUnits.sorted { $0.orderIndex < $1.orderIndex }
     }
 }

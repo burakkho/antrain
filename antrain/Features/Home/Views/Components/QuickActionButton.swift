@@ -3,7 +3,7 @@ import SwiftUI
 /// Quick action button for home screen
 struct QuickActionButton: View {
     let icon: String
-    let title: String
+    let title: LocalizedStringKey
     let action: () -> Void
 
     var body: some View {

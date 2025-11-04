@@ -3,7 +3,7 @@ import SwiftUI
 /// Primary action button with blue background
 /// Usage: Main CTAs, save actions, primary workflows
 struct DSPrimaryButton: View {
-    let title: String
+    let title: LocalizedStringKey
     let action: () -> Void
     var isLoading: Bool = false
     var isDisabled: Bool = false

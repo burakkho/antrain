@@ -3,7 +3,7 @@ import SwiftUI
 /// Error state view with message and retry action
 /// Usage: Failed operations, error scenarios
 struct DSErrorView: View {
-    let errorMessage: String
+    let errorMessage: LocalizedStringKey
     let retryAction: () -> Void
 
     var body: some View {

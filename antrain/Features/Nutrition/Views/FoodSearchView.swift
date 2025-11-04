@@ -13,10 +13,11 @@ struct FoodSearchView: View {
     @AppStorage("weightUnit") private var weightUnit: String = "Kilograms"
 
     @Bindable var viewModel: FoodSearchViewModel
-    let onSelect: (FoodItem, Double) -> Void
+    let onSelect: (FoodItem, Double, ServingUnit) -> Void
 
     @State private var selectedFood: FoodItem?
-    @State private var amount: String = "100"
+    @State private var selectedUnit: ServingUnit?
+    @State private var amount: String = "1"
 
     var body: some View {
         NavigationStack {
@@ -34,7 +35,8 @@ struct FoodSearchView: View {
                     Button("Cancel") {
                         if selectedFood != nil {
                             selectedFood = nil
-                            amount = "100"
+                            selectedUnit = nil
+                            amount = "1"
                         } else {
                             dismiss()
                         }
@@ -67,7 +69,7 @@ struct FoodSearchView: View {
                 DSLoadingView()
             } else if let error = viewModel.errorMessage {
                 DSErrorView(
-                    errorMessage: error,
+                    errorMessage: LocalizedStringKey(error),
                     retryAction: {
                         Task {
                             await viewModel.search()
@@ -113,27 +115,57 @@ struct FoodSearchView: View {
                 .background(DSColors.backgroundSecondary)
                 .cornerRadius(DSCornerRadius.md)
 
+                // Unit Picker (if food has serving units)
+                if !food.servingUnits.isEmpty {
+                    VStack(alignment: .leading, spacing: DSSpacing.xs) {
+                        Text("Birim")
+                            .font(DSTypography.caption)
+                            .foregroundStyle(DSColors.textSecondary)
+
+                        Picker("Unit", selection: $selectedUnit) {
+                            ForEach(food.getSortedUnits(), id: \.id) { unit in
+                                Text(unit.fullDisplayText(using: weightUnit))
+                                    .tag(unit as ServingUnit?)
+                            }
+                        }
+                        .pickerStyle(.segmented)
+                    }
+                }
+
                 // Amount input
                 VStack(alignment: .leading, spacing: DSSpacing.xs) {
-                    Text(weightUnit == "Pounds" ? "Amount (ounces)" : "Amount (grams)")
+                    Text("Amount")
                         .font(DSTypography.caption)
                         .foregroundStyle(DSColors.textSecondary)
 
-                    TextField("100", text: $amount)
-                        .keyboardType(.decimalPad)
-                        .textFieldStyle(.roundedBorder)
-                        .font(DSTypography.title2)
+                    HStack {
+                        TextField("1", text: $amount)
+                            .keyboardType(.decimalPad)
+                            .textFieldStyle(.roundedBorder)
+                            .font(DSTypography.title2)
+
+                        if let unit = selectedUnit {
+                            Text(unit.displayDescription(weightUnit: weightUnit))
+                                .font(DSTypography.body)
+                                .foregroundStyle(DSColors.textSecondary)
+                                .frame(minWidth: 40, alignment: .leading)
+                        }
+                    }
                 }
 
                 // Calculated nutrition
-                if let amountValue = Double(amount) {
-                    // Convert to grams if user entered ounces
-                    let amountInGrams = weightUnit == "Pounds" ? amountValue.ozToGrams() : amountValue
+                if let amountValue = Double(amount), let unit = selectedUnit {
+                    let amountInGrams = amountValue * unit.gramsPerUnit
                     let (cal, pro, car, fat) = food.nutritionFor(amount: amountInGrams)
 
                     VStack(alignment: .leading, spacing: DSSpacing.sm) {
-                        let displayUnit = weightUnit == "Pounds" ? "oz" : "g"
-                        Text("Nutrition for \(Int(amountValue))\(displayUnit)")
+                        Text("= \(Int(amountInGrams))g")
+                            .font(DSTypography.caption)
+                            .foregroundStyle(DSColors.textTertiary)
+
+                        Divider()
+
+                        Text("Nutritional Values")
                             .font(DSTypography.caption)
                             .foregroundStyle(DSColors.textSecondary)
 
@@ -152,20 +184,28 @@ struct FoodSearchView: View {
                 Spacer()
             }
             .padding(DSSpacing.md)
+            .onAppear {
+                // Set default unit when food is selected
+                if selectedUnit == nil {
+                    selectedUnit = food.getDefaultUnit()
+                }
+            }
+            .onChange(of: selectedFood) { _, newFood in
+                // Reset unit when food changes
+                selectedUnit = newFood?.getDefaultUnit()
+            }
         }
     }
 
     // MARK: - Actions
     private func addFood() {
         guard let food = selectedFood,
-              let amountValue = Double(amount) else {
+              let amountValue = Double(amount),
+              let unit = selectedUnit else {
             return
         }
 
-        // Convert to grams if user entered ounces (database stores in grams)
-        let amountInGrams = weightUnit == "Pounds" ? amountValue.ozToGrams() : amountValue
-
-        onSelect(food, amountInGrams)
+        onSelect(food, amountValue, unit)
         dismiss()
     }
 }
@@ -251,45 +291,13 @@ private struct MacroLabel: View {
 }
 
 // MARK: - Preview
-#Preview("Search View") {
-    let dependencies = AppDependencies.preview
-
-    return FoodSearchView(
+#Preview {
+    FoodSearchView(
         viewModel: FoodSearchViewModel(
-            nutritionRepository: dependencies.nutritionRepository
+            nutritionRepository: AppDependencies.preview.nutritionRepository
         ),
-        onSelect: { food, amount in
-            print("Selected: \(food.name), \(amount)g")
+        onSelect: { food, amount, unit in
+            print("Selected: \(food.name), \(amount) \(unit.unitDescription)")
         }
     )
-}
-
-#Preview("Amount Input") {
-    let dependencies = AppDependencies.preview
-
-    struct PreviewWrapper: View {
-        @State private var viewModel: FoodSearchViewModel
-
-        init(dependencies: AppDependencies) {
-            _viewModel = State(initialValue: FoodSearchViewModel(
-                nutritionRepository: dependencies.nutritionRepository
-            ))
-        }
-
-        var body: some View {
-            FoodSearchView(
-                viewModel: viewModel,
-                onSelect: { food, amount in
-                    print("Selected: \(food.name), \(amount)g")
-                }
-            )
-            .onAppear {
-                Task {
-                    await viewModel.loadInitialFoods()
-                }
-            }
-        }
-    }
-
-    return PreviewWrapper(dependencies: dependencies)
 }

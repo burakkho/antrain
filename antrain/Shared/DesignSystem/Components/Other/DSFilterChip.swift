@@ -3,7 +3,7 @@ import SwiftUI
 /// Filter chip component for horizontal scrollable filters
 /// Apple Fitness+ style - toggle on/off with tap
 struct DSFilterChip: View {
-    let title: String
+    let title: LocalizedStringKey
     let isSelected: Bool
     let action: () -> Void
 

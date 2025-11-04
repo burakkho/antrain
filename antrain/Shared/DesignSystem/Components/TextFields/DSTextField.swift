@@ -3,18 +3,16 @@ import SwiftUI
 /// Standard text input field
 /// Usage: Text input, search, notes
 struct DSTextField: View {
-    let title: String
+    let title: LocalizedStringKey
     @Binding var text: String
-    var placeholder: String = ""
-    var errorMessage: String?
+    var placeholder: LocalizedStringKey = ""
+    var errorMessage: LocalizedStringKey?
 
     var body: some View {
         VStack(alignment: .leading, spacing: DSSpacing.xxs) {
-            if !title.isEmpty {
-                Text(title)
-                    .font(DSTypography.subheadline)
-                    .foregroundStyle(DSColors.textSecondary)
-            }
+            Text(title)
+                .font(DSTypography.subheadline)
+                .foregroundStyle(DSColors.textSecondary)
 
             TextField(placeholder, text: $text)
                 .font(DSTypography.body)

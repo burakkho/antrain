@@ -181,7 +181,7 @@ struct HomeView: View {
                     .frame(height: 200)
             } else if let errorMessage = viewModel.errorMessage {
                 DSErrorView(
-                    errorMessage: errorMessage,
+                    errorMessage: LocalizedStringKey(errorMessage),
                     retryAction: {
                         Task {
                             await viewModel.loadRecentWorkouts()

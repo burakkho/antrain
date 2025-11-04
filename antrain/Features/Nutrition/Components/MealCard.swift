@@ -88,7 +88,7 @@ private struct FoodEntryRow: View {
                     .font(DSTypography.body)
                     .foregroundStyle(DSColors.textPrimary)
 
-                Text("\(Int(entry.servingAmount))g • \(Int(entry.calories)) kcal")
+                Text("\(entry.displayAmount) • \(Int(entry.calories)) kcal")
                     .font(DSTypography.caption)
                     .foregroundStyle(DSColors.textSecondary)
             }

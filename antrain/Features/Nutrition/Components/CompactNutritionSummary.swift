@@ -81,7 +81,7 @@ struct CompactNutritionSummary: View {
 
 /// Compact version of MacroProgressBar with smaller height and tighter spacing
 private struct CompactMacroProgressBar: View {
-    let title: String
+    let title: LocalizedStringKey
     let current: Double
     let goal: Double
     let color: Color

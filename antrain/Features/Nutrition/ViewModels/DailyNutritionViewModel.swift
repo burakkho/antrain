@@ -122,7 +122,7 @@ final class DailyNutritionViewModel {
         }
     }
 
-    func addFood(to mealType: Meal.MealType, food: FoodItem, amount: Double) async {
+    func addFood(to mealType: Meal.MealType, food: FoodItem, amount: Double, unit: sending ServingUnit) async {
         guard let log = nutritionLog else {
             errorMessage = "No nutrition log available"
             return
@@ -133,7 +133,8 @@ final class DailyNutritionViewModel {
                 to: log,
                 mealType: mealType,
                 food: food,
-                amount: amount
+                amount: amount,
+                unit: unit
             )
 
             // Refresh log

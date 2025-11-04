@@ -147,7 +147,8 @@ struct SettingsView: View {
 
                     Picker("Language", selection: $appLanguage) {
                         Text("English").tag("en")
-                        Text("Türkçe").tag("tr")
+                        Text("Spanish").tag("es")
+                        Text("Turkish").tag("tr")
                     }
 
                     Picker("Theme", selection: $appTheme) {

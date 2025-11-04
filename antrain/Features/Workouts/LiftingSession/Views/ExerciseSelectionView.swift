@@ -104,7 +104,7 @@ struct ExerciseSelectionView: View {
 
                     ForEach([ExerciseCategory.barbell, .dumbbell, .bodyweight, .weightlifting, .machine, .cable], id: \.self) { category in
                         DSFilterChip(
-                            title: category.rawValue.capitalized,
+                            title: LocalizedStringKey(category.rawValue.capitalized),
                             isSelected: selectedCategory == category,
                             action: {
                                 selectedCategory = selectedCategory == category ? nil : category
@@ -126,7 +126,7 @@ struct ExerciseSelectionView: View {
 
                     ForEach([MuscleGroup.chest, .back, .shoulders, .biceps, .triceps, .quads, .hamstrings, .glutes, .core, .fullBody], id: \.self) { muscle in
                         DSFilterChip(
-                            title: muscle.rawValue.capitalized,
+                            title: LocalizedStringKey(muscle.rawValue.capitalized),
                             isSelected: selectedMuscleGroup == muscle,
                             action: {
                                 selectedMuscleGroup = selectedMuscleGroup == muscle ? nil : muscle

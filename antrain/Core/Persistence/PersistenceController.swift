@@ -27,6 +27,7 @@ final class PersistenceController {
                 Meal.self,
                 FoodEntry.self,
                 FoodItem.self,
+                ServingUnit.self,
                 UserProfile.self,
                 BodyweightEntry.self,
                 PersonalRecord.self,
@@ -184,6 +185,7 @@ extension PersistenceController {
                 Meal.self,
                 FoodEntry.self,
                 FoodItem.self,
+                ServingUnit.self,
                 UserProfile.self,
                 BodyweightEntry.self,
                 PersonalRecord.self,
@@ -254,7 +256,7 @@ extension PersistenceController {
             let sampleNutritionLog = NutritionLog(date: Date())
 
             let sampleFood = FoodItem(
-                name: "Tavuk Göğsü",
+                name: String(localized: "Chicken Breast"),
                 calories: 165,
                 protein: 31,
                 carbs: 0,
