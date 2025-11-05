@@ -73,9 +73,115 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.1.0] - 2025-11-05
+
+### Added
+
+#### Workout Templates System
+- Complete workout template management system
+- 12 preset workout templates across 5 categories (Strength, Hypertrophy, Calisthenics, Weightlifting, Beginner)
+- Create custom workout templates with 3-step wizard
+- Save completed workouts as templates
+- Start workouts from templates with one tap
+- Template browsing with search and category filtering
+- Template editing and duplication
+- Usage tracking (last used timestamp)
+- Swipe actions for quick template management
+
+#### Comprehensive Localization
+- Full Turkish (Türkçe) language support
+- Full Spanish (Español) language support
+- 500+ strings localized across all features
+- Automatic string extraction enabled for future updates
+- Localized date formatting (calendar weekdays)
+- Localized units and measurements
+- Device language detection
+
+#### Smart Nutrition Onboarding
+- 5-step onboarding wizard for new users
+- TDEE (Total Daily Energy Expenditure) calculator
+- Smart macro recommendations based on user profile
+- 5 macro presets (Balanced, High Protein, Keto, Low Carb, Endurance)
+- Activity level tracking (sedentary to very active)
+- Goal-based calorie recommendations (weight loss/gain/maintain)
+- Initial bodyweight entry integration
+
+### Improved
+
+#### Architecture & Code Quality
+- Clean Architecture refactoring for Nutrition module
+  - DailyNutritionView reduced from 814 to 246 lines (70% reduction)
+  - Extracted ViewModels from Views
+  - Created pure domain functions (MacroCalculator)
+  - Moved MacroPreset to Domain layer
+- View component extraction (micro-modular architecture)
+  - NutritionSettingsView reduced from 445 to 156 lines (65% reduction)
+  - Extracted 4 reusable components with independent previews
+- Architecture health score improved from 67.5 to 71-72/100
+- Better separation of concerns
+- Improved testability
+
+#### Localization Infrastructure
+- SwipeableNumberField now uses LocalizedStringKey for placeholders
+- DSCalendarView uses DateFormatter for automatic weekday localization
+- Fixed 49 localization patterns for auto-extraction
+- All loading states properly localized
+- Unit displays consistently localized (kg, lbs, kcal, g, min, sec, km, mi)
+
+### Changed
+
+#### Platform Requirements
+- Minimum iOS version updated from 17.0 to 18.0
+- Leverages latest SwiftUI features
+- Better performance on iOS 18+
+
+#### User Experience
+- Templates accessible from Workouts tab (user feedback-driven decision)
+- Improved navigation patterns
+- Better empty states throughout
+- Enhanced loading states with skeleton cards
+- Smoother animations and transitions
+
+### Fixed
+
+#### Critical Bugs
+- UUID mismatch in template seeding (templates now correctly reference SwiftData exercises)
+- Exercise name mismatches (23 exercise names corrected)
+- MainActor isolation warnings resolved
+- Sendable conformance issues fixed
+- Circular update prevention in ViewModels
+- Workout save persistence bug
+- Multiple white screen bugs across views
+
+#### Localization
+- Fixed nil coalescing patterns for proper localization
+- Fixed string interpolation with units
+- Fixed string concatenation patterns
+- Removed 2 stale format string keys
+- All DSLoadingView messages now properly localized
+
+### Technical
+
+#### Code Metrics
+- 28+ new files created
+- ~3,500 lines of new code
+- ~688 lines of complex code refactored
+- 23+ critical bugs fixed
+- 0 critical bugs remaining
+- Build: Successful
+- Architecture compliance: Achieved
+
+#### Files Modified
+- 27 files changed
+- 14,859 insertions
+- 4,744 deletions
+- Net improvement: +10,115 lines (includes localizations and new features)
+
+---
+
 ## [Unreleased]
 
-### Planned for v1.1
+### Planned for v1.2
 
 #### To Be Added
 - Custom exercise creation UI
@@ -86,7 +192,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 #### To Be Improved
 - Performance optimizations
 - Enhanced analytics and progress charts
-- Workout templates and routines
+- Accessibility improvements (VoiceOver support, Dynamic Type)
 
 ### Planned for v2.0
 
