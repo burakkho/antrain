@@ -30,7 +30,7 @@ struct NutritionGoalsEditorSheet: View {
                             .keyboardType(.numberPad)
                             .multilineTextAlignment(.trailing)
                             .frame(width: 80)
-                        Text("kcal")
+                        Text(String(localized: "kcal"))
                             .foregroundStyle(DSColors.textSecondary)
                     }
 
@@ -41,7 +41,7 @@ struct NutritionGoalsEditorSheet: View {
                             .keyboardType(.numberPad)
                             .multilineTextAlignment(.trailing)
                             .frame(width: 80)
-                        Text("g")
+                        Text(String(localized: "g"))
                             .foregroundStyle(DSColors.textSecondary)
                     }
 
@@ -52,7 +52,7 @@ struct NutritionGoalsEditorSheet: View {
                             .keyboardType(.numberPad)
                             .multilineTextAlignment(.trailing)
                             .frame(width: 80)
-                        Text("g")
+                        Text(String(localized: "g"))
                             .foregroundStyle(DSColors.textSecondary)
                     }
 
@@ -63,7 +63,7 @@ struct NutritionGoalsEditorSheet: View {
                             .keyboardType(.numberPad)
                             .multilineTextAlignment(.trailing)
                             .frame(width: 80)
-                        Text("g")
+                        Text(String(localized: "g"))
                             .foregroundStyle(DSColors.textSecondary)
                     }
                 }

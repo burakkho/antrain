@@ -49,7 +49,7 @@ struct CardioLogView: View {
                                 .onChange(of: viewModel.durationMinutes) { _, _ in
                                     viewModel.updateDuration()
                                 }
-                            Text("min")
+                            Text(String(localized: "min"))
                                 .foregroundStyle(DSColors.textSecondary)
                         }
 
@@ -59,7 +59,7 @@ struct CardioLogView: View {
                                 .onChange(of: viewModel.durationSeconds) { _, _ in
                                     viewModel.updateDuration()
                                 }
-                            Text("sec")
+                            Text(String(localized: "sec"))
                                 .foregroundStyle(DSColors.textSecondary)
                         }
                     }
@@ -71,7 +71,7 @@ struct CardioLogView: View {
                                 Text("Auto-calculated")
                                     .foregroundStyle(DSColors.textSecondary)
                                 Spacer()
-                                Text(String(format: "%.2f min/km", calculatedPace))
+                                Text(String(format: "%.2f \(String(localized: "min/km"))", calculatedPace))
                                     .font(DSTypography.headline)
                             }
                         }
@@ -79,7 +79,7 @@ struct CardioLogView: View {
                         HStack {
                             TextField("Manual Pace", value: $viewModel.pace, format: .number.precision(.fractionLength(0...2)))
                                 .keyboardType(.decimalPad)
-                            Text("min/km")
+                            Text(String(localized: "min/km"))
                                 .foregroundStyle(DSColors.textSecondary)
                         }
                     }

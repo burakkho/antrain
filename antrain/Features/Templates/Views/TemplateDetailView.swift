@@ -58,7 +58,7 @@ struct TemplateDetailView: View {
 
                         Button {
                             showDuplicateSheet = true
-                            duplicateName = "\(template.name) Copy"
+                            duplicateName = "\(template.name) \(String(localized: "Copy"))"
                         } label: {
                             Label("Duplicate", systemImage: "doc.on.doc")
                         }
@@ -76,7 +76,7 @@ struct TemplateDetailView: View {
                 ToolbarItem(placement: .primaryAction) {
                     Button {
                         showDuplicateSheet = true
-                        duplicateName = "\(template.name) Copy"
+                        duplicateName = "\(template.name) \(String(localized: "Copy"))"
                     } label: {
                         Label("Duplicate", systemImage: "doc.on.doc")
                     }
@@ -164,13 +164,13 @@ struct TemplateDetailView: View {
                 StatItem(
                     icon: "list.bullet",
                     value: "\(template.exerciseCount)",
-                    label: "exercises"
+                    label: String(localized: "exercises")
                 )
 
                 StatItem(
                     icon: "clock",
                     value: template.estimatedDurationFormatted,
-                    label: "duration"
+                    label: String(localized: "duration")
                 )
             }
         }

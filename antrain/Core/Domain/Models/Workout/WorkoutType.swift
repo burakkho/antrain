@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import SwiftUI
 
 /// Antrenman tiplerini tanımlar
 /// - lifting: Real-time tracking (set-by-set)
@@ -15,6 +16,17 @@ enum WorkoutType: String, Codable, Sendable {
     case lifting
     case cardio
     case metcon
+
+    var localizedName: LocalizedStringKey {
+        switch self {
+        case .lifting:
+            return "Lifting"
+        case .cardio:
+            return "Cardio"
+        case .metcon:
+            return "MetCon"
+        }
+    }
 }
 
 // MARK: - Display Helpers

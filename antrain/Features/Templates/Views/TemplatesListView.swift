@@ -100,7 +100,7 @@ struct TemplatesListView: View {
     private var loadingView: some View {
         VStack {
             ProgressView()
-            Text("Loading templates...")
+            Text(String(localized: "Loading templates..."))
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
         }
@@ -177,7 +177,7 @@ struct TemplatesListView: View {
                                         },
                                         onDuplicate: {
                                             templateToDuplicate = template
-                                            duplicateName = "\(template.name) Copy"
+                                            duplicateName = "\(template.name) \(String(localized: "Copy"))"
                                         }
                                     )
                                 }
@@ -204,7 +204,7 @@ struct TemplatesListView: View {
                                         onDelete: nil, // Cannot delete presets
                                         onDuplicate: {
                                             templateToDuplicate = template
-                                            duplicateName = "\(template.name) Copy"
+                                            duplicateName = "\(template.name) \(String(localized: "Copy"))"
                                         }
                                     )
                                 }

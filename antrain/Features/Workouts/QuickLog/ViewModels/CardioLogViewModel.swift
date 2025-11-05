@@ -7,6 +7,7 @@
 
 import Foundation
 import Observation
+import SwiftUI
 
 /// Cardio quick log view model
 /// Manages cardio workout entry state and save logic
@@ -107,4 +108,25 @@ enum CardioType: String, CaseIterable {
     case elliptical = "Elliptical"
     case stairs = "Stairs"
     case other = "Other"
+
+    var localizedName: LocalizedStringKey {
+        switch self {
+        case .run:
+            return "Run"
+        case .bike:
+            return "Bike"
+        case .row:
+            return "Row"
+        case .swim:
+            return "Swim"
+        case .walk:
+            return "Walk"
+        case .elliptical:
+            return "Elliptical"
+        case .stairs:
+            return "Stairs"
+        case .other:
+            return "Other"
+        }
+    }
 }

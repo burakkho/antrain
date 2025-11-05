@@ -40,7 +40,7 @@ struct MealCard: View {
                             .foregroundStyle(DSColors.textPrimary)
 
                         if !meal.foodEntries.isEmpty {
-                            Text("\(Int(totalCalories)) kcal • P: \(Int(totalProtein))g C: \(Int(totalCarbs))g F: \(Int(totalFats))g")
+                            Text("\(Int(totalCalories)) \(String(localized: "kcal")) • P: \(Int(totalProtein))\(String(localized: "g")) C: \(Int(totalCarbs))\(String(localized: "g")) F: \(Int(totalFats))\(String(localized: "g"))")
                                 .font(DSTypography.caption)
                                 .foregroundStyle(DSColors.textSecondary)
                         }
@@ -84,11 +84,11 @@ private struct FoodEntryRow: View {
     var body: some View {
         HStack(spacing: DSSpacing.sm) {
             VStack(alignment: .leading, spacing: 2) {
-                Text(entry.foodItem?.name ?? "Unknown")
+                Text(entry.foodItem?.name ?? String(localized: "Unknown"))
                     .font(DSTypography.body)
                     .foregroundStyle(DSColors.textPrimary)
 
-                Text("\(entry.displayAmount) • \(Int(entry.calories)) kcal")
+                Text("\(entry.displayAmount) • \(Int(entry.calories)) \(String(localized: "kcal"))")
                     .font(DSTypography.caption)
                     .foregroundStyle(DSColors.textSecondary)
             }

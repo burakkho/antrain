@@ -14,7 +14,7 @@ struct SwipeableNumberField: View {
 
     let type: FieldType
     @Binding var value: Double
-    let placeholder: String
+    let placeholder: LocalizedStringKey
     let isKeyboardMode: Bool // Now externally controlled
     let onUpdate: () -> Void
 
@@ -123,8 +123,9 @@ struct SwipeableNumberField: View {
             let color = plateColors[abs(baseIncrement)] ?? .gray
             let sign = isRight ? "+" : "-"
             let formattedIncrement = String(format: "%.1f", baseIncrement)
+            let unit = String(localized: "kg")
             showFeedback(
-                text: "\(sign)\(formattedIncrement)kg",
+                text: "\(sign)\(formattedIncrement)\(unit)",
                 color: color,
                 plate: baseIncrement
             )
@@ -144,8 +145,9 @@ struct SwipeableNumberField: View {
         let color = plateColors[abs(baseIncrement)] ?? .green
         let sign = isUp ? "+" : "-"
         let formattedIncrement = String(format: "%.0f", baseIncrement)
+        let unit = String(localized: "kg")
         showFeedback(
-            text: "\(sign)\(formattedIncrement)kg",
+            text: "\(sign)\(formattedIncrement)\(unit)",
             color: color,
             plate: baseIncrement
         )

@@ -7,6 +7,7 @@
 
 import Foundation
 import SwiftData
+import SwiftUI
 
 /// User profile model
 /// Contains user settings and preferences
@@ -34,6 +35,19 @@ final class UserProfile: @unchecked Sendable {
         case female = "Female"
         case other = "Other"
         case preferNotToSay = "Prefer not to say"
+
+        var localizedName: LocalizedStringKey {
+            switch self {
+            case .male:
+                return "Male"
+            case .female:
+                return "Female"
+            case .other:
+                return "Other"
+            case .preferNotToSay:
+                return "Prefer not to say"
+            }
+        }
     }
 
     // MARK: - Activity Level Enum
@@ -45,6 +59,21 @@ final class UserProfile: @unchecked Sendable {
         case moderatelyActive = "Moderately Active"
         case veryActive = "Very Active"
         case extraActive = "Extra Active"
+
+        var localizedName: LocalizedStringKey {
+            switch self {
+            case .sedentary:
+                return "Sedentary"
+            case .lightlyActive:
+                return "Lightly Active"
+            case .moderatelyActive:
+                return "Moderately Active"
+            case .veryActive:
+                return "Very Active"
+            case .extraActive:
+                return "Extra Active"
+            }
+        }
     }
 
     // MARK: - Relationships

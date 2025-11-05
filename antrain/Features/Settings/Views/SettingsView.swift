@@ -18,12 +18,32 @@ struct SettingsView: View {
     enum WeightUnit: String, CaseIterable {
         case kg = "Kilograms"
         case lbs = "Pounds"
+
+        var localizedName: LocalizedStringKey {
+            switch self {
+            case .kg:
+                return "Kilograms"
+            case .lbs:
+                return "Pounds"
+            }
+        }
     }
 
     enum AppTheme: String, CaseIterable {
         case light = "Light"
         case dark = "Dark"
         case system = "System"
+
+        var localizedName: LocalizedStringKey {
+            switch self {
+            case .light:
+                return "Light"
+            case .dark:
+                return "Dark"
+            case .system:
+                return "System"
+            }
+        }
     }
 
     var body: some View {
@@ -37,7 +57,7 @@ struct SettingsView: View {
                             HStack {
                                 Text("Name")
                                 Spacer()
-                                Text(viewModel.userProfile?.name.isEmpty == false ? viewModel.userProfile!.name : "Not set")
+                                Text(viewModel.userProfile?.name.isEmpty == false ? viewModel.userProfile!.name : String(localized: "Not set"))
                                     .foregroundStyle(DSColors.textSecondary)
                                 Image(systemName: "chevron.right")
                                     .font(.caption)
@@ -54,7 +74,7 @@ struct SettingsView: View {
                                     Text(height.formattedHeight(unit: weightUnit.rawValue))
                                         .foregroundStyle(DSColors.textSecondary)
                                 } else {
-                                    Text("Not set")
+                                    Text(String(localized: "Not set"))
                                         .foregroundStyle(DSColors.textSecondary)
                                 }
                                 Image(systemName: "chevron.right")
@@ -68,7 +88,7 @@ struct SettingsView: View {
                             HStack {
                                 Text("Gender")
                                 Spacer()
-                                Text(viewModel.userProfile?.gender?.rawValue ?? "Not set")
+                                Text(viewModel.userProfile?.gender?.rawValue ?? String(localized: "Not set"))
                                     .foregroundStyle(DSColors.textSecondary)
                                 Image(systemName: "chevron.right")
                                     .font(.caption)
@@ -82,10 +102,10 @@ struct SettingsView: View {
                                 Text("Date of Birth")
                                 Spacer()
                                 if let age = viewModel.userProfile?.age {
-                                    Text("\(age) years old")
+                                    Text("\(age) \(String(localized: "years old"))")
                                         .foregroundStyle(DSColors.textSecondary)
                                 } else {
-                                    Text("Not set")
+                                    Text(String(localized: "Not set"))
                                         .foregroundStyle(DSColors.textSecondary)
                                 }
                                 Image(systemName: "chevron.right")
@@ -99,7 +119,7 @@ struct SettingsView: View {
                             HStack {
                                 Text("Activity Level")
                                 Spacer()
-                                Text(viewModel.userProfile?.activityLevel?.rawValue ?? "Not set")
+                                Text(viewModel.userProfile?.activityLevel?.rawValue ?? String(localized: "Not set"))
                                     .foregroundStyle(DSColors.textSecondary)
                                 Image(systemName: "chevron.right")
                                     .font(.caption)
@@ -226,7 +246,7 @@ struct HeightEditorSheet: View {
                             .keyboardType(.decimalPad)
                             .multilineTextAlignment(.trailing)
                             .frame(width: 80)
-                        Text(weightUnit == .kg ? "cm" : "in")
+                        Text(weightUnit == .kg ? String(localized: "cm") : String(localized: "in"))
                             .foregroundStyle(DSColors.textSecondary)
                     }
                 }
@@ -375,7 +395,7 @@ struct DateOfBirthEditorSheet: View {
                         HStack {
                             Text("Age")
                             Spacer()
-                            Text("\(age) years old")
+                            Text("\(age) \(String(localized: "years old"))")
                                 .foregroundStyle(DSColors.textSecondary)
                         }
                     }
@@ -616,7 +636,7 @@ struct SettingsBodyweightEntrySheet: View {
                             .keyboardType(.decimalPad)
                             .multilineTextAlignment(.trailing)
                             .frame(width: 80)
-                        Text(weightUnit == .kg ? "kg" : "lbs")
+                        Text(weightUnit == .kg ? String(localized: "kg") : String(localized: "lbs"))
                             .foregroundStyle(DSColors.textSecondary)
                     }
                 }

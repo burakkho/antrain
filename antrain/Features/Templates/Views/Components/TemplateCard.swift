@@ -62,7 +62,7 @@ struct TemplateCard: View {
             HStack(spacing: 16) {
                 // Exercise count
                 Label {
-                    Text("\(template.exerciseCount) exercises")
+                    Text("\(template.exerciseCount) \(String(localized: "exercises"))")
                         .font(.subheadline)
                 } icon: {
                     Image(systemName: "list.bullet")

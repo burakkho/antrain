@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import SwiftUI
 
 /// TDEE (Total Daily Energy Expenditure) Calculator
 /// Uses Mifflin-St Jeor formula for BMR calculation
@@ -22,6 +23,21 @@ struct TDEECalculator {
         case extraActive = "Extra Active"
 
         var id: String { rawValue }
+
+        var localizedName: LocalizedStringKey {
+            switch self {
+            case .sedentary:
+                return "Sedentary"
+            case .lightlyActive:
+                return "Lightly Active"
+            case .moderatelyActive:
+                return "Moderately Active"
+            case .veryActive:
+                return "Very Active"
+            case .extraActive:
+                return "Extra Active"
+            }
+        }
 
         /// Activity multiplier for TDEE calculation
         nonisolated var multiplier: Double {
@@ -60,6 +76,17 @@ struct TDEECalculator {
         case bulk = "Bulk"
 
         var id: String { rawValue }
+
+        var localizedName: LocalizedStringKey {
+            switch self {
+            case .cut:
+                return "Cut"
+            case .maintain:
+                return "Maintain"
+            case .bulk:
+                return "Bulk"
+            }
+        }
 
         /// Calorie adjustment from TDEE
         nonisolated var calorieAdjustment: Double {

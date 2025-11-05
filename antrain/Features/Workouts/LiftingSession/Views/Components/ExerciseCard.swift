@@ -24,7 +24,7 @@ struct ExerciseCard: View {
                             .font(.title3)
                             .foregroundStyle(DSColors.primary)
 
-                        Text(workoutExercise.exercise?.name ?? "Unknown Exercise")
+                        Text(workoutExercise.exercise?.name ?? String(localized: "Unknown Exercise"))
                             .font(DSTypography.headline)
                             .foregroundStyle(DSColors.textPrimary)
                     }
@@ -106,7 +106,7 @@ struct ExerciseCard: View {
     private var collapsedInfo: some View {
         HStack(spacing: 12) {
             // Set progress
-            Text("\(completedSets)/\(totalSets) sets")
+            Text("\(completedSets)/\(totalSets) \(String(localized: "sets"))")
                 .font(.caption)
                 .foregroundStyle(DSColors.textSecondary)
 
@@ -140,10 +140,10 @@ struct ExerciseCard: View {
 
         if weightUnit == "Pounds" {
             displayWeight = weight * 2.20462 // kg to lbs
-            unit = "lbs"
+            unit = String(localized: "lbs")
         } else {
             displayWeight = weight
-            unit = "kg"
+            unit = String(localized: "kg")
         }
 
         return String(format: "%.1f", displayWeight) + unit

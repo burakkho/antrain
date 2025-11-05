@@ -32,7 +32,7 @@ struct BodyweightEntrySheet: View {
                             .keyboardType(.decimalPad)
                             .multilineTextAlignment(.trailing)
                             .frame(width: 80)
-                        Text(weightUnit == "Kilograms" ? "kg" : "lbs")
+                        Text(weightUnit == "Kilograms" ? String(localized: "kg") : String(localized: "lbs"))
                             .foregroundStyle(DSColors.textSecondary)
                     }
                 }

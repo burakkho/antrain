@@ -12,7 +12,11 @@ struct DSCalendarView<DayContent: View>: View {
     @State private var selectedDate: Date?
 
     private let calendar = Calendar.current
-    private let daysOfWeek = ["S", "M", "T", "W", "T", "F", "S"]
+    private var daysOfWeek: [String] {
+        let formatter = DateFormatter()
+        formatter.locale = Locale.current
+        return formatter.veryShortWeekdaySymbols
+    }
 
     init(
         items: [Workout],

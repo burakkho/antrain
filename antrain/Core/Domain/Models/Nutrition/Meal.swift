@@ -7,6 +7,7 @@
 
 import Foundation
 import SwiftData
+import SwiftUI
 
 /// A meal within a nutrition log (Breakfast, Lunch, Dinner, Snack)
 @Model
@@ -63,6 +64,19 @@ extension Meal {
         case snack = "Snack"
 
         var id: String { rawValue }
+
+        var localizedName: LocalizedStringKey {
+            switch self {
+            case .breakfast:
+                return "Breakfast"
+            case .lunch:
+                return "Lunch"
+            case .dinner:
+                return "Dinner"
+            case .snack:
+                return "Snack"
+            }
+        }
     }
 
     static func create(type: MealType) -> Meal {

@@ -42,7 +42,7 @@ struct CompactNutritionSummary: View {
                     current: calories,
                     goal: calorieGoal,
                     color: DSColors.primary,
-                    unit: "kcal"
+                    unit: String(localized: "kcal")
                 )
 
                 CompactMacroProgressBar(
@@ -50,7 +50,7 @@ struct CompactNutritionSummary: View {
                     current: protein,
                     goal: proteinGoal,
                     color: .red,
-                    unit: "g"
+                    unit: String(localized: "g")
                 )
 
                 CompactMacroProgressBar(
@@ -58,7 +58,7 @@ struct CompactNutritionSummary: View {
                     current: carbs,
                     goal: carbsGoal,
                     color: .orange,
-                    unit: "g"
+                    unit: String(localized: "g")
                 )
 
                 CompactMacroProgressBar(
@@ -66,7 +66,7 @@ struct CompactNutritionSummary: View {
                     current: fats,
                     goal: fatsGoal,
                     color: .yellow,
-                    unit: "g"
+                    unit: String(localized: "g")
                 )
             }
         }

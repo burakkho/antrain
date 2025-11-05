@@ -20,6 +20,24 @@ enum TemplateCategory: String, Codable, CaseIterable {
 
     // MARK: - Display Properties
 
+    /// Localized name for the category
+    var localizedName: LocalizedStringKey {
+        switch self {
+        case .strength:
+            return "Strength"
+        case .hypertrophy:
+            return "Hypertrophy"
+        case .calisthenics:
+            return "Calisthenics"
+        case .weightlifting:
+            return "Weightlifting"
+        case .beginner:
+            return "Beginner"
+        case .custom:
+            return "Custom"
+        }
+    }
+
     /// Display name for the category
     var displayName: String {
         return rawValue
