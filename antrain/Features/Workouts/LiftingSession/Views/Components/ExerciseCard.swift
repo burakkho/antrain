@@ -6,7 +6,8 @@ struct ExerciseCard: View {
     let isKeyboardMode: Bool
     let onAddSet: () -> Void
     let onUpdateSet: (WorkoutSet, Int, Double) -> Void
-    let onCompleteSet: (WorkoutSet) -> Void
+    let onToggleSet: (WorkoutSet) -> Void
+    let onCompleteAllSets: () -> Void
     let onDeleteSet: (WorkoutSet) -> Void
     let onDeleteExercise: () -> Void
 
@@ -69,8 +70,8 @@ struct ExerciseCard: View {
                                 onUpdate: { reps, weight in
                                     onUpdateSet(set, reps, weight)
                                 },
-                                onComplete: {
-                                    onCompleteSet(set)
+                                onToggle: {
+                                    onToggleSet(set)
                                 },
                                 onDelete: {
                                     onDeleteSet(set)
@@ -80,18 +81,36 @@ struct ExerciseCard: View {
                     }
                 }
 
-                // Add Set button
-                Button(action: onAddSet) {
-                    HStack {
-                        Image(systemName: "plus.circle.fill")
-                        Text("Add Set")
+                HStack(spacing: DSSpacing.xs) {
+                    // Complete All Sets button (only show if there are incomplete sets)
+                    if hasIncompleteSets {
+                        Button(action: onCompleteAllSets) {
+                            HStack {
+                                Image(systemName: "checkmark.circle.fill")
+                                Text("Complete All")
+                            }
+                            .font(DSTypography.subheadline)
+                            .foregroundStyle(DSColors.success)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, DSSpacing.sm)
+                            .background(DSColors.success.opacity(0.1))
+                            .clipShape(RoundedRectangle(cornerRadius: DSCornerRadius.md))
+                        }
                     }
-                    .font(DSTypography.subheadline)
-                    .foregroundStyle(DSColors.primary)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, DSSpacing.sm)
-                    .background(DSColors.primary.opacity(0.1))
-                    .clipShape(RoundedRectangle(cornerRadius: DSCornerRadius.md))
+
+                    // Add Set button
+                    Button(action: onAddSet) {
+                        HStack {
+                            Image(systemName: "plus.circle.fill")
+                            Text("Add Set")
+                        }
+                        .font(DSTypography.subheadline)
+                        .foregroundStyle(DSColors.primary)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, DSSpacing.sm)
+                        .background(DSColors.primary.opacity(0.1))
+                        .clipShape(RoundedRectangle(cornerRadius: DSCornerRadius.md))
+                    }
                 }
             }
         }
@@ -130,6 +149,10 @@ struct ExerciseCard: View {
 
     private var totalSets: Int {
         workoutExercise.sets.count
+    }
+
+    private var hasIncompleteSets: Bool {
+        workoutExercise.sets.contains { !$0.isCompleted }
     }
 
     // MARK: - Helpers
@@ -177,7 +200,8 @@ struct ExerciseCard: View {
         isKeyboardMode: false,
         onAddSet: {},
         onUpdateSet: { _, _, _ in },
-        onCompleteSet: { _ in },
+        onToggleSet: { _ in },
+        onCompleteAllSets: {},
         onDeleteSet: { _ in },
         onDeleteExercise: {}
     )

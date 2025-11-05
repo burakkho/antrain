@@ -69,7 +69,7 @@ struct SmartNutritionGoalsEditor: View {
                         // Show full TDEE calculator
                         Button(action: { viewModel.showTDEECalculator.toggle() }) {
                             HStack {
-                                Image(systemName: "calculator")
+                                Image(systemName: "plus.forwardslash.minus")
                                 Text("Calculate from TDEE")
                                 Spacer()
                                 Image(systemName: viewModel.showTDEECalculator ? "chevron.up" : "chevron.down")

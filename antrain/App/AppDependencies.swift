@@ -27,6 +27,11 @@ final class AppDependencies: ObservableObject {
     // MARK: - Services
     let prDetectionService: PRDetectionService
 
+    // MARK: - Convenience Aliases
+    var prRepository: PersonalRecordRepository {
+        personalRecordRepository as! PersonalRecordRepository
+    }
+
     // MARK: - Initialization
     init(modelContainer: ModelContainer) {
         // Initialize repositories with ModelContainer

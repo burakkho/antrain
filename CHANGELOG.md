@@ -181,6 +181,105 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+#### Enhanced Workout Summary
+- **PR Detection & Celebration**
+  - Automatic detection of new personal records during workout
+  - Trophy icon with highlighted PR display in summary
+  - Shows weight, reps, and estimated 1RM for each PR
+  - PRs automatically saved to PR repository
+- **Comprehensive Volume & Statistics**
+  - Total volume (tonnage) calculation and display
+  - Total sets and exercises count
+  - Duration tracking with formatted display
+  - Enhanced stat boxes with SF Symbol icons
+- **Muscle Group Breakdown**
+  - Volume distribution by muscle group
+  - Set count per muscle group
+  - Exercise count per muscle group
+  - Sorted by volume (top 5 displayed)
+- **Previous Workout Comparison**
+  - Automatic comparison with last similar workout
+  - Volume change (absolute and percentage)
+  - Set count change
+  - Duration change
+  - Visual indicators (arrows) for improvements/declines
+- **Enhanced Exercise Details**
+  - Set-by-set breakdown for each exercise
+  - Completion status indicators (checkmark icons)
+  - Total volume per exercise
+  - Weight and rep display for each set
+- **Workout Rating System**
+  - 1-5 star rating for workouts
+  - Proper database field storage (not notes)
+  - Haptic feedback on star selection
+  - Enables future filtering and analytics
+- **Delete Workout Option**
+  - Delete workout from summary screen
+  - Confirmation dialog for safety
+  - Async deletion with error handling
+
+#### iOS Native UI Redesign
+- Complete WorkoutSummaryView rewrite with iOS native styling
+  - List with .insetGrouped style (Settings-app aesthetic)
+  - Section-based organization
+  - System semantic colors (.primary, .secondary, .tertiary, .blue, .green)
+  - SF Pro system fonts (.body, .callout, .caption)
+  - Native components (ProgressView, Label, Image)
+  - Automatic dark mode support
+  - No custom animations or excessive styling
+- Native stat boxes with rounded corners and system gray background
+- Clean comparison rows with arrow indicators
+- Simple, minimal design philosophy
+
+### Improved
+
+#### Backend Architecture
+- **Workout Model Extensions**
+  - `volumeByMuscleGroup` computed property for muscle group analysis
+  - `muscleGroupStats` for detailed muscle group statistics
+  - `topMuscleGroups` for quick top-3 access
+  - `compare(with:)` method for workout comparison
+  - `getPRs(from:)` and `getPRCount(from:)` for PR retrieval
+  - Added `rating: Int?` field for star ratings
+- **WorkoutSummaryViewModel**
+  - Parallel data loading with TaskGroup for performance
+  - Loads PRs, comparison, and stats simultaneously
+  - Async/await patterns throughout
+  - @Observable macro for modern state management
+  - @MainActor for thread safety
+  - Proper error handling and loading states
+- **New Domain Models**
+  - `WorkoutComparison` struct for detailed comparison metrics
+  - `ExerciseImprovement` struct for per-exercise analysis
+  - `MuscleGroupStats` struct for muscle group data
+- **AppDependencies**
+  - Added convenience alias for prRepository
+
+#### Localization
+- Fixed WorkoutsView template strings for String Catalog auto-detection
+- Removed `String(localized:)` wrappers (modern Swift localization)
+- Plain strings work with both LocalizedStringKey and String parameters
+- Xcode automatically detects and extracts strings
+
+### Technical
+
+#### Performance
+- Parallel async operations with TaskGroup
+  - PR detection runs concurrently with comparison loading
+  - All data loading completes faster
+  - Better user experience with minimal wait time
+
+#### Code Quality
+- Created 2 new files (WorkoutComparison.swift, WorkoutSummaryViewModel.swift)
+- Modified 3 files (Workout.swift, WorkoutSummaryView.swift, WorkoutsView.swift)
+- Added comprehensive computed properties for stats
+- Clean separation of concerns (View, ViewModel, Domain)
+- Proper dependency injection pattern
+
+---
+
 ### Planned for v1.2
 
 #### To Be Added

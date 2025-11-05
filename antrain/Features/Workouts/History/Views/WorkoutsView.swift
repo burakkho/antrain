@@ -3,10 +3,10 @@ import SwiftUI
 /// Workouts hub view with Quick Actions, PR tracking, history, and filters
 struct WorkoutsView: View {
     @EnvironmentObject private var appDependencies: AppDependencies
+    @Environment(ActiveWorkoutManager.self) private var workoutManager
     @State private var viewModel: WorkoutsViewModel?
 
     // Sheet states
-    @State private var showLiftingSession = false
     @State private var showCardioLog = false
     @State private var showMetConLog = false
     @State private var showTemplatesList = false
@@ -47,13 +47,6 @@ struct WorkoutsView: View {
                     viewModeToggle
                 }
             }
-            .fullScreenCover(isPresented: $showLiftingSession) {
-                LiftingSessionView(initialTemplate: selectedTemplate)
-                    .environmentObject(appDependencies)
-                    .onDisappear {
-                        selectedTemplate = nil
-                    }
-            }
             .sheet(isPresented: $showCardioLog) {
                 CardioLogView()
                     .environmentObject(appDependencies)
@@ -71,7 +64,7 @@ struct WorkoutsView: View {
             .sheet(isPresented: $showTemplateSelector) {
                 TemplateQuickSelectorView { template in
                     selectedTemplate = template
-                    showLiftingSession = true
+                    workoutManager.showFullScreen = true
                 }
                 .environmentObject(appDependencies)
             }
@@ -168,7 +161,7 @@ struct WorkoutsView: View {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: DSSpacing.sm) {
                     // Recent/Most Used Templates (would need TemplatesViewModel)
-                    // For now, show "Browse Templates" and "Create New" cards
+                    // For now, show Browse, Start, Create cards
 
                     // Browse Templates Card
                     TemplateQuickCard(
@@ -217,7 +210,7 @@ struct WorkoutsView: View {
                     icon: "dumbbell.fill",
                     title: "Start Lifting"
                 ) {
-                    showLiftingSession = true
+                    workoutManager.showFullScreen = true
                 }
 
                 // Log Cardio

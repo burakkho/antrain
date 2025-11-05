@@ -3,8 +3,8 @@ import SwiftUI
 /// Home screen with quick actions and recent workouts
 struct HomeView: View {
     @EnvironmentObject private var appDependencies: AppDependencies
+    @Environment(ActiveWorkoutManager.self) private var workoutManager
     @State private var viewModel: HomeViewModel?
-    @State private var showLiftingSession = false
     @State private var showCardioLog = false
     @State private var showMetConLog = false
 
@@ -61,10 +61,6 @@ struct HomeView: View {
                         await viewModel?.loadData()
                     }
                 }
-            }
-            .fullScreenCover(isPresented: $showLiftingSession) {
-                LiftingSessionView()
-                    .environmentObject(appDependencies)
             }
             .sheet(isPresented: $showCardioLog) {
                 CardioLogView()
@@ -150,7 +146,9 @@ struct HomeView: View {
                 QuickActionButton(
                     icon: "dumbbell.fill",
                     title: "Start Workout",
-                    action: { showLiftingSession = true }
+                    action: {
+                        workoutManager.showFullScreen = true
+                    }
                 )
 
                 QuickActionButton(
@@ -195,7 +193,7 @@ struct HomeView: View {
                     title: "No Workouts Yet",
                     message: "Start your first workout to see it here!",
                     actionTitle: "Start Workout",
-                    action: { showLiftingSession = true }
+                    action: { workoutManager.showFullScreen = true }
                 )
                 .frame(height: 300)
             } else {

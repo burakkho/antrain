@@ -10,6 +10,7 @@ import SwiftUI
 /// Detailed view of a workout template
 struct TemplateDetailView: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(ActiveWorkoutManager.self) private var workoutManager
     @EnvironmentObject private var dependencies: AppDependencies
 
     let template: WorkoutTemplate
@@ -19,7 +20,6 @@ struct TemplateDetailView: View {
     @State private var showDuplicateSheet = false
     @State private var duplicateName = ""
     @State private var showEditView = false
-    @State private var showLiftingSession = false
 
     var body: some View {
         ScrollView {
@@ -105,9 +105,6 @@ struct TemplateDetailView: View {
                     }
                 }
             }
-        }
-        .fullScreenCover(isPresented: $showLiftingSession) {
-            LiftingSessionView(initialTemplate: template)
         }
         .task {
             if viewModel == nil {
@@ -239,7 +236,7 @@ struct TemplateDetailView: View {
         VStack(spacing: 12) {
             // Start Workout button
             Button {
-                showLiftingSession = true
+                workoutManager.showFullScreen = true
             } label: {
                 Label("Start Workout", systemImage: "play.fill")
                     .font(.headline)

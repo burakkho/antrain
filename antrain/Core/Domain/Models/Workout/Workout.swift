@@ -16,6 +16,7 @@ final class Workout: @unchecked Sendable {
     var type: WorkoutType
     var duration: TimeInterval  // Saniye cinsinden
     var notes: String?
+    var rating: Int?  // 1-5 stars, optional
 
     // Relationships
     @Relationship(deleteRule: .cascade)
@@ -182,5 +183,92 @@ extension Workout {
         self.metconRounds = rounds
         self.metconResult = result
         self.duration = duration
+    }
+}
+
+// MARK: - Advanced Stats
+
+extension Workout {
+    /// Total tonnage (same as totalVolume, but semantically clearer for stats)
+    var totalTonnage: Double {
+        totalVolume
+    }
+
+    /// Volume breakdown by muscle group
+    /// Returns dictionary of muscle groups and their total volume in this workout
+    var volumeByMuscleGroup: [MuscleGroup: Double] {
+        var breakdown: [MuscleGroup: Double] = [:]
+
+        for workoutExercise in exercises {
+            guard let exercise = workoutExercise.exercise else { continue }
+
+            let exerciseVolume = workoutExercise.sets.reduce(0.0) { $0 + $1.volume }
+
+            // Distribute volume across all muscle groups for this exercise
+            for muscleGroup in exercise.muscleGroups {
+                breakdown[muscleGroup, default: 0] += exerciseVolume
+            }
+        }
+
+        return breakdown
+    }
+
+    /// Detailed muscle group statistics
+    var muscleGroupStats: [MuscleGroupStats] {
+        let volumeBreakdown = volumeByMuscleGroup
+        let totalVol = totalVolume
+
+        return volumeBreakdown.map { muscleGroup, volume in
+            // Count sets for this muscle group
+            let setsCount = exercises.reduce(0) { total, workoutExercise in
+                guard let exercise = workoutExercise.exercise,
+                      exercise.muscleGroups.contains(muscleGroup) else {
+                    return total
+                }
+                return total + workoutExercise.sets.count
+            }
+
+            // Count exercises for this muscle group
+            let exerciseCount = exercises.filter { workoutExercise in
+                guard let exercise = workoutExercise.exercise else { return false }
+                return exercise.muscleGroups.contains(muscleGroup)
+            }.count
+
+            return MuscleGroupStats(
+                muscleGroup: muscleGroup,
+                volume: volume,
+                sets: setsCount,
+                exerciseCount: exerciseCount
+            )
+        }.sorted { $0.volume > $1.volume } // Sort by volume descending
+    }
+
+    /// Top 3 muscle groups trained (by volume)
+    var topMuscleGroups: [MuscleGroup] {
+        Array(muscleGroupStats.prefix(3).map { $0.muscleGroup })
+    }
+
+    /// Compare this workout with another workout
+    /// - Parameter other: The previous workout to compare with
+    /// - Returns: Comparison object with detailed metrics
+    func compare(with other: Workout) -> WorkoutComparison {
+        WorkoutComparison(previousWorkout: other, currentWorkout: self)
+    }
+
+    /// Get PRs that were set in this workout
+    /// Note: This method requires PersonalRecordRepository to find PRs by workoutId
+    /// - Parameter repository: PersonalRecord repository
+    /// - Returns: Array of PRs that were achieved in this workout
+    func getPRs(from repository: PersonalRecordRepository) async throws -> [PersonalRecord] {
+        let allPRs = try await repository.fetchAll()
+        return allPRs.filter { $0.workoutId == self.id }
+    }
+
+    /// Count of PRs achieved in this workout
+    /// Note: This is a convenience wrapper that returns the count
+    /// - Parameter repository: PersonalRecord repository
+    /// - Returns: Number of PRs achieved in this workout
+    func getPRCount(from repository: PersonalRecordRepository) async throws -> Int {
+        try await getPRs(from: repository).count
     }
 }

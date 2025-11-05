@@ -390,6 +390,7 @@ struct DateOfBirthEditorSheet: View {
                         displayedComponents: .date
                     )
                     .datePickerStyle(.graphical)
+                    .frame(height: 400)
 
                     if let age = calculateAge(from: selectedDate) {
                         HStack {

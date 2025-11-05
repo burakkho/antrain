@@ -6,7 +6,7 @@ struct SetRow: View {
     let setNumber: Int
     let isKeyboardMode: Bool
     let onUpdate: (Int, Double) -> Void
-    let onComplete: () -> Void
+    let onToggle: () -> Void
     let onDelete: () -> Void
 
     @State private var reps: Double
@@ -20,14 +20,14 @@ struct SetRow: View {
         setNumber: Int,
         isKeyboardMode: Bool = false,
         onUpdate: @escaping (Int, Double) -> Void,
-        onComplete: @escaping () -> Void,
+        onToggle: @escaping () -> Void,
         onDelete: @escaping () -> Void
     ) {
         self.set = set
         self.setNumber = setNumber
         self.isKeyboardMode = isKeyboardMode
         self.onUpdate = onUpdate
-        self.onComplete = onComplete
+        self.onToggle = onToggle
         self.onDelete = onDelete
         self._reps = State(initialValue: Double(set.reps))
 
@@ -101,13 +101,16 @@ struct SetRow: View {
                     .foregroundStyle(DSColors.textSecondary)
                     .strikethrough(set.isCompleted, color: DSColors.textSecondary)
 
-                // Complete button (checkmark only)
+                // Toggle completion button
                 Button {
-                    onComplete()
+                    withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
+                        onToggle()
+                    }
                 } label: {
                     Image(systemName: set.isCompleted ? "checkmark.circle.fill" : "circle")
                         .font(.title2)
                         .foregroundStyle(set.isCompleted ? DSColors.success : DSColors.textTertiary)
+                        .symbolEffect(.bounce, value: set.isCompleted)
                 }
             }
             .padding(DSSpacing.sm)
@@ -155,7 +158,7 @@ struct SetRow: View {
             set: WorkoutSet(reps: 10, weight: 80, isCompleted: false),
             setNumber: 1,
             onUpdate: { _, _ in },
-            onComplete: {},
+            onToggle: {},
             onDelete: {}
         )
 
@@ -163,7 +166,7 @@ struct SetRow: View {
             set: WorkoutSet(reps: 10, weight: 80, isCompleted: true),
             setNumber: 2,
             onUpdate: { _, _ in },
-            onComplete: {},
+            onToggle: {},
             onDelete: {}
         )
     }

@@ -8,18 +8,19 @@ struct QuickActionButton: View {
 
     var body: some View {
         Button(action: action) {
-            VStack(spacing: DSSpacing.sm) {
+            VStack(spacing: DSSpacing.xs) {
                 Image(systemName: icon)
-                    .font(.system(size: 32))
+                    .font(.system(size: 24))
                     .foregroundStyle(DSColors.primary)
 
                 Text(title)
                     .font(DSTypography.subheadline)
                     .foregroundStyle(DSColors.textPrimary)
                     .multilineTextAlignment(.center)
+                    .lineLimit(2)
             }
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, DSSpacing.lg)
+            .frame(maxWidth: .infinity, minHeight: 80)
+            .padding(.vertical, DSSpacing.md)
             .background(DSColors.cardBackground)
             .clipShape(RoundedRectangle(cornerRadius: DSCornerRadius.lg))
         }

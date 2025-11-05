@@ -153,6 +153,20 @@ final class LiftingSessionViewModel {
         set.isCompleted = true
     }
 
+    /// Toggle set completion state
+    func toggleSetCompletion(_ set: WorkoutSet) {
+        set.toggleCompletion()
+        let generator = UIImpactFeedbackGenerator(style: .light)
+        generator.impactOccurred()
+    }
+
+    /// Complete all sets for an exercise
+    func completeAllSetsForExercise(_ workoutExercise: WorkoutExercise) {
+        workoutExercise.completeAllSets()
+        let generator = UINotificationFeedbackGenerator()
+        generator.notificationOccurred(.success)
+    }
+
     /// Update set values
     func updateSet(_ set: WorkoutSet, reps: Int, weight: Double) {
         set.reps = reps

@@ -5,6 +5,8 @@ struct LiftingSessionView: View {
     @EnvironmentObject private var appDependencies: AppDependencies
     @Environment(\.dismiss) private var dismiss
 
+    let workoutManager: ActiveWorkoutManager?
+    let existingViewModel: LiftingSessionViewModel?
     let initialTemplate: WorkoutTemplate?
 
     @State private var viewModel: LiftingSessionViewModel?
@@ -14,7 +16,13 @@ struct LiftingSessionView: View {
     @State private var showModeToast = false
     @State private var modeToastMessage = ""
 
-    init(initialTemplate: WorkoutTemplate? = nil) {
+    init(
+        workoutManager: ActiveWorkoutManager? = nil,
+        existingViewModel: LiftingSessionViewModel? = nil,
+        initialTemplate: WorkoutTemplate? = nil
+    ) {
+        self.workoutManager = workoutManager
+        self.existingViewModel = existingViewModel
         self.initialTemplate = initialTemplate
     }
 
@@ -36,10 +44,13 @@ struct LiftingSessionView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") {
+                    Button(viewModel?.hasData == true ? "Minimize" : "Cancel") {
                         if viewModel?.hasData == true {
-                            showCancelConfirmation = true
+                            // Minimize workout
+                            workoutManager?.minimizeWorkout()
                         } else {
+                            // No data, just dismiss
+                            workoutManager?.cancelWorkout()
                             dismiss()
                         }
                     }
@@ -76,27 +87,47 @@ struct LiftingSessionView: View {
 
                 ToolbarItem(placement: .primaryAction) {
                     if let viewModel, viewModel.canSave {
-                        Button("Finish") {
-                            viewModel.showSummary = true
+                        Menu {
+                            Button("Finish Workout") {
+                                viewModel.showSummary = true
+                            }
+
+                            Button("Discard Workout", role: .destructive) {
+                                showCancelConfirmation = true
+                            }
+                        } label: {
+                            Image(systemName: "ellipsis.circle")
                         }
                     }
                 }
             }
             .onAppear {
                 if viewModel == nil {
-                    viewModel = LiftingSessionViewModel(
-                        workoutRepository: appDependencies.workoutRepository,
-                        exerciseRepository: appDependencies.exerciseRepository,
-                        prDetectionService: appDependencies.prDetectionService
-                    )
+                    // Use existing view model or create new
+                    if let existingViewModel {
+                        viewModel = existingViewModel
+                    } else {
+                        let newViewModel = LiftingSessionViewModel(
+                            workoutRepository: appDependencies.workoutRepository,
+                            exerciseRepository: appDependencies.exerciseRepository,
+                            prDetectionService: appDependencies.prDetectionService
+                        )
+                        viewModel = newViewModel
 
-                    // Load initial template if provided
-                    if let template = initialTemplate {
-                        Task {
-                            await viewModel?.loadFromTemplate(
-                                template,
-                                templateRepository: appDependencies.workoutTemplateRepository
-                            )
+                        // Register with workout manager
+                        workoutManager?.startWorkout(
+                            workout: newViewModel.workout,
+                            viewModel: newViewModel
+                        )
+
+                        // Load initial template if provided
+                        if let template = initialTemplate {
+                            Task {
+                                await newViewModel.loadFromTemplate(
+                                    template,
+                                    templateRepository: appDependencies.workoutTemplateRepository
+                                )
+                            }
                         }
                     }
                 }
@@ -121,6 +152,7 @@ struct LiftingSessionView: View {
                         exercises: viewModel.exercises,
                         onSave: { notes in
                             await viewModel.saveWorkout(notes: notes)
+                            workoutManager?.finishWorkout()
                             dismiss()
                         },
                         onCancel: {
@@ -147,6 +179,7 @@ struct LiftingSessionView: View {
                 titleVisibility: .visible
             ) {
                 Button("Discard", role: .destructive) {
+                    workoutManager?.cancelWorkout()
                     dismiss()
                 }
                 Button("Keep Editing", role: .cancel) {}
@@ -235,8 +268,13 @@ struct LiftingSessionView: View {
                         onUpdateSet: { set, reps, weight in
                             viewModel.updateSet(set, reps: reps, weight: weight)
                         },
-                        onCompleteSet: { set in
-                            viewModel.completeSet(set)
+                        onToggleSet: { set in
+                            viewModel.toggleSetCompletion(set)
+                        },
+                        onCompleteAllSets: {
+                            withAnimation {
+                                viewModel.completeAllSetsForExercise(workoutExercise)
+                            }
                         },
                         onDeleteSet: { set in
                             viewModel.removeSet(set, from: workoutExercise)

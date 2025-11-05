@@ -114,6 +114,7 @@ struct NutritionGoalsOnboardingWizard: View {
                 displayedComponents: .date
             )
             .datePickerStyle(.graphical)
+            .frame(height: 400)
             .padding()
 
             if let age = viewModel.age {
