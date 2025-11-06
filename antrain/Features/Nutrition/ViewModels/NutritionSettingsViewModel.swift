@@ -103,13 +103,13 @@ final class NutritionSettingsViewModel {
     func bmiCategory(_ bmi: Double) -> String {
         switch bmi {
         case ..<18.5:
-            return "Underweight"
+            return String(localized: "Underweight")
         case 18.5..<25:
-            return "Normal"
+            return String(localized: "Normal")
         case 25..<30:
-            return "Overweight"
+            return String(localized: "Overweight")
         default:
-            return "Obese"
+            return String(localized: "Obese")
         }
     }
 

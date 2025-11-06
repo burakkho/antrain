@@ -66,8 +66,44 @@ actor NutritionRepository: NutritionRepositoryProtocol {
         mealType: Meal.MealType,
         food: FoodItem,
         amount: Double,
-        unit: sending ServingUnit
+        unit: ServingUnit
     ) async throws {
+        let meal = log.getMeal(type: mealType)
+        let foodEntry = FoodEntry(foodItem: food, amount: amount, selectedUnit: unit)
+        meal.foodEntries.append(foodEntry)
+        try modelContext.save()
+    }
+
+    func addFoodById(
+        logId: UUID,
+        mealType: Meal.MealType,
+        foodId: UUID,
+        amount: Double,
+        unitId: UUID
+    ) async throws {
+        // Fetch log, food, and unit from context
+        let logDescriptor = FetchDescriptor<NutritionLog>(
+            predicate: #Predicate { $0.id == logId }
+        )
+        guard let log = try modelContext.fetch(logDescriptor).first else {
+            throw RepositoryError.notFound
+        }
+
+        let foodDescriptor = FetchDescriptor<FoodItem>(
+            predicate: #Predicate { $0.id == foodId }
+        )
+        guard let food = try modelContext.fetch(foodDescriptor).first else {
+            throw RepositoryError.notFound
+        }
+
+        let unitDescriptor = FetchDescriptor<ServingUnit>(
+            predicate: #Predicate { $0.id == unitId }
+        )
+        guard let unit = try modelContext.fetch(unitDescriptor).first else {
+            throw RepositoryError.notFound
+        }
+
+        // Add food
         let meal = log.getMeal(type: mealType)
         let foodEntry = FoodEntry(foodItem: food, amount: amount, selectedUnit: unit)
         meal.foodEntries.append(foodEntry)

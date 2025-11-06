@@ -30,4 +30,13 @@ protocol UserProfileRepositoryProtocol: Actor {
 
     /// Fetch all bodyweight entries, sorted by date (most recent first)
     func fetchBodyweightHistory() async throws -> [BodyweightEntry]
+
+    /// Activate a training program for the user profile
+    func activateProgram(programId: UUID) async throws
+
+    /// Deactivate the current training program
+    func deactivateProgram() async throws
+
+    /// Advance active program to next week
+    func advanceToNextWeek() async throws
 }

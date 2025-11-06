@@ -22,11 +22,13 @@ final class CardioLogViewModel {
     var cardioType: CardioType = .run
     var distance: Double = 0.0  // Display value (km or miles based on user preference)
     var distanceInKm: Double = 0.0  // Actual value stored in database (always km)
-    var pace: Double = 0.0  // min/km (optional, auto-calculated if duration + distance)
+    var pace: Double = 0.0  // Display value (min/km or min/mile based on user preference)
+    var paceInMinPerKm: Double = 0.0  // Actual value stored in database (always min/km)
     var duration: TimeInterval = 0  // seconds
     var notes: String = ""
     var isLoading = false
     var errorMessage: String?
+    var weightUnit: String = "Kilograms"  // User preference for distance unit
 
     // Duration input helpers (for UI)
     var durationMinutes: Double = 0
@@ -38,8 +40,23 @@ final class CardioLogViewModel {
         duration > 0 || distanceInKm > 0
     }
 
-    // Auto-calculate pace from distance and duration (using km)
+    // Auto-calculate pace from distance and duration
+    // Returns pace in user's preferred unit (min/km or min/mile)
     var calculatedPace: Double? {
+        guard distanceInKm > 0, duration > 0 else { return nil }
+        let durationMinutes = duration / 60.0
+        let pacePerKm = durationMinutes / distanceInKm
+
+        if weightUnit == "Pounds" {
+            // Convert min/km to min/mile
+            return pacePerKm * 1.60934
+        } else {
+            return pacePerKm
+        }
+    }
+
+    // Auto-calculate pace in min/km (for storage)
+    var calculatedPaceInMinPerKm: Double? {
         guard distanceInKm > 0, duration > 0 else { return nil }
         let durationMinutes = duration / 60.0
         return durationMinutes / distanceInKm
@@ -76,10 +93,23 @@ final class CardioLogViewModel {
                 notes: notes.isEmpty ? nil : notes
             )
 
-            // Set cardio-specific data (always store in km)
+            // Set cardio-specific data (always store in km and min/km)
             workout.cardioType = cardioType.rawValue
             workout.cardioDistance = distanceInKm > 0 ? distanceInKm : nil
-            workout.cardioPace = pace > 0 ? pace : calculatedPace
+
+            // Convert pace to min/km for storage if manually entered
+            if pace > 0 {
+                if weightUnit == "Pounds" {
+                    // User entered min/mile, convert to min/km
+                    workout.cardioPace = pace / 1.60934
+                } else {
+                    // Already in min/km
+                    workout.cardioPace = pace
+                }
+            } else if let calculatedPaceKm = calculatedPaceInMinPerKm {
+                // Use auto-calculated pace (already in min/km)
+                workout.cardioPace = calculatedPaceKm
+            }
 
             // Validate and save
             try workout.validate()
@@ -127,6 +157,27 @@ enum CardioType: String, CaseIterable {
             return "Stairs"
         case .other:
             return "Other"
+        }
+    }
+
+    var displayName: String {
+        switch self {
+        case .run:
+            return String(localized: "Run")
+        case .bike:
+            return String(localized: "Bike")
+        case .row:
+            return String(localized: "Row")
+        case .swim:
+            return String(localized: "Swim")
+        case .walk:
+            return String(localized: "Walk")
+        case .elliptical:
+            return String(localized: "Elliptical")
+        case .stairs:
+            return String(localized: "Stairs")
+        case .other:
+            return String(localized: "Other")
         }
     }
 }

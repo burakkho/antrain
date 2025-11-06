@@ -20,12 +20,14 @@ final class AppDependencies: ObservableObject {
     let userProfileRepository: UserProfileRepositoryProtocol
     let personalRecordRepository: PersonalRecordRepositoryProtocol
     let workoutTemplateRepository: WorkoutTemplateRepositoryProtocol
+    let trainingProgramRepository: TrainingProgramRepositoryProtocol
 
     // MARK: - Libraries
     let exerciseLibrary: ExerciseLibraryProtocol
 
     // MARK: - Services
     let prDetectionService: PRDetectionService
+    let progressiveOverloadService: ProgressiveOverloadService
 
     // MARK: - Convenience Aliases
     var prRepository: PersonalRecordRepository {
@@ -42,6 +44,7 @@ final class AppDependencies: ObservableObject {
         self.userProfileRepository = UserProfileRepository(modelContainer: modelContainer)
         self.personalRecordRepository = PersonalRecordRepository(modelContainer: modelContainer)
         self.workoutTemplateRepository = WorkoutTemplateRepository(modelContainer: modelContainer)
+        self.trainingProgramRepository = TrainingProgramRepository(modelContainer: modelContainer)
 
         // Initialize libraries (stateless)
         self.exerciseLibrary = ExerciseLibrary()
@@ -50,6 +53,16 @@ final class AppDependencies: ObservableObject {
         self.prDetectionService = PRDetectionService(
             prRepository: personalRecordRepository as! PersonalRecordRepository
         )
+        self.progressiveOverloadService = ProgressiveOverloadService(
+            workoutRepository: workoutRepository
+        )
+
+        // Training Programs v2.0: Inject program repository into template repository for deletion safety
+        Task {
+            if let templateRepo = workoutTemplateRepository as? WorkoutTemplateRepository {
+                await templateRepo.setTrainingProgramRepository(trainingProgramRepository)
+            }
+        }
     }
 
     // MARK: - Preview Support

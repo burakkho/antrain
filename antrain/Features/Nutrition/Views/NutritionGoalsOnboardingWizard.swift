@@ -31,7 +31,12 @@ struct NutritionGoalsOnboardingWizard: View {
     }
 
     @ViewBuilder
-    private func wizardContent(viewModel vm: NutritionOnboardingViewModel) -> some View {
+    private func wizardContent(viewModel: NutritionOnboardingViewModel) -> some View {
+        content(viewModel: viewModel)
+    }
+
+    @ViewBuilder
+    private func content(viewModel vm: NutritionOnboardingViewModel) -> some View {
         @Bindable var viewModel = vm
         NavigationStack {
             VStack(spacing: 0) {
@@ -40,11 +45,11 @@ struct NutritionGoalsOnboardingWizard: View {
 
                 // Content
                 TabView(selection: $viewModel.currentStep) {
-                    step1_DateOfBirth(viewModel: viewModel).tag(0)
-                    step2_Height(viewModel: viewModel).tag(1)
-                    step3_Weight(viewModel: viewModel).tag(2)
-                    step4_Gender(viewModel: viewModel).tag(3)
-                    step5_ActivityAndGoal(viewModel: viewModel).tag(4)
+                    step1_DateOfBirth(viewModel: vm).tag(0)
+                    step2_Height(viewModel: vm).tag(1)
+                    step3_Weight(viewModel: vm).tag(2)
+                    step4_Gender(viewModel: vm).tag(3)
+                    step5_ActivityAndGoal(viewModel: vm).tag(4)
                 }
                 .tabViewStyle(.page(indexDisplayMode: .never))
                 .animation(.easeInOut, value: viewModel.currentStep)

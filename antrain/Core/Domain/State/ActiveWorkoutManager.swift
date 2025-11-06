@@ -31,6 +31,12 @@ final class ActiveWorkoutManager {
     /// Whether to show the full screen workout view
     var showFullScreen = false
 
+    /// Pending template to load when starting a new workout
+    var pendingTemplate: WorkoutTemplate?
+
+    /// Pending program day when starting a workout from a program
+    var pendingProgramDay: ProgramDay?
+
     /// Current position of the workout bar
     var barPosition: WorkoutBarPosition {
         didSet {
@@ -78,6 +84,19 @@ final class ActiveWorkoutManager {
         saveState()
     }
 
+    /// Start a new workout from a template
+    func startWorkoutFromTemplate(_ template: WorkoutTemplate) {
+        self.pendingTemplate = template
+        self.showFullScreen = true
+    }
+
+    /// Start a new workout from a training program
+    func startWorkoutFromProgram(_ template: WorkoutTemplate, programDay: ProgramDay) {
+        self.pendingTemplate = template
+        self.pendingProgramDay = programDay
+        self.showFullScreen = true
+    }
+
     /// Resume workout (show full screen)
     func resumeWorkout() {
         guard isActive else { return }
@@ -95,6 +114,8 @@ final class ActiveWorkoutManager {
     func finishWorkout() {
         activeWorkout = nil
         activeViewModel = nil
+        pendingTemplate = nil
+        pendingProgramDay = nil
         showFullScreen = false
         clearState()
     }
@@ -103,6 +124,8 @@ final class ActiveWorkoutManager {
     func cancelWorkout() {
         activeWorkout = nil
         activeViewModel = nil
+        pendingTemplate = nil
+        pendingProgramDay = nil
         showFullScreen = false
         clearState()
     }
@@ -161,7 +184,9 @@ final class ActiveWorkoutManager {
     func restoreState(
         workoutRepository: WorkoutRepositoryProtocol,
         exerciseRepository: ExerciseRepositoryProtocol,
-        prDetectionService: PRDetectionService
+        prDetectionService: PRDetectionService,
+        progressiveOverloadService: ProgressiveOverloadService,
+        userProfileRepository: UserProfileRepositoryProtocol
     ) async -> Bool {
         guard let sessionData = WorkoutSessionData.load() else {
             return false
@@ -173,11 +198,13 @@ final class ActiveWorkoutManager {
             type: .lifting
         )
 
-        // Create view model
+        // Create view model with all dependencies
         let viewModel = LiftingSessionViewModel(
             workoutRepository: workoutRepository,
             exerciseRepository: exerciseRepository,
-            prDetectionService: prDetectionService
+            prDetectionService: prDetectionService,
+            progressiveOverloadService: progressiveOverloadService,
+            userProfileRepository: userProfileRepository
         )
 
         // Restore exercises

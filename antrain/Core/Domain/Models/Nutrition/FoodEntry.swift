@@ -13,34 +13,21 @@ import SwiftData
 final class FoodEntry {
     @Attribute(.unique) var id: UUID
     var amount: Double  // Amount in selected unit
-    var servingAmount: Double  // DEPRECATED: Use amount instead (kept for migration)
 
     // Relationships
     var foodItem: FoodItem?  // FoodItem silinirse nil olur
-    var selectedUnit: ServingUnit?  // Selected serving unit
+    var selectedUnit: ServingUnit  // Selected serving unit (never nil)
 
     init(
         foodItem: FoodItem,
         amount: Double,
-        selectedUnit: ServingUnit? = nil
+        selectedUnit: ServingUnit
     ) {
         self.id = UUID()
         self.foodItem = foodItem
         self.amount = amount
-        self.servingAmount = amount  // For backward compatibility
+        // Auto-select unit if not provided: gram unit or first available
         self.selectedUnit = selectedUnit
-    }
-
-    // DEPRECATED: Old initializer for migration compatibility
-    init(
-        foodItem: FoodItem,
-        servingAmount: Double
-    ) {
-        self.id = UUID()
-        self.foodItem = foodItem
-        self.amount = servingAmount
-        self.servingAmount = servingAmount
-        self.selectedUnit = nil
     }
 }
 
@@ -49,11 +36,7 @@ final class FoodEntry {
 extension FoodEntry {
     /// Convert amount to grams based on selected unit
     var servingAmountInGrams: Double {
-        guard let unit = selectedUnit else {
-            // Fallback to amount if no unit selected (backward compatibility)
-            return amount
-        }
-        return amount * unit.gramsPerUnit
+        return amount * selectedUnit.gramsPerUnit
     }
 
     /// Calculated calories for this serving
@@ -86,12 +69,8 @@ extension FoodEntry {
 
     /// Display amount with unit (for UI)
     var displayAmount: String {
-        if let unit = selectedUnit {
-            let amountText = amount.truncatingRemainder(dividingBy: 1) == 0 ?
-                "\(Int(amount))" : String(format: "%.1f", amount)
-            return "\(amountText) \(unit.shortDisplay)"
-        }
-        // Fallback to grams
-        return "\(Int(amount))g"
+        let amountText = amount.truncatingRemainder(dividingBy: 1) == 0 ?
+            "\(Int(amount))" : String(format: "%.1f", amount)
+        return "\(amountText) \(selectedUnit.shortDisplay)"
     }
 }

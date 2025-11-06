@@ -75,11 +75,36 @@ Features/
 │   ├── Views/
 │   │   ├── HomeView.swift
 │   │   └── Components/
-│   │       ├── TodaySummaryCard.swift
-│   │       └── QuickActionButtons.swift
+│   │       ├── QuickActionButton.swift
+│   │       └── RecentWorkoutRow.swift
 │   └── ViewModels/
 │       └── HomeViewModel.swift
+│
+├── Workouts/
+│   ├── Views/
+│   │   └── WorkoutsView.swift          # Main view with segmented control
+│   ├── History/
+│   │   ├── Views/
+│   │   │   ├── WorkoutsOverviewView.swift  # Overview section
+│   │   │   └── Components/
+│   │   └── ViewModels/
+│   │       └── WorkoutsViewModel.swift
+│   ├── Templates/
+│   │   ├── Views/
+│   │   │   ├── WorkoutTemplatesView.swift  # Templates section
+│   │   │   └── Components/
+│   │   └── ViewModels/
+│   │       └── TemplatesViewModel.swift
+│   └── Programs/
+│       ├── Views/
+│       │   ├── WorkoutProgramsView.swift   # Programs section
+│       │   └── Components/
+│       │       └── ActiveProgramCard.swift
+│       └── ViewModels/
+│           └── ProgramProgressTimelineViewModel.swift
 ```
+
+**Note:** WorkoutsView uses **iOS native segmented control** instead of nested TabView (iOS HIG compliance).
 
 **ViewModel Pattern:**
 ```swift
@@ -961,3 +986,186 @@ Resources/
 **Dosya Boyutu:** ~240 satır
 **Swift 6 Compliance:** ✅ @ModelActor, @Observable @MainActor
 **Localization:** ✅ String Catalog strategy
+
+
+---
+
+## Training Programs Extension (v2.0)
+
+### New Domain Models
+
+**TrainingProgram (MacroCycle):**
+```swift
+@Model
+final class TrainingProgram {
+    @Attribute(.unique) var id: UUID
+    var name: String
+    var programDescription: String?
+    var category: ProgramCategory
+    var difficulty: DifficultyLevel
+    var durationWeeks: Int
+    var progressionPattern: WeekProgressionPattern
+    var isCustom: Bool
+    var createdAt: Date
+
+    @Relationship(deleteRule: .cascade)
+    var weeks: [ProgramWeek]
+}
+```
+
+**ProgramWeek (MicroCycle):**
+```swift
+@Model
+final class ProgramWeek {
+    @Attribute(.unique) var id: UUID
+    var weekNumber: Int
+    var name: String?
+    var notes: String?
+    var phaseTag: TrainingPhase?
+    var intensityModifier: Double
+    var volumeModifier: Double
+    var isDeload: Bool
+
+    var program: TrainingProgram
+
+    @Relationship(deleteRule: .cascade)
+    var days: [ProgramDay]
+}
+```
+
+**ProgramDay:**
+```swift
+@Model
+final class ProgramDay {
+    @Attribute(.unique) var id: UUID
+    var dayOfWeek: Int
+    var name: String?
+    var notes: String?
+
+    var week: ProgramWeek
+    var template: WorkoutTemplate?  // Reference, not copy
+
+    var intensityOverride: Double?
+    var volumeOverride: Double?
+    var suggestedRPE: Int?
+}
+```
+
+### New Service Layer
+
+**ProgressiveOverloadService:**
+```swift
+@MainActor
+final class ProgressiveOverloadService {
+    func suggestWorkout(
+        for template: WorkoutTemplate,
+        weekModifier: Double,
+        previousWorkouts: [Workout]
+    ) -> SuggestedWorkout
+
+    // RPE-based algorithm:
+    // RPE 1-6: +5% (too easy)
+    // RPE 7-8: +2.5% (perfect)
+    // RPE 9-10: -2.5% (too hard)
+}
+```
+
+### Modified Existing Models
+
+**Workout (Extended):**
+```swift
+@Model
+final class Workout {
+    // ... existing fields
+
+    // v2.0 Addition
+    var rpe: Int?  // 1-10 Rate of Perceived Exertion
+}
+```
+
+**UserProfile (Extended):**
+```swift
+@Model
+final class UserProfile {
+    // ... existing fields
+
+    // v2.0 Additions
+    var activeProgram: TrainingProgram?
+    var activeProgramStartDate: Date?
+    var currentWeekNumber: Int?
+}
+```
+
+### New Repository
+
+**TrainingProgramRepository:**
+```swift
+@ModelActor
+actor TrainingProgramRepository: TrainingProgramRepositoryProtocol {
+    func create(_ program: TrainingProgram) async throws
+    func fetchAll() async throws -> [TrainingProgram]
+    func fetchById(_ id: UUID) async throws -> TrainingProgram?
+    func fetchByCategory(_ category: ProgramCategory) async throws -> [TrainingProgram]
+    func update(_ program: TrainingProgram) async throws
+    func delete(_ program: TrainingProgram) async throws
+    func findProgramsUsingTemplate(_ template: WorkoutTemplate) async throws -> [String]
+}
+```
+
+### Data Integrity Pattern
+
+**Template Deletion Safety:**
+- Multi-layer protection (repository + UI)
+- Check if template is used in any program before deletion
+- Display program names that use the template
+- Cascade delete: Program → Week → Day (but not Template)
+
+### Hierarchical Structure
+
+```
+TrainingProgram (MacroCycle)
+  └── ProgramWeek (MicroCycle)
+      └── ProgramDay (Training Day)
+          └── WorkoutTemplate (Reference)
+              └── Exercise (Single Source of Truth)
+```
+
+**Benefits:**
+- Storage efficient (templates are references, not copies)
+- Updates to templates propagate to all programs
+- Template deletion prevented if used
+- Clean separation of concerns
+
+### Feature Location
+
+```
+antrain/
+├── Core/
+│   ├── Domain/
+│   │   ├── Models/
+│   │   │   └── Program/
+│   │   │       ├── TrainingProgram.swift
+│   │   │       ├── ProgramWeek.swift
+│   │   │       ├── ProgramDay.swift
+│   │   │       └── [Enums].swift
+│   │   └── Protocols/Repositories/
+│   │       └── TrainingProgramRepositoryProtocol.swift
+│   └── Data/
+│       ├── Repositories/
+│       │   └── TrainingProgramRepository.swift
+│       ├── Services/
+│       │   └── ProgressiveOverloadService.swift
+│       └── Libraries/
+│           └── ProgramLibrary/
+└── Features/
+    └── Workouts/
+        └── Programs/
+            ├── ViewModels/ (6 ViewModels)
+            └── Views/ (19 Views & Components)
+```
+
+---
+
+**Last Updated:** 2025-11-06
+**v2.0 Training Programs Extension Added**
+

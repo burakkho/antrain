@@ -40,7 +40,20 @@ enum TemplateCategory: String, Codable, CaseIterable {
 
     /// Display name for the category
     var displayName: String {
-        return rawValue
+        switch self {
+        case .strength:
+            return String(localized: "Strength")
+        case .hypertrophy:
+            return String(localized: "Hypertrophy")
+        case .calisthenics:
+            return String(localized: "Calisthenics")
+        case .weightlifting:
+            return String(localized: "Weightlifting")
+        case .beginner:
+            return String(localized: "Beginner")
+        case .custom:
+            return String(localized: "Custom")
+        }
     }
 
     /// SF Symbol icon for the category
@@ -83,17 +96,17 @@ enum TemplateCategory: String, Codable, CaseIterable {
     var description: String {
         switch self {
         case .strength:
-            return "Heavy compounds, low reps, maximal strength"
+            return String(localized: "Heavy compounds, low reps, maximal strength")
         case .hypertrophy:
-            return "Muscle growth focus, 8-12 rep ranges"
+            return String(localized: "Muscle growth focus, 8-12 rep ranges")
         case .calisthenics:
-            return "Bodyweight exercises and skills"
+            return String(localized: "Bodyweight exercises and skills")
         case .weightlifting:
-            return "Olympic lifts and variations"
+            return String(localized: "Olympic lifts and variations")
         case .beginner:
-            return "Simple routines for those starting out"
+            return String(localized: "Simple routines for those starting out")
         case .custom:
-            return "Your own custom templates"
+            return String(localized: "Your own custom templates")
         }
     }
 

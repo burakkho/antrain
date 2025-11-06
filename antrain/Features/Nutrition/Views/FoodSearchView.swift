@@ -16,7 +16,7 @@ struct FoodSearchView: View {
     let onSelect: (FoodItem, Double, ServingUnit) -> Void
 
     @State private var selectedFood: FoodItem?
-    @State private var selectedUnit: ServingUnit?
+    @State private var selectedUnit: ServingUnit?  // Will be set immediately when food is selected
     @State private var amount: String = "1"
 
     var body: some View {
@@ -59,8 +59,22 @@ struct FoodSearchView: View {
     @ViewBuilder
     private func searchView(viewModel: FoodSearchViewModel) -> some View {
         VStack(spacing: 0) {
-            // Search bar
-            SearchBarView(viewModel: viewModel)
+            // Search bar with debouncing to prevent UI hang
+            DSSearchField(
+                placeholder: "Search foods...",
+                text: Binding(
+                    get: { viewModel.searchQuery },
+                    set: { viewModel.searchQuery = $0 }
+                ),
+                debounceInterval: .milliseconds(300),
+                onDebounced: { _ in
+                    Task {
+                        await viewModel.search()
+                    }
+                }
+            )
+            .padding(.horizontal, DSSpacing.md)
+            .padding(.vertical, DSSpacing.sm)
 
             Divider()
 
@@ -115,21 +129,19 @@ struct FoodSearchView: View {
                 .background(DSColors.backgroundSecondary)
                 .cornerRadius(DSCornerRadius.md)
 
-                // Unit Picker (if food has serving units)
-                if !food.servingUnits.isEmpty {
-                    VStack(alignment: .leading, spacing: DSSpacing.xs) {
-                        Text("Birim")
-                            .font(DSTypography.caption)
-                            .foregroundStyle(DSColors.textSecondary)
+                // Unit Picker (always show since every food has units now)
+                VStack(alignment: .leading, spacing: DSSpacing.xs) {
+                    Text("Unit")
+                        .font(DSTypography.caption)
+                        .foregroundStyle(DSColors.textSecondary)
 
-                        Picker("Unit", selection: $selectedUnit) {
-                            ForEach(food.getSortedUnits(), id: \.id) { unit in
-                                Text(unit.fullDisplayText(using: weightUnit))
-                                    .tag(unit as ServingUnit?)
-                            }
+                    Picker("Unit", selection: $selectedUnit) {
+                        ForEach(food.getSortedUnits(), id: \.id) { unit in
+                            Text(unit.fullDisplayText(using: weightUnit))
+                                .tag(unit as ServingUnit?)
                         }
-                        .pickerStyle(.segmented)
                     }
+                    .pickerStyle(.segmented)
                 }
 
                 // Amount input
@@ -153,7 +165,7 @@ struct FoodSearchView: View {
                     }
                 }
 
-                // Calculated nutrition
+                // Calculated nutrition (selectedUnit is guaranteed to be set)
                 if let amountValue = Double(amount), let unit = selectedUnit {
                     let amountInGrams = amountValue * unit.gramsPerUnit
                     let (cal, pro, car, fat) = food.nutritionFor(amount: amountInGrams)
@@ -185,14 +197,14 @@ struct FoodSearchView: View {
             }
             .padding(DSSpacing.md)
             .onAppear {
-                // Set default unit when food is selected
-                if selectedUnit == nil {
-                    selectedUnit = food.getDefaultUnit()
-                }
+                // Set default unit when food is selected (guaranteed to return a unit)
+                selectedUnit = food.getDefaultUnit()
             }
             .onChange(of: selectedFood) { _, newFood in
                 // Reset unit when food changes
-                selectedUnit = newFood?.getDefaultUnit()
+                if let food = newFood {
+                    selectedUnit = food.getDefaultUnit()
+                }
             }
         }
     }
@@ -228,43 +240,8 @@ private struct FoodSearchRow: View {
     }
 }
 
-// MARK: - Search Bar View
-private struct SearchBarView: View {
-    @Bindable var viewModel: FoodSearchViewModel
-
-    var body: some View {
-        HStack {
-            Image(systemName: "magnifyingglass")
-                .foregroundStyle(DSColors.textSecondary)
-
-            TextField("Search foods...", text: $viewModel.searchQuery)
-                .textFieldStyle(.plain)
-                .autocorrectionDisabled()
-                .onChange(of: viewModel.searchQuery) { _, _ in
-                    Task {
-                        await viewModel.search()
-                    }
-                }
-
-            if !viewModel.searchQuery.isEmpty {
-                Button(action: {
-                    viewModel.clearSearch()
-                    Task {
-                        await viewModel.loadInitialFoods()
-                    }
-                }) {
-                    Image(systemName: "xmark.circle.fill")
-                        .foregroundStyle(DSColors.textSecondary)
-                }
-            }
-        }
-        .padding(DSSpacing.sm)
-        .background(DSColors.backgroundSecondary)
-        .cornerRadius(DSCornerRadius.sm)
-        .padding(.horizontal, DSSpacing.md)
-        .padding(.vertical, DSSpacing.sm)
-    }
-}
+// MARK: - Search Bar View (Deprecated - Use DSSearchField instead)
+// Removed: SearchBarView replaced with DSSearchField for better performance
 
 // MARK: - Macro Label
 private struct MacroLabel: View {

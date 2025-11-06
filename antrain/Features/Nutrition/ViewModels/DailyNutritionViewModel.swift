@@ -122,19 +122,24 @@ final class DailyNutritionViewModel {
         }
     }
 
-    func addFood(to mealType: Meal.MealType, food: FoodItem, amount: Double, unit: sending ServingUnit) async {
+    func addFood(to mealType: Meal.MealType, food: FoodItem, amount: Double, unit: ServingUnit) async {
         guard let log = nutritionLog else {
             errorMessage = "No nutrition log available"
             return
         }
 
+        // Extract IDs to avoid Sendable warnings (SwiftData models crossing async boundary)
+        let foodId = food.id
+        let unitId = unit.id
+        let logId = log.id
+
         do {
-            try await nutritionRepository.addFood(
-                to: log,
+            try await nutritionRepository.addFoodById(
+                logId: logId,
                 mealType: mealType,
-                food: food,
+                foodId: foodId,
                 amount: amount,
-                unit: unit
+                unitId: unitId
             )
 
             // Refresh log

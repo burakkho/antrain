@@ -164,13 +164,13 @@ enum TemplateValidationError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .emptyTemplateName:
-            return "Template name cannot be empty"
+            return String(localized: "Template name cannot be empty")
         case .templateRequiresExercises:
-            return "Template must contain at least one exercise"
+            return String(localized: "Template must contain at least one exercise")
         case .invalidSetCount:
-            return "Set count must be between 1 and 10"
+            return String(localized: "Set count must be between 1 and 10")
         case .invalidRepRange:
-            return "Rep range must be valid (min < max, both > 0)"
+            return String(localized: "Rep range must be valid (min < max, both > 0)")
         }
     }
 }

@@ -27,7 +27,10 @@ protocol NutritionRepositoryProtocol: Actor {
     // MARK: - Meal Management
 
     /// Add food to a meal
-    func addFood(to log: NutritionLog, mealType: Meal.MealType, food: FoodItem, amount: Double, unit: sending ServingUnit) async throws
+    func addFood(to log: NutritionLog, mealType: Meal.MealType, food: FoodItem, amount: Double, unit: ServingUnit) async throws
+
+    /// Add food to a meal by IDs (avoids Sendable warnings)
+    func addFoodById(logId: UUID, mealType: Meal.MealType, foodId: UUID, amount: Double, unitId: UUID) async throws
 
     /// Remove food from a meal
     func removeFood(from log: NutritionLog, mealType: Meal.MealType, foodEntryId: UUID) async throws

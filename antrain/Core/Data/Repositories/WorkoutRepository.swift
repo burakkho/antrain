@@ -61,6 +61,17 @@ actor WorkoutRepository: WorkoutRepositoryProtocol {
         return try modelContext.fetch(descriptor)
     }
 
+    /// Fetch recent workouts with limit (database-level filtering)
+    /// - Parameter limit: Maximum number of workouts to return
+    /// - Returns: Array of recent workouts, sorted by date (most recent first)
+    func fetchRecent(limit: Int) async throws -> [Workout] {
+        var descriptor = FetchDescriptor<Workout>(
+            sortBy: [SortDescriptor(\.date, order: .reverse)]
+        )
+        descriptor.fetchLimit = limit  // Database-level limit (Apple best practice)
+        return try modelContext.fetch(descriptor)
+    }
+
     /// Save (insert or update) a workout
     func save(_ workout: Workout) async throws {
         // Validate before saving

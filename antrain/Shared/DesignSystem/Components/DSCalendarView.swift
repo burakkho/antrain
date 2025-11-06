@@ -1,12 +1,13 @@
 import SwiftUI
 
-/// Workout calendar view component
-/// Displays workouts in a monthly calendar grid
+/// Calendar view component with date support
+/// Displays items in a monthly calendar grid
 @MainActor
-struct DSCalendarView<DayContent: View>: View {
-    let items: [Workout]
+struct DSCalendarView<Item, DayContent: View>: View {
+    let items: [Item]
     let indicatorColor: Color
-    let dayContent: ([Workout]) -> DayContent
+    let dayContent: ([Item]) -> DayContent
+    let dateProvider: (Item) -> Date
 
     @State private var currentMonth = Date()
     @State private var selectedDate: Date?
@@ -19,12 +20,14 @@ struct DSCalendarView<DayContent: View>: View {
     }
 
     init(
-        items: [Workout],
+        items: [Item],
         indicatorColor: Color = DSColors.primary,
-        @ViewBuilder dayContent: @escaping ([Workout]) -> DayContent
+        dateProvider: @escaping (Item) -> Date,
+        @ViewBuilder dayContent: @escaping ([Item]) -> DayContent
     ) {
         self.items = items
         self.indicatorColor = indicatorColor
+        self.dateProvider = dateProvider
         self.dayContent = dayContent
     }
 
@@ -168,7 +171,7 @@ struct DSCalendarView<DayContent: View>: View {
 
     private func selectedDaySection(for date: Date) -> some View {
         let dayItems = items.filter { item in
-            calendar.isDate(item.date, inSameDayAs: date)
+            calendar.isDate(dateProvider(item), inSameDayAs: date)
         }
 
         return VStack(alignment: .leading, spacing: DSSpacing.sm) {
@@ -215,7 +218,7 @@ struct DSCalendarView<DayContent: View>: View {
 
     private func itemsCount(on date: Date) -> Int {
         items.filter { item in
-            calendar.isDate(item.date, inSameDayAs: date)
+            calendar.isDate(dateProvider(item), inSameDayAs: date)
         }.count
     }
 
@@ -248,7 +251,7 @@ struct DSCalendarView<DayContent: View>: View {
 
     NavigationStack {
         ScrollView {
-            DSCalendarView(items: sampleWorkouts) { workouts in
+            DSCalendarView(items: sampleWorkouts, dateProvider: { $0.date }) { workouts in
                 if workouts.isEmpty {
                     VStack(spacing: DSSpacing.sm) {
                         Image(systemName: "calendar.badge.exclamationmark")

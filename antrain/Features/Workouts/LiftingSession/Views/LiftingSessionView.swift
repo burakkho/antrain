@@ -1,4 +1,5 @@
 import SwiftUI
+import Combine
 
 /// Lifting session view with exercise tracking
 struct LiftingSessionView: View {
@@ -8,22 +9,26 @@ struct LiftingSessionView: View {
     let workoutManager: ActiveWorkoutManager?
     let existingViewModel: LiftingSessionViewModel?
     let initialTemplate: WorkoutTemplate?
+    let programDay: ProgramDay?
 
     @State private var viewModel: LiftingSessionViewModel?
     @State private var showCancelConfirmation = false
     @State private var showTemplateSelector = false
-    @State private var isKeyboardMode = false
+    @State private var isKeyboardMode = true
     @State private var showModeToast = false
     @State private var modeToastMessage = ""
+    @State private var durationUpdateTrigger = 0
 
     init(
         workoutManager: ActiveWorkoutManager? = nil,
         existingViewModel: LiftingSessionViewModel? = nil,
-        initialTemplate: WorkoutTemplate? = nil
+        initialTemplate: WorkoutTemplate? = nil,
+        programDay: ProgramDay? = nil
     ) {
         self.workoutManager = workoutManager
         self.existingViewModel = existingViewModel
         self.initialTemplate = initialTemplate
+        self.programDay = programDay
     }
 
     var body: some View {
@@ -59,17 +64,29 @@ struct LiftingSessionView: View {
                 // Mode toggle button (center)
                 ToolbarItem(placement: .principal) {
                     Button {
-                        isKeyboardMode.toggle()
+                        // Smooth animation for mode switch
+                        withAnimation(.easeInOut(duration: 0.2)) {
+                            isKeyboardMode.toggle()
+                        }
+
+                        // Update toast message
                         modeToastMessage = isKeyboardMode ? "Keyboard Mode" : "Swipe Mode"
-                        showModeToast = true
+
+                        // Show toast with animation
+                        withAnimation(.spring(response: 0.3)) {
+                            showModeToast = true
+                        }
 
                         // Haptic feedback
                         let generator = UIImpactFeedbackGenerator(style: .medium)
                         generator.impactOccurred()
 
                         // Hide toast after 1.5 seconds
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-                            showModeToast = false
+                        Task {
+                            try? await Task.sleep(nanoseconds: 1_500_000_000)
+                            withAnimation(.spring(response: 0.3)) {
+                                showModeToast = false
+                            }
                         }
                     } label: {
                         HStack(spacing: 4) {
@@ -101,7 +118,7 @@ struct LiftingSessionView: View {
                     }
                 }
             }
-            .onAppear {
+            .task {
                 if viewModel == nil {
                     // Use existing view model or create new
                     if let existingViewModel {
@@ -110,8 +127,24 @@ struct LiftingSessionView: View {
                         let newViewModel = LiftingSessionViewModel(
                             workoutRepository: appDependencies.workoutRepository,
                             exerciseRepository: appDependencies.exerciseRepository,
-                            prDetectionService: appDependencies.prDetectionService
+                            prDetectionService: appDependencies.prDetectionService,
+                            progressiveOverloadService: appDependencies.progressiveOverloadService,
+                            userProfileRepository: appDependencies.userProfileRepository
                         )
+
+                        // Load initial template if provided (BEFORE setting viewModel)
+                        if let template = initialTemplate {
+                            await newViewModel.loadFromTemplate(
+                                template,
+                                templateRepository: appDependencies.workoutTemplateRepository,
+                                programDay: programDay
+                            )
+                            // Clear pending template and program day after loading
+                            workoutManager?.pendingTemplate = nil
+                            workoutManager?.pendingProgramDay = nil
+                        }
+
+                        // Set viewModel AFTER template is loaded
                         viewModel = newViewModel
 
                         // Register with workout manager
@@ -119,18 +152,12 @@ struct LiftingSessionView: View {
                             workout: newViewModel.workout,
                             viewModel: newViewModel
                         )
-
-                        // Load initial template if provided
-                        if let template = initialTemplate {
-                            Task {
-                                await newViewModel.loadFromTemplate(
-                                    template,
-                                    templateRepository: appDependencies.workoutTemplateRepository
-                                )
-                            }
-                        }
                     }
                 }
+            }
+            .onReceive(Timer.publish(every: 1, on: .main, in: .common).autoconnect()) { _ in
+                // Update duration display every second
+                durationUpdateTrigger += 1
             }
             .sheet(isPresented: Binding(
                 get: { viewModel?.showExerciseSelection ?? false },
@@ -201,7 +228,6 @@ struct LiftingSessionView: View {
                         .transition(.move(edge: .top).combined(with: .opacity))
                 }
             }
-            .animation(.spring(response: 0.3), value: showModeToast)
         }
     }
 
@@ -258,10 +284,22 @@ struct LiftingSessionView: View {
     private func exercisesList(viewModel: LiftingSessionViewModel) -> some View {
         ScrollView {
             VStack(spacing: DSSpacing.md) {
+                // Workout Statistics Header
+                WorkoutStatsHeaderView(
+                    title: viewModel.workoutTitle,
+                    duration: viewModel.duration,
+                    volume: viewModel.totalVolume,
+                    completedExercises: viewModel.completedExercisesCount,
+                    totalExercises: viewModel.totalExercisesCount
+                )
+                .padding(.horizontal, DSSpacing.md)
+                .id(durationUpdateTrigger) // Force update every second
+
                 ForEach(viewModel.exercises) { workoutExercise in
                     ExerciseCard(
                         workoutExercise: workoutExercise,
                         isKeyboardMode: isKeyboardMode,
+                        suggestion: workoutExercise.exercise.map { viewModel.getSuggestion(for: $0.id) } ?? nil,
                         onAddSet: {
                             viewModel.addSet(to: workoutExercise)
                         },
@@ -303,7 +341,7 @@ struct LiftingSessionView: View {
             }
             .padding(DSSpacing.md)
         }
-        .scrollDisabled(!isKeyboardMode) // Disable scroll in swipe mode
+        .scrollDismissesKeyboard(.interactively) // iOS 16+ native scroll-to-dismiss
         .background(DSColors.backgroundPrimary)
     }
 }

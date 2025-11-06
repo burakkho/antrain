@@ -93,4 +93,56 @@ actor UserProfileRepository: UserProfileRepositoryProtocol {
         )
         return try modelContext.fetch(descriptor)
     }
+
+    // MARK: - Training Program Management
+
+    /// Activate a training program for the user profile
+    /// Ensures both models are in the same ModelContext to avoid relationship errors
+    func activateProgram(programId: UUID) async throws {
+        // Fetch profile in this context
+        let profile = try await fetchOrCreateProfile()
+        
+        // Fetch program in the SAME context
+        let programDescriptor = FetchDescriptor<TrainingProgram>(
+            predicate: #Predicate { $0.id == programId }
+        )
+        
+        guard let program = try modelContext.fetch(programDescriptor).first else {
+            throw UserProfileRepositoryError.programNotFound
+        }
+        
+        // Now both models are in the same context - safe to relate them
+        profile.activateProgram(program)
+        
+        // Save changes
+        try modelContext.save()
+    }
+    
+    /// Deactivate the current training program
+    func deactivateProgram() async throws {
+        let profile = try await fetchOrCreateProfile()
+        profile.deactivateProgram()
+        try modelContext.save()
+    }
+
+    /// Advance active program to next week
+    func advanceToNextWeek() async throws {
+        let profile = try await fetchOrCreateProfile()
+        profile.progressToNextWeek()
+        try modelContext.save()
+    }
+}
+
+
+// MARK: - Repository Errors
+
+enum UserProfileRepositoryError: LocalizedError {
+    case programNotFound
+    
+    var errorDescription: String? {
+        switch self {
+        case .programNotFound:
+            return String(localized: "Training program not found", comment: "Error: Program not found")
+        }
+    }
 }

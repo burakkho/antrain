@@ -216,7 +216,6 @@ extension Workout {
     /// Detailed muscle group statistics
     var muscleGroupStats: [MuscleGroupStats] {
         let volumeBreakdown = volumeByMuscleGroup
-        let totalVol = totalVolume
 
         return volumeBreakdown.map { muscleGroup, volume in
             // Count sets for this muscle group

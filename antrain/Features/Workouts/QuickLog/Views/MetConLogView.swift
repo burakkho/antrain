@@ -10,8 +10,22 @@ struct MetConLogView: View {
     var body: some View {
         NavigationStack {
             if let viewModel {
-                @Bindable var viewModel = viewModel
-                Form {
+                formContent(viewModel: viewModel)
+            } else {
+                DSLoadingView(message: "Loading...")
+            }
+        }
+        .onAppear {
+            if viewModel == nil {
+                viewModel = MetConLogViewModel(workoutRepository: appDependencies.workoutRepository)
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func formContent(viewModel: MetConLogViewModel) -> some View {
+        @Bindable var viewModel = viewModel
+        Form {
                     // MetCon Type
                     Section("MetCon Type") {
                         Picker("Type", selection: $viewModel.metconType) {
@@ -105,23 +119,14 @@ struct MetConLogView: View {
                                 .foregroundStyle(DSColors.error)
                         }
                     }
-                }
-                .navigationTitle("Log MetCon")
-                .navigationBarTitleDisplayMode(.inline)
-                .toolbar {
-                    ToolbarItem(placement: .cancellationAction) {
-                        Button("Cancel") {
-                            dismiss()
-                        }
-                    }
-                }
-            } else {
-                DSLoadingView(message: "Loading...")
-            }
         }
-        .onAppear {
-            if viewModel == nil {
-                viewModel = MetConLogViewModel(workoutRepository: appDependencies.workoutRepository)
+        .navigationTitle("Log MetCon")
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .cancellationAction) {
+                Button("Cancel") {
+                    dismiss()
+                }
             }
         }
     }

@@ -34,11 +34,11 @@ extension WorkoutType {
     var displayName: String {
         switch self {
         case .lifting:
-            return "Lifting"
+            return String(localized: "Lifting")
         case .cardio:
-            return "Cardio"
+            return String(localized: "Cardio")
         case .metcon:
-            return "MetCon"
+            return String(localized: "MetCon")
         }
     }
 

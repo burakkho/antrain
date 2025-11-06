@@ -28,6 +28,15 @@ final class UserProfile: @unchecked Sendable {
     var createdAt: Date
     var updatedAt: Date
 
+    // Training Programs v2.0 Additions
+    /// Currently active training program (nullify on delete to prevent orphan reference)
+    @Relationship(deleteRule: .nullify)
+    var activeProgram: TrainingProgram?
+    /// Date when the active program was started
+    var activeProgramStartDate: Date?
+    /// Current week number in the active program (1-indexed)
+    var currentWeekNumber: Int?
+
     // MARK: - Gender Enum
 
     enum Gender: String, Codable, CaseIterable {
@@ -46,6 +55,19 @@ final class UserProfile: @unchecked Sendable {
                 return "Other"
             case .preferNotToSay:
                 return "Prefer not to say"
+            }
+        }
+
+        var displayName: String {
+            switch self {
+            case .male:
+                return String(localized: "Male")
+            case .female:
+                return String(localized: "Female")
+            case .other:
+                return String(localized: "Other")
+            case .preferNotToSay:
+                return String(localized: "Prefer not to say")
             }
         }
     }
@@ -72,6 +94,21 @@ final class UserProfile: @unchecked Sendable {
                 return "Very Active"
             case .extraActive:
                 return "Extra Active"
+            }
+        }
+
+        var displayName: String {
+            switch self {
+            case .sedentary:
+                return String(localized: "Sedentary")
+            case .lightlyActive:
+                return String(localized: "Lightly Active")
+            case .moderatelyActive:
+                return String(localized: "Moderately Active")
+            case .veryActive:
+                return String(localized: "Very Active")
+            case .extraActive:
+                return String(localized: "Extra Active")
             }
         }
     }
@@ -201,5 +238,96 @@ final class UserProfile: @unchecked Sendable {
         guard dailyFatsGoal >= 0 else {
             throw ValidationError.businessRuleViolation("Daily fats goal cannot be negative")
         }
+    }
+}
+
+// MARK: - Training Programs v2.0 Extensions
+
+extension UserProfile {
+    /// Activate a training program
+    func activateProgram(_ program: TrainingProgram) {
+        self.activeProgram = program
+        self.activeProgramStartDate = Date()
+        self.currentWeekNumber = 1
+        self.updatedAt = Date()
+
+        // Mark program as used
+        program.markAsUsed()
+    }
+
+    /// Deactivate the current training program
+    func deactivateProgram() {
+        self.activeProgram = nil
+        self.activeProgramStartDate = nil
+        self.currentWeekNumber = nil
+        self.updatedAt = Date()
+    }
+
+    /// Get today's workout from the active program
+    /// - Returns: ProgramDay for today, or nil if no active program or no workout today
+    func getTodaysWorkout() -> ProgramDay? {
+        guard let activeProgram = activeProgram,
+              let startDate = activeProgramStartDate else {
+            return nil
+        }
+
+        let calendar = Calendar.current
+        let today = Date()
+
+        // Calculate days since program started
+        let daysSinceStart = calendar.dateComponents([.day], from: startDate, to: today).day ?? 0
+
+        // Calculate current week number (1-indexed)
+        let currentWeek = (daysSinceStart / 7) + 1
+
+        // Get current day of week (1 = Sunday, 2 = Monday, ..., 7 = Saturday)
+        let currentDayOfWeek = calendar.component(.weekday, from: today)
+
+        // Find the workout for today
+        return activeProgram.weeks
+            .first { $0.weekNumber == currentWeek }?
+            .days
+            .first { $0.dayOfWeek == currentDayOfWeek }
+    }
+
+    /// Progress to the next week in the active program
+    func progressToNextWeek() {
+        guard let current = currentWeekNumber,
+              let program = activeProgram else {
+            return
+        }
+
+        // Don't exceed program duration
+        if current < program.durationWeeks {
+            currentWeekNumber = current + 1
+            updatedAt = Date()
+        }
+    }
+
+    /// Check if the active program is completed
+    var isProgramCompleted: Bool {
+        guard let currentWeek = currentWeekNumber,
+              let program = activeProgram else {
+            return false
+        }
+        return currentWeek > program.durationWeeks
+    }
+
+    /// Get the current week from the active program
+    var currentProgramWeek: ProgramWeek? {
+        guard let weekNumber = currentWeekNumber,
+              let program = activeProgram else {
+            return nil
+        }
+        return program.week(number: weekNumber)
+    }
+
+    /// Calculate program progress percentage (0.0 - 1.0)
+    var programProgress: Double {
+        guard let currentWeek = currentWeekNumber,
+              let program = activeProgram else {
+            return 0.0
+        }
+        return Double(currentWeek - 1) / Double(program.durationWeeks)
     }
 }

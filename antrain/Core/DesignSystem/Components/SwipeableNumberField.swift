@@ -10,6 +10,11 @@ struct SwipeableNumberField: View {
         case weight
     }
 
+    enum Direction {
+        case previous
+        case next
+    }
+
     // MARK: - Properties
 
     let type: FieldType
@@ -17,6 +22,13 @@ struct SwipeableNumberField: View {
     let placeholder: LocalizedStringKey
     let isKeyboardMode: Bool // Now externally controlled
     let onUpdate: () -> Void
+
+    // Field navigation
+    let fieldIndex: Int?
+    let totalFields: Int?
+    let shouldAutoAdvance: Bool
+    let onNavigate: ((Direction) -> Void)?
+    let externalFocus: Binding<Bool>? // Optional external focus control
 
     @State private var dragOffset: CGSize = .zero
     @State private var lastSwipeTime: Date?
@@ -30,16 +42,6 @@ struct SwipeableNumberField: View {
 
     private let swipeThreshold: CGFloat = 30
     private let multiSwipeWindow: TimeInterval = 0.5
-
-    // Olympic plate colors
-    private let plateColors: [Double: Color] = [
-        2.5: .gray,
-        5: .black,
-        10: .green,
-        15: .yellow,
-        20: .blue,
-        25: .red
-    ]
 
     var body: some View {
         TextField(placeholder, value: $value, format: .number.precision(.fractionLength(0...1)))
@@ -55,10 +57,20 @@ struct SwipeableNumberField: View {
             )
             .focused($isFocused)
             .disabled(!isKeyboardMode) // Disable when in swipe mode
-            .onChange(of: value) { _, _ in
+            .onChange(of: value) { oldValue, newValue in
                 onUpdate()
+
+                // Auto-advance to next field if enabled and value changed
+                if shouldAutoAdvance && isKeyboardMode && isFocused && oldValue != newValue {
+                    // Only auto-advance for reps field
+                    if type == .reps {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                            onNavigate?(.next)
+                        }
+                    }
+                }
             }
-            .gesture(
+            .highPriorityGesture(
                 isKeyboardMode ? nil : DragGesture(minimumDistance: 20)
                     .onChanged { gesture in
                         dragOffset = gesture.translation
@@ -84,6 +96,42 @@ struct SwipeableNumberField: View {
                 }
             }
             .animation(.spring(response: 0.3), value: feedbackText)
+            .toolbar {
+                if isKeyboardMode && isFocused {
+                    ToolbarItemGroup(placement: .keyboard) {
+                        // Previous button
+                        if let fieldIndex = fieldIndex, let totalFields = totalFields {
+                            Button(action: {
+                                onNavigate?(.previous)
+                            }) {
+                                Image(systemName: "chevron.up")
+                            }
+                            .disabled(fieldIndex == 0)
+
+                            Button(action: {
+                                onNavigate?(.next)
+                            }) {
+                                Image(systemName: "chevron.down")
+                            }
+                            .disabled(fieldIndex >= totalFields - 1)
+                        }
+
+                        Spacer()
+
+                        // Done button
+                        Button("Done") {
+                            isFocused = false
+                        }
+                        .fontWeight(.semibold)
+                    }
+                }
+            }
+            .onChange(of: externalFocus?.wrappedValue) { oldValue, newValue in
+                // Sync external focus to internal focus (one-way binding)
+                if let newValue = newValue, isFocused != newValue {
+                    isFocused = newValue
+                }
+            }
     }
 
     // MARK: - Gesture Handling
@@ -111,19 +159,31 @@ struct SwipeableNumberField: View {
             // Reps: simple +1/-1
             let increment = isRight ? 1.0 : -1.0
             updateValue(by: increment)
-            showFeedback(text: isRight ? "+1" : "-1", color: .primary)
+            let color: Color = isRight ? .green : .red
+            showFeedback(text: isRight ? "+1" : "-1", color: color)
         } else {
-            // Weight: 2.5kg or 5kg (multi-swipe)
+            // Weight: unit-specific increments
             let isMultiSwipe = checkMultiSwipe()
-            let baseIncrement = isMultiSwipe ? 5.0 : 2.5
-            let increment = isRight ? baseIncrement : -baseIncrement
+            let baseIncrement: Double
+            let unit: String
 
+            if weightUnit == "Pounds" {
+                // US plates: 5 lbs or 10 lbs
+                baseIncrement = isMultiSwipe ? 10.0 : 5.0
+                unit = String(localized: "lbs")
+            } else {
+                // Olympic plates: 2.5kg or 5kg
+                baseIncrement = isMultiSwipe ? 5.0 : 2.5
+                unit = String(localized: "kg")
+            }
+
+            let increment = isRight ? baseIncrement : -baseIncrement
             updateValue(by: increment)
 
-            let color = plateColors[abs(baseIncrement)] ?? .gray
+            // Simple semantic colors: green for increase, red for decrease
+            let color: Color = isRight ? .green : .red
             let sign = isRight ? "+" : "-"
             let formattedIncrement = String(format: "%.1f", baseIncrement)
-            let unit = String(localized: "kg")
             showFeedback(
                 text: "\(sign)\(formattedIncrement)\(unit)",
                 color: color,
@@ -136,16 +196,28 @@ struct SwipeableNumberField: View {
         guard type == .weight else { return }
 
         let swipes = checkMultiSwipe() ? (checkTripleSwipe() ? (checkQuadSwipe() ? 4 : 3) : 2) : 1
-        let increments: [Int: Double] = [1: 10, 2: 15, 3: 20, 4: 25]
-        let baseIncrement = increments[swipes] ?? 10
-        let increment = isUp ? baseIncrement : -baseIncrement
+        let baseIncrement: Double
+        let unit: String
 
+        if weightUnit == "Pounds" {
+            // US plates: 25, 35, 45, 55 lbs
+            let increments: [Int: Double] = [1: 25, 2: 35, 3: 45, 4: 55]
+            baseIncrement = increments[swipes] ?? 25
+            unit = String(localized: "lbs")
+        } else {
+            // Olympic plates: 10, 15, 20, 25 kg
+            let increments: [Int: Double] = [1: 10, 2: 15, 3: 20, 4: 25]
+            baseIncrement = increments[swipes] ?? 10
+            unit = String(localized: "kg")
+        }
+
+        let increment = isUp ? baseIncrement : -baseIncrement
         updateValue(by: increment)
 
-        let color = plateColors[abs(baseIncrement)] ?? .green
+        // Simple semantic colors: green for increase, red for decrease
+        let color: Color = isUp ? .green : .red
         let sign = isUp ? "+" : "-"
         let formattedIncrement = String(format: "%.0f", baseIncrement)
-        let unit = String(localized: "kg")
         showFeedback(
             text: "\(sign)\(formattedIncrement)\(unit)",
             color: color,
@@ -210,9 +282,12 @@ struct SwipeableNumberField: View {
         let generator = UIImpactFeedbackGenerator()
 
         // Different haptic intensity based on increment
-        if increment <= 2.5 {
+        let smallThreshold: Double = weightUnit == "Pounds" ? 5 : 2.5
+        let mediumThreshold: Double = weightUnit == "Pounds" ? 25 : 10
+
+        if increment <= smallThreshold {
             generator.impactOccurred(intensity: 0.5) // Light
-        } else if increment <= 10 {
+        } else if increment <= mediumThreshold {
             generator.impactOccurred(intensity: 0.7) // Medium
         } else {
             generator.impactOccurred(intensity: 1.0) // Heavy
@@ -232,7 +307,12 @@ struct SwipeableNumberField: View {
             value: .constant(10),
             placeholder: "Reps",
             isKeyboardMode: false,
-            onUpdate: {}
+            onUpdate: {},
+            fieldIndex: nil,
+            totalFields: nil,
+            shouldAutoAdvance: false,
+            onNavigate: nil,
+            externalFocus: nil
         )
 
         SwipeableNumberField(
@@ -240,7 +320,12 @@ struct SwipeableNumberField: View {
             value: .constant(80),
             placeholder: "Weight",
             isKeyboardMode: false,
-            onUpdate: {}
+            onUpdate: {},
+            fieldIndex: nil,
+            totalFields: nil,
+            shouldAutoAdvance: false,
+            onNavigate: nil,
+            externalFocus: nil
         )
 
         Divider()
@@ -253,7 +338,12 @@ struct SwipeableNumberField: View {
             value: .constant(10),
             placeholder: "Reps",
             isKeyboardMode: true,
-            onUpdate: {}
+            onUpdate: {},
+            fieldIndex: 0,
+            totalFields: 2,
+            shouldAutoAdvance: true,
+            onNavigate: { _ in },
+            externalFocus: nil
         )
 
         SwipeableNumberField(
@@ -261,7 +351,12 @@ struct SwipeableNumberField: View {
             value: .constant(80),
             placeholder: "Weight",
             isKeyboardMode: true,
-            onUpdate: {}
+            onUpdate: {},
+            fieldIndex: 1,
+            totalFields: 2,
+            shouldAutoAdvance: false,
+            onNavigate: { _ in },
+            externalFocus: nil
         )
     }
     .padding()

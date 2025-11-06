@@ -49,14 +49,7 @@ struct RecentWorkoutRow: View {
     }
 
     private var workoutTypeText: String {
-        switch workout.type {
-        case .lifting:
-            return "Lifting"
-        case .cardio:
-            return "Cardio"
-        case .metcon:
-            return "MetCon"
-        }
+        workout.type.displayName
     }
 }
 

@@ -193,7 +193,9 @@ struct ActiveWorkoutBar: View {
     let viewModel = LiftingSessionViewModel(
         workoutRepository: deps.workoutRepository,
         exerciseRepository: deps.exerciseRepository,
-        prDetectionService: deps.prDetectionService
+        prDetectionService: deps.prDetectionService,
+        progressiveOverloadService: deps.progressiveOverloadService,
+        userProfileRepository: deps.userProfileRepository
     )
 
     // Mock data

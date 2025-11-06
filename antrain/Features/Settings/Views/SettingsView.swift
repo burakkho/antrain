@@ -15,6 +15,14 @@ struct SettingsView: View {
     @State private var showBodyweightEntry = false
     @State private var showBodyweightHistory = false
 
+    // Notification Settings
+    @ObservedObject private var notificationService = NotificationService.shared
+    @State private var showNotificationSetup = false
+    @State private var showToast = false
+    @State private var toastMessage: LocalizedStringKey = ""
+    @State private var toastType: DSToast.ToastType = .info
+    @State private var showPermissionAlert = false
+
     enum WeightUnit: String, CaseIterable {
         case kg = "Kilograms"
         case lbs = "Pounds"
@@ -49,10 +57,9 @@ struct SettingsView: View {
     var body: some View {
         NavigationStack {
             if let viewModel {
-                @Bindable var viewModel = viewModel
                 Form {
-                    // Profile Section
-                    Section("Profile") {
+                // Profile Section
+                Section("Profile") {
                         Button(action: { showNameEditor = true }) {
                             HStack {
                                 Text("Name")
@@ -157,6 +164,103 @@ struct SettingsView: View {
                     }
                 }
 
+                // Notifications Section
+                Section {
+                    Toggle(isOn: Binding(
+                        get: { notificationService.settings.isEnabled },
+                        set: { newValue in
+                            handleNotificationToggle(newValue)
+                        }
+                    )) {
+                        HStack {
+                            Image(systemName: "bell.badge.fill")
+                                .foregroundStyle(DSColors.primary)
+                            Text("Workout Reminders")
+                        }
+                    }
+
+                    if notificationService.settings.isEnabled {
+                        // Notification Time
+                        DatePicker(
+                            "Notification Time",
+                            selection: Binding(
+                                get: {
+                                    Calendar.current.date(from: notificationService.settings.preferredTime) ?? Date()
+                                },
+                                set: { newDate in
+                                    var updatedSettings = notificationService.settings
+                                    updatedSettings.preferredTime = Calendar.current.dateComponents(
+                                        [.hour, .minute],
+                                        from: newDate
+                                    )
+                                    Task {
+                                        await notificationService.updateSettings(updatedSettings)
+                                    }
+                                }
+                            ),
+                            displayedComponents: .hourAndMinute
+                        )
+                        .datePickerStyle(.compact)
+
+                        // Active Days
+                        VStack(alignment: .leading, spacing: DSSpacing.sm) {
+                            Text("Active Days")
+                                .font(DSTypography.caption)
+                                .foregroundStyle(DSColors.textSecondary)
+
+                            DaySelectionChips(selectedDays: Binding(
+                                get: { notificationService.settings.enabledDays },
+                                set: { newDays in
+                                    var updatedSettings = notificationService.settings
+                                    updatedSettings.enabledDays = newDays
+                                    Task {
+                                        await notificationService.updateSettings(updatedSettings)
+                                    }
+                                }
+                            ))
+                        }
+                        .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
+
+                        // Rest Day Reminders
+                        Toggle("Rest Day Reminders", isOn: Binding(
+                            get: { notificationService.settings.sendOnRestDays },
+                            set: { newValue in
+                                var updatedSettings = notificationService.settings
+                                updatedSettings.sendOnRestDays = newValue
+                                Task {
+                                    await notificationService.updateSettings(updatedSettings)
+                                }
+                            }
+                        ))
+                    }
+                } header: {
+                    Text("Notifications")
+                } footer: {
+                    if notificationService.settings.isEnabled {
+                        Text("Get reminded when it's time for your scheduled workout")
+                    } else if notificationService.authorizationStatus == .denied {
+                        Text("Notification permissions are required. Please enable in iOS Settings.")
+                    }
+                }
+
+                // iOS Settings Link (if permission denied)
+                if notificationService.settings.isEnabled && notificationService.authorizationStatus != .authorized {
+                    Section {
+                        Button {
+                            if let url = URL(string: UIApplication.openSettingsURLString) {
+                                UIApplication.shared.open(url)
+                            }
+                        } label: {
+                            HStack {
+                                Text("Open iOS Settings")
+                                Spacer()
+                                Image(systemName: "arrow.up.forward.app")
+                                    .font(.caption)
+                            }
+                        }
+                    }
+                }
+
                 // Preferences Section
                 Section("Preferences") {
                     Picker("Weight Unit", selection: $weightUnit) {
@@ -187,6 +291,7 @@ struct SettingsView: View {
                             .foregroundStyle(DSColors.textSecondary)
                     }
                 }
+
                 }
                 .navigationTitle("Settings")
                 .sheet(isPresented: $showNameEditor) {
@@ -210,6 +315,27 @@ struct SettingsView: View {
                 .sheet(isPresented: $showBodyweightHistory) {
                     SettingsBodyweightHistorySheet(viewModel: viewModel)
                 }
+                .sheet(isPresented: $showNotificationSetup) {
+                    NotificationSetupSheet()
+                }
+                .toast(
+                    isPresented: $showToast,
+                    message: toastMessage,
+                    type: toastType,
+                    duration: 3.0
+                )
+                .alert("Enable Notifications", isPresented: $showPermissionAlert) {
+                    Button("Allow") {
+                        Task {
+                            await requestNotificationPermission()
+                        }
+                    }
+                    Button("Not Now", role: .cancel) {
+                        // User declined, nothing to do (toggle already off)
+                    }
+                } message: {
+                    Text("Antrain needs permission to send you workout reminders")
+                }
             } else {
                 DSLoadingView(message: "Loading settings...")
             }
@@ -223,6 +349,54 @@ struct SettingsView: View {
             }
         }
     }
+
+    // MARK: - Notification Helpers
+
+    private func handleNotificationToggle(_ isEnabled: Bool) {
+        if isEnabled {
+            // Check if permission is already granted
+            if notificationService.authorizationStatus == .notDetermined {
+                showPermissionAlert = true
+            } else if notificationService.authorizationStatus == .denied {
+                showToast(message: "Please enable notifications in iOS Settings", type: .error)
+            } else {
+                // Permission already granted
+                var updatedSettings = notificationService.settings
+                updatedSettings.isEnabled = true
+                Task {
+                    await notificationService.updateSettings(updatedSettings)
+                }
+                showToast(message: "Notifications enabled", type: .success)
+            }
+        } else {
+            var updatedSettings = notificationService.settings
+            updatedSettings.isEnabled = false
+            Task {
+                await notificationService.updateSettings(updatedSettings)
+            }
+            showToast(message: "Notifications disabled", type: .info)
+        }
+    }
+
+    private func requestNotificationPermission() async {
+        do {
+            try await notificationService.requestAuthorization()
+            var updatedSettings = notificationService.settings
+            updatedSettings.isEnabled = true
+            await notificationService.updateSettings(updatedSettings)
+            showToast(message: "Notifications enabled successfully", type: .success)
+        } catch {
+            showToast(message: "Permission denied", type: .error)
+        }
+    }
+
+    private func showToast(message: LocalizedStringKey, type: DSToast.ToastType) {
+        toastMessage = message
+        toastType = type
+        withAnimation {
+            showToast = true
+        }
+    }
 }
 
 // MARK: - Height Editor Sheet
@@ -230,7 +404,7 @@ struct SettingsView: View {
 struct HeightEditorSheet: View {
     @Environment(\.dismiss) private var dismiss
     @AppStorage("weightUnit") private var weightUnit: SettingsView.WeightUnit = .kg
-    @Bindable var viewModel: SettingsViewModel
+    let viewModel: SettingsViewModel
     @State private var height: Double = 170.0
     @State private var isSaving = false
     @State private var errorMessage: String?
@@ -306,7 +480,7 @@ struct HeightEditorSheet: View {
 
 struct GenderEditorSheet: View {
     @Environment(\.dismiss) private var dismiss
-    @Bindable var viewModel: SettingsViewModel
+    let viewModel: SettingsViewModel
     @State private var selectedGender: UserProfile.Gender = .preferNotToSay
     @State private var isSaving = false
     @State private var errorMessage: String?
@@ -374,7 +548,7 @@ struct GenderEditorSheet: View {
 
 struct DateOfBirthEditorSheet: View {
     @Environment(\.dismiss) private var dismiss
-    @Bindable var viewModel: SettingsViewModel
+    let viewModel: SettingsViewModel
     @State private var selectedDate: Date = Calendar.current.date(byAdding: .year, value: -25, to: Date()) ?? Date()
     @State private var isSaving = false
     @State private var errorMessage: String?
@@ -465,7 +639,7 @@ struct DateOfBirthEditorSheet: View {
 
 struct ActivityLevelEditorSheet: View {
     @Environment(\.dismiss) private var dismiss
-    @Bindable var viewModel: SettingsViewModel
+    let viewModel: SettingsViewModel
     @State private var selectedActivityLevel: UserProfile.ActivityLevel = .moderatelyActive
     @State private var isSaving = false
     @State private var errorMessage: String?
@@ -553,7 +727,7 @@ struct ActivityLevelEditorSheet: View {
 
 struct NameEditorSheet: View {
     @Environment(\.dismiss) private var dismiss
-    @Bindable var viewModel: SettingsViewModel
+    let viewModel: SettingsViewModel
     @State private var name: String = ""
     @State private var isSaving = false
     @State private var errorMessage: String?
@@ -617,7 +791,7 @@ struct NameEditorSheet: View {
 struct SettingsBodyweightEntrySheet: View {
     @Environment(\.dismiss) private var dismiss
     @AppStorage("weightUnit") private var weightUnit: SettingsView.WeightUnit = .kg
-    @Bindable var viewModel: SettingsViewModel
+    let viewModel: SettingsViewModel
     @State private var weight: Double = 70.0
     @State private var date: Date = Date()
     @State private var notes: String = ""
@@ -701,7 +875,7 @@ struct SettingsBodyweightEntrySheet: View {
 struct SettingsBodyweightHistorySheet: View {
     @Environment(\.dismiss) private var dismiss
     @AppStorage("weightUnit") private var weightUnit: SettingsView.WeightUnit = .kg
-    @Bindable var viewModel: SettingsViewModel
+    let viewModel: SettingsViewModel
     @State private var entries: [BodyweightEntry] = []
     @State private var isLoading = true
 

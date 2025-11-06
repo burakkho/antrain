@@ -346,7 +346,7 @@ struct WorkoutSummaryView: View {
                     }
                 }
 
-                // Total
+                // Total Volume
                 HStack {
                     Text("Total Volume")
                         .font(.callout)
@@ -409,7 +409,8 @@ struct WorkoutSummaryView: View {
     // MARK: - Actions
 
     private func saveWorkout(viewModel: WorkoutSummaryViewModel) async {
-        await viewModel.saveWorkout()
+        // Note: Don't call viewModel.saveWorkout() here!
+        // The onSave callback (from LiftingSessionView) already handles saving.
         await onSave(viewModel.notes.isEmpty ? nil : viewModel.notes)
         dismiss()
     }
@@ -436,7 +437,8 @@ struct WorkoutSummaryView: View {
 // MARK: - Preview
 
 #Preview {
-    let deps = AppDependencies.preview
+    @Previewable @State var deps = AppDependencies.preview
+
     let exercise = Exercise(
         name: "Barbell Squat",
         category: .barbell,
@@ -447,15 +449,19 @@ struct WorkoutSummaryView: View {
     )
 
     let workoutExercise = WorkoutExercise(exercise: exercise, orderIndex: 0)
-    workoutExercise.sets = [
-        WorkoutSet(reps: 10, weight: 100, isCompleted: true),
-        WorkoutSet(reps: 8, weight: 110, isCompleted: true),
-        WorkoutSet(reps: 6, weight: 120, isCompleted: true)
-    ]
+    let _ = {
+        workoutExercise.sets = [
+            WorkoutSet(reps: 10, weight: 100, isCompleted: true),
+            WorkoutSet(reps: 8, weight: 110, isCompleted: true),
+            WorkoutSet(reps: 6, weight: 120, isCompleted: true)
+        ]
+    }()
 
     let workout = Workout(date: Date(), type: .lifting)
-    workout.duration = 2400
-    workout.addExercise(workoutExercise)
+    let _ = {
+        workout.duration = 2400
+        workout.addExercise(workoutExercise)
+    }()
 
     return WorkoutSummaryView(
         workout: workout,

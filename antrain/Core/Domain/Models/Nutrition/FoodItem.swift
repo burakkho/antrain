@@ -57,6 +57,27 @@ final class FoodItem: @unchecked Sendable {
         self.isCustom = isCustom
         self.isFavorite = isFavorite
         self.version = version
+
+        // Ensure at least gram unit exists
+        self.ensureGramUnitExists()
+    }
+
+    /// Ensure this food has at least a gram serving unit
+    private func ensureGramUnitExists() {
+        // Check if gram unit already exists
+        let hasGramUnit = servingUnits.contains { $0.unitType == .gram }
+
+        if !hasGramUnit {
+            // Add gram as default unit (1g = 1g)
+            let gramUnit = ServingUnit(
+                unitType: .gram,
+                gramsPerUnit: 1.0,
+                description: "g",
+                isDefault: servingUnits.isEmpty, // Default if no other units
+                orderIndex: servingUnits.count
+            )
+            servingUnits.append(gramUnit)
+        }
     }
 }
 
@@ -74,10 +95,28 @@ extension FoodItem {
         )
     }
 
-    /// Get default serving unit
+    /// Get default serving unit (guaranteed to return a unit)
     func getDefaultUnit() -> ServingUnit {
-        servingUnits.first(where: { $0.isDefault })
-            ?? ServingUnit(unitType: .gram, gramsPerUnit: 1.0, description: "g", isDefault: true)
+        // Try to get the marked default unit
+        if let defaultUnit = servingUnits.first(where: { $0.isDefault }) {
+            return defaultUnit
+        }
+
+        // Otherwise return first available unit (gram unit should always exist)
+        if let firstUnit = servingUnits.first {
+            return firstUnit
+        }
+
+        // Fallback: create and add gram unit on the fly (should never happen)
+        let gramUnit = ServingUnit(
+            unitType: .gram,
+            gramsPerUnit: 1.0,
+            description: "g",
+            isDefault: true,
+            orderIndex: 0
+        )
+        servingUnits.append(gramUnit)
+        return gramUnit
     }
 
     /// Get serving units sorted by order index

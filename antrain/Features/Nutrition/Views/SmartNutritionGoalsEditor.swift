@@ -16,7 +16,7 @@ struct SmartNutritionGoalsEditor: View {
 
     var body: some View {
         if let vm = viewModel {
-            editorContent(viewModel: vm)
+            content(viewModel: vm)
         } else {
             DSLoadingView()
                 .onAppear {
@@ -28,6 +28,11 @@ struct SmartNutritionGoalsEditor: View {
                     }
                 }
         }
+    }
+
+    @ViewBuilder
+    private func content(viewModel vm: NutritionGoalsEditorViewModel) -> some View {
+        editorContent(viewModel: vm)
     }
 
     @ViewBuilder
@@ -77,7 +82,7 @@ struct SmartNutritionGoalsEditor: View {
                         }
 
                         if viewModel.showTDEECalculator {
-                            tdeeCalculatorView(viewModel: viewModel)
+                            tdeeCalculatorView(viewModel: vm)
                         }
                     }
                 } header: {

@@ -63,28 +63,11 @@ struct ExerciseSelectionView: View {
     // MARK: - Search Bar
 
     private var searchBar: some View {
-        HStack(spacing: DSSpacing.xs) {
-            Image(systemName: "magnifyingglass")
-                .foregroundStyle(DSColors.textSecondary)
-
-            TextField("Search exercises", text: $searchText)
-                .textFieldStyle(.plain)
-                .autocorrectionDisabled()
-
-            if !searchText.isEmpty {
-                Button {
-                    searchText = ""
-                } label: {
-                    Image(systemName: "xmark.circle.fill")
-                        .foregroundStyle(DSColors.textSecondary)
-                }
-                .buttonStyle(.plain)
-            }
-        }
-        .padding(.horizontal, DSSpacing.sm)
-        .padding(.vertical, DSSpacing.xs)
-        .background(DSColors.backgroundSecondary)
-        .clipShape(RoundedRectangle(cornerRadius: DSCornerRadius.sm))
+        DSSearchField(
+            placeholder: "Search exercises",
+            text: $searchText,
+            debounceInterval: .milliseconds(200)
+        )
         .padding(.horizontal, DSSpacing.md)
         .padding(.vertical, DSSpacing.sm)
     }

@@ -2,11 +2,11 @@
 
 <div align="center">
 
-![iOS](https://img.shields.io/badge/iOS-17.0%2B-blue)
+![iOS](https://img.shields.io/badge/iOS-18.0%2B-blue)
 ![Swift](https://img.shields.io/badge/Swift-6.0-orange)
 ![SwiftUI](https://img.shields.io/badge/SwiftUI-Native-green)
 ![License](https://img.shields.io/badge/License-MIT-yellow)
-![Status](https://img.shields.io/badge/Status-v1.0-success)
+![Status](https://img.shields.io/badge/Status-v1.1-success)
 
 **A comprehensive fitness tracking app for strength athletes, CrossFit enthusiasts, and hybrid training.**
 
@@ -31,6 +31,8 @@
 - **🏆 Personal Records**: Automatic PR detection and tracking with 1RM calculations
 - **👤 User Profile**: Goals management and bodyweight tracking with history
 - **📚 Libraries**: 180+ preset exercises and 100+ food items, with custom entry support
+- **📋 Workout Templates**: Create and save custom workout templates for quick session starts
+- **🗓️ Training Programs**: 4 preset programs (Starting Strength, StrongLifts, PPL, 5/3/1) with progression tracking
 
 ### 🎯 Target Users
 
@@ -56,9 +58,10 @@
 | **Language** | Swift 6 (strict concurrency) |
 | **UI Framework** | SwiftUI |
 | **Data Persistence** | SwiftData (local-only) |
-| **Minimum iOS** | 17.0+ |
+| **Minimum iOS** | 18.0+ |
 | **Architecture** | Clean Architecture + MVVM |
 | **Design** | Apple HIG compliant |
+| **Concurrency** | Swift 6 strict mode + @Observable |
 
 ---
 
@@ -111,9 +114,10 @@ For detailed architecture documentation, see [ARCHITECTURE.md](docs/ARCHITECTURE
 
 ### Prerequisites
 
-- macOS 14.0+
+- macOS 15.0+
 - Xcode 16.0+
 - iOS 18.0+ device or simulator
+- Swift 6.0+
 
 ### Installation
 
@@ -155,24 +159,28 @@ Comprehensive documentation is available in the `/docs` directory:
 
 ## 🗺 Roadmap
 
-### Current Status: v1.0 (90% Complete)
+### Current Status: v1.1 (Released 2025-11-06)
 
 #### ✅ Completed
 - Foundation & Core Architecture
-- Nutrition Tracking (complete with food library)
+- Nutrition Tracking (complete with food library + improved serving units)
 - Quick Logging (cardio & MetCon)
-- Lifting Session Tracking
+- Lifting Session Tracking with PR detection
 - User Profile & Settings
 - Design System & Dark Mode
 - Weight Unit System (kg/lbs conversion)
+- **Workout Templates** (create, save, and use custom templates)
+- **Training Programs** (4 preset programs with progression tracking)
+- Personal Records (PR) tracking with 1RM calculations
+- Comprehensive localization system (English, Turkish, Spanish)
+- iOS 18 + Swift 6 concurrency compliance
 
-#### 🔜 Coming Soon (v1.1+)
-- Exercise library expansion (150+ exercises)
+#### 🔜 Coming Soon (v1.2+)
+- Exercise library expansion (250+ exercises)
 - Custom exercise/food creation UI
-- Workout templates and routines
-- Advanced analytics and progress charts
-- Personal records (PR) tracking
+- Advanced analytics and progress charts with Swift Charts
 - HealthKit integration
+- Rest timer with Live Activities
 
 #### 🚀 Future Phases
 - Cloud sync across devices
@@ -256,6 +264,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **🏆 Kişisel Rekorlar**: Otomatik PR tespiti ve 1RM hesaplamaları ile takip
 - **👤 Kullanıcı Profili**: Hedef yönetimi ve geçmiş ile vücut ağırlığı takibi
 - **📚 Kütüphaneler**: 180+ hazır egzersiz ve 100+ besin öğesi, özel giriş desteği ile
+- **📋 Antrenman Şablonları**: Hızlı başlangıç için özel antrenman şablonları oluştur ve kaydet
+- **🗓️ Antrenman Programları**: 4 hazır program (Starting Strength, StrongLifts, PPL, 5/3/1) ile ilerleme takibi
 
 ### 🎯 Hedef Kullanıcılar
 
@@ -281,9 +291,10 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 | **Dil** | Swift 6 (katı eşzamanlılık) |
 | **UI Framework** | SwiftUI |
 | **Veri Kalıcılığı** | SwiftData (sadece yerel) |
-| **Minimum iOS** | 17.0+ |
+| **Minimum iOS** | 18.0+ |
 | **Mimari** | Clean Architecture + MVVM |
 | **Tasarım** | Apple HIG uyumlu |
+| **Eşzamanlılık** | Swift 6 katı mod + @Observable |
 
 ---
 
@@ -336,9 +347,10 @@ Detaylı mimari dokümantasyonu için [ARCHITECTURE.md](docs/ARCHITECTURE.md) do
 
 ### Ön Gereksinimler
 
-- macOS 14.0+
+- macOS 15.0+
 - Xcode 16.0+
 - iOS 18.0+ cihaz veya simülatör
+- Swift 6.0+
 
 ### Kurulum
 
@@ -380,24 +392,28 @@ Kapsamlı dokümantasyon `/docs` dizininde mevcuttur:
 
 ## 🗺 Yol Haritası
 
-### Mevcut Durum: v1.0 (%90 Tamamlandı)
+### Mevcut Durum: v1.1 (Yayınlandı 2025-11-06)
 
 #### ✅ Tamamlandı
 - Temel Yapı ve Çekirdek Mimari
-- Beslenme Takibi (besin kütüphanesi ile tam)
+- Beslenme Takibi (besin kütüphanesi + geliştirilmiş porsiyon birimleri)
 - Hızlı Kayıt (kardiyо ve MetCon)
-- Ağırlık Antrenmanı Takibi
+- PR tespiti ile Ağırlık Antrenmanı Takibi
 - Kullanıcı Profili ve Ayarlar
 - Tasarım Sistemi ve Karanlık Mod
 - Ağırlık Birimi Sistemi (kg/lbs dönüşümü)
+- **Antrenman Şablonları** (özel şablonlar oluştur, kaydet ve kullan)
+- **Antrenman Programları** (ilerleme takipli 4 hazır program)
+- 1RM hesaplamalı Kişisel Rekor (PR) takibi
+- Kapsamlı yerelleştirme sistemi (İngilizce, Türkçe, İspanyolca)
+- iOS 18 + Swift 6 eşzamanlılık uyumluluğu
 
-#### 🔜 Yakında (v1.1+)
-- Egzersiz kütüphanesi genişletmesi (150+ egzersiz)
+#### 🔜 Yakında (v1.2+)
+- Egzersiz kütüphanesi genişletmesi (250+ egzersiz)
 - Özel egzersiz/besin oluşturma UI'ı
-- Antrenman şablonları ve rutinleri
-- Gelişmiş analitik ve ilerleme grafikleri
-- Kişisel rekorlar (PR) takibi
+- Swift Charts ile gelişmiş analitik ve ilerleme grafikleri
 - HealthKit entegrasyonu
+- Live Activities ile dinlenme zamanlayıcısı
 
 #### 🚀 Gelecek Aşamalar
 - Cihazlar arası cloud senkronizasyonu

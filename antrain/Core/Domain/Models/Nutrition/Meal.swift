@@ -77,6 +77,19 @@ extension Meal {
                 return "Snack"
             }
         }
+
+        var displayName: String {
+            switch self {
+            case .breakfast:
+                return String(localized: "Breakfast")
+            case .lunch:
+                return String(localized: "Lunch")
+            case .dinner:
+                return String(localized: "Dinner")
+            case .snack:
+                return String(localized: "Snack")
+            }
+        }
     }
 
     static func create(type: MealType) -> Meal {

@@ -101,17 +101,17 @@ enum MetConType: String, CaseIterable {
     var description: String {
         switch self {
         case .amrap:
-            return "As Many Rounds As Possible"
+            return String(localized: "As Many Rounds As Possible")
         case .emom:
-            return "Every Minute On the Minute"
+            return String(localized: "Every Minute On the Minute")
         case .forTime:
-            return "Complete workout as fast as possible"
+            return String(localized: "Complete workout as fast as possible")
         case .tabata:
-            return "20s work, 10s rest"
+            return String(localized: "20s work, 10s rest")
         case .chipper:
-            return "Complete all exercises in order"
+            return String(localized: "Complete all exercises in order")
         case .other:
-            return "Custom MetCon"
+            return String(localized: "Custom MetCon")
         }
     }
 }

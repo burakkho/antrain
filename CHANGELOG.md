@@ -7,6 +7,82 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [Unreleased]
+
+### Changed
+
+#### Nutrition Serving Unit System Overhaul (2025-11-06)
+- **Breaking Change:** Removed deprecated `servingAmount` field from `FoodEntry` model
+- **Type Safety:** Made `selectedUnit` non-nullable in `FoodEntry` (always requires a unit)
+- **Automatic Fallback:** All `FoodItem` instances now automatically ensure a gram unit exists
+- **Improved UX:** Unit picker always visible in `FoodSearchView` (no more conditional rendering)
+- **Consistency:** Removed duplicate `servingAmount` property (migration compatibility)
+- **Better API:** Updated `NutritionRepository` to always require `ServingUnit` parameter
+- **Helper Method:** Enhanced `FoodItem.getDefaultUnit()` with guaranteed non-null return
+
+#### Workouts UI Refactoring (2025-11-06)
+- Removed nested TabView anti-pattern, replaced with iOS native segmented control
+- Renamed `WorkoutsHistoryTabView` → `WorkoutsOverviewView` (more accurate naming)
+- Renamed `WorkoutTemplatesTabView` → `WorkoutTemplatesView`
+- Renamed `WorkoutProgramsTabView` → `WorkoutProgramsView`
+- Moved `ActiveProgramCard` from `Features/Home/` to `Features/Workouts/Programs/`
+- Improved program activation flow with success alert and automatic navigation
+- Fixed duplicate workout save bug in `WorkoutSummaryView`
+
+### Added
+
+#### Training Programs System (v2.0 - 90% Complete)
+**Backend & Core (Complete):**
+- Complete training program management system with 3-tier hierarchy (Program → Week → Day)
+- Domain models: `TrainingProgram`, `ProgramWeek`, `ProgramDay` with SwiftData persistence
+- Supporting enums: `ProgramCategory`, `DifficultyLevel`, `TrainingPhase`, `WeekProgressionPattern`
+- `TrainingProgramRepository` with full CRUD operations and @ModelActor pattern
+- `ProgressiveOverloadService` with RPE-based weight suggestions (RPE 1-6: +5%, RPE 7-8: +2.5%, RPE 9-10: -2.5%)
+- Template deletion safety system (prevents deletion of templates used in programs)
+- Program library with DTO pattern for preset programs
+- Automatic seeding system for preset programs
+
+**Preset Programs (4 Available):**
+- Starting Strength (Beginner, 12 weeks, 3 days/week)
+- StrongLifts 5x5 (Beginner, 12 weeks, 3 days/week)
+- Push Pull Legs 6-Day (Hypertrophy, 8 weeks, 6 days/week)
+- 5/3/1 Boring But Big (Powerlifting, 4 weeks, 4 days/week)
+
+**User Interface (Complete):**
+- 23 UI components including ViewModels, Views, and Components
+- `ProgramsListView` with search and category filtering
+- `ProgramDetailView` with week/day navigation
+- `CreateProgramFlow` - 4-step wizard for custom program creation (Basic Info, Progression, Schedule, Preview)
+- Template selector with search and filtering
+- Progression pattern visualizer with Swift Charts
+- `ActiveProgramCard` component for home screen
+- Program activation/deactivation flow
+- Navigation integration from Workouts tab
+
+**User Profile Integration:**
+- `activeProgram: TrainingProgram?` relationship
+- `activeProgramStartDate: Date?` and `currentWeekNumber: Int?` tracking
+- `activateProgram()` / `deactivateProgram()` methods
+- `getTodaysWorkout()` - calculates current week and day
+- `progressToNextWeek()` for weekly advancement
+- Progress computation helpers
+
+**Modified Models:**
+- `Workout` model: Added `rpe: Int?` field (1-10 Rate of Perceived Exertion)
+- `UserProfile` model: Added active program tracking fields
+
+### In Progress
+
+**Training Programs - Remaining Work:**
+- Home screen integration: ActiveProgramCard visibility in HomeView
+- Template deletion safety UI (backend complete, UI warnings needed)
+- Program-based workout flow with progressive overload suggestions in LiftingSessionView
+- RPE prompt after workout completion
+- Complete localization of program-related strings
+- Unit and integration tests
+
+---
+
 ## [1.0.0] - 2025-11-03
 
 ### Initial Release

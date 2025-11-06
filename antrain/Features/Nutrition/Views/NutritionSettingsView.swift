@@ -22,7 +22,6 @@ struct NutritionSettingsView: View {
     var body: some View {
         NavigationStack {
             if let viewModel {
-                @Bindable var viewModel = viewModel
                 Form {
                     // Nutrition Goals Section
                     Section("Daily Nutrition Goals") {

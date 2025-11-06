@@ -11,6 +11,15 @@ import SwiftData
 /// Repository for managing workout templates with SwiftData persistence
 @ModelActor
 actor WorkoutTemplateRepository: WorkoutTemplateRepositoryProtocol {
+    // MARK: - Dependencies
+
+    // Note: We need TrainingProgramRepository to check template usage
+    // This will be injected after Phase 2 is complete
+    private var trainingProgramRepository: TrainingProgramRepositoryProtocol?
+
+    func setTrainingProgramRepository(_ repository: TrainingProgramRepositoryProtocol) {
+        self.trainingProgramRepository = repository
+    }
     // MARK: - CRUD Operations
 
     func createTemplate(_ template: WorkoutTemplate) async throws {
@@ -89,6 +98,15 @@ actor WorkoutTemplateRepository: WorkoutTemplateRepositoryProtocol {
             throw WorkoutTemplateRepositoryError.cannotDeletePreset
         }
 
+        // Training Programs v2.0: Check if template is used in any programs
+        if let programRepo = trainingProgramRepository {
+            let programNames = try await programRepo.findProgramsUsingTemplate(template)
+
+            guard programNames.isEmpty else {
+                throw WorkoutTemplateRepositoryError.usedInPrograms(programNames: programNames)
+            }
+        }
+
         modelContext.delete(template)
         try modelContext.save()
     }
@@ -111,9 +129,10 @@ actor WorkoutTemplateRepository: WorkoutTemplateRepositoryProtocol {
             allExercises.first { $0.name.lowercased() == name.lowercased() }
         }
 
-        // Create all preset templates on MainActor (required by @Model)
+        // Create all preset templates using TemplateLibrary on MainActor
         let presets = await MainActor.run {
-            PresetTemplateSeeder.createPresetTemplates(exerciseFinder: exerciseFinder)
+            let templateLibrary = TemplateLibrary()
+            return templateLibrary.convertToModels(exerciseFinder: exerciseFinder)
         }
 
         // Insert all presets
@@ -181,19 +200,28 @@ actor WorkoutTemplateRepository: WorkoutTemplateRepositoryProtocol {
 enum WorkoutTemplateRepositoryError: LocalizedError {
     case duplicateName
     case cannotDeletePreset
+    case usedInPrograms(programNames: [String])
     case templateNotFound
     case invalidTemplate
 
     var errorDescription: String? {
         switch self {
         case .duplicateName:
-            return "A template with this name already exists"
+            return String(localized: "A template with this name already exists",
+                         comment: "Error: Duplicate template name")
         case .cannotDeletePreset:
-            return "Preset templates cannot be deleted"
+            return String(localized: "Preset templates cannot be deleted",
+                         comment: "Error: Cannot delete preset")
+        case .usedInPrograms(let programNames):
+            let names = programNames.joined(separator: ", ")
+            return String(localized: "This template is used in programs: \(names). Remove it from programs first.",
+                         comment: "Error: Template used in programs")
         case .templateNotFound:
-            return "Template not found"
+            return String(localized: "Template not found",
+                         comment: "Error: Template not found")
         case .invalidTemplate:
-            return "Template data is invalid"
+            return String(localized: "Template data is invalid",
+                         comment: "Error: Invalid template")
         }
     }
 }

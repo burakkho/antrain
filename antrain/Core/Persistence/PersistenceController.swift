@@ -9,11 +9,17 @@ import Foundation
 import SwiftData
 
 /// Manages SwiftData ModelContainer and seed data
-@MainActor
 final class PersistenceController {
     static let shared = PersistenceController()
 
     let modelContainer: ModelContainer
+
+    // Track seeding progress to prevent UI hang
+    @MainActor
+    private(set) var isSeeding = false
+
+    @MainActor
+    private(set) var seedingProgress: String = ""
 
     private init() {
         do {
@@ -32,12 +38,16 @@ final class PersistenceController {
                 BodyweightEntry.self,
                 PersonalRecord.self,
                 WorkoutTemplate.self,
-                TemplateExercise.self
+                TemplateExercise.self,
+                TrainingProgram.self,
+                ProgramWeek.self,
+                ProgramDay.self
             ])
 
             let modelConfiguration = ModelConfiguration(
                 schema: schema,
-                isStoredInMemoryOnly: false
+                isStoredInMemoryOnly: false,
+                allowsSave: true
             )
 
             modelContainer = try ModelContainer(
@@ -45,16 +55,43 @@ final class PersistenceController {
                 configurations: [modelConfiguration]
             )
 
+            print("✅ ModelContainer initialized successfully")
+
             // Seed libraries and create default profile if needed
-            Task {
-                await seedLibrariesIfNeeded()
-                await seedTemplatesIfNeeded()
-                await createDefaultProfileIfNeeded()
+            // Run on BACKGROUND thread to avoid blocking main thread
+            Task.detached { [weak self] in
+                guard let self else { return }
+                await self.performSeeding()
             }
 
         } catch {
             fatalError("Could not initialize ModelContainer: \(error)")
         }
+    }
+
+    // MARK: - Seeding Coordinator
+
+    /// Performs all seeding operations on background thread
+    private func performSeeding() async {
+        // Update UI state on main thread
+        await MainActor.run {
+            self.isSeeding = true
+            self.seedingProgress = "Initializing..."
+        }
+
+        // Perform seeding
+        await seedLibrariesIfNeeded()
+        await seedTemplatesIfNeeded()
+        await seedProgramsIfNeeded()
+        await createDefaultProfileIfNeeded()
+
+        // Mark as complete
+        await MainActor.run {
+            self.isSeeding = false
+            self.seedingProgress = "Complete"
+        }
+
+        print("✅ All seeding operations completed")
     }
 
     /// Seed preset exercise and food libraries on first launch
@@ -66,9 +103,14 @@ final class PersistenceController {
             return
         }
 
+        await MainActor.run {
+            self.seedingProgress = "Loading exercises and foods..."
+        }
+
         print("🌱 Seeding libraries...")
 
-        let context = modelContainer.mainContext
+        // Create background context for seeding (don't block main context!)
+        let context = ModelContext(modelContainer)
 
         // Seed exercises
         let exerciseLibrary = ExerciseLibrary()
@@ -104,9 +146,14 @@ final class PersistenceController {
             return
         }
 
+        await MainActor.run {
+            self.seedingProgress = "Creating workout templates..."
+        }
+
         print("🌱 Seeding preset templates...")
 
-        let context = modelContainer.mainContext
+        // Create background context for seeding (don't block main context!)
+        let context = ModelContext(modelContainer)
 
         // Fetch all exercises from SwiftData (already seeded)
         let fetchDescriptor = FetchDescriptor<Exercise>()
@@ -119,30 +166,209 @@ final class PersistenceController {
             return
         }
 
+        print("  📋 Loaded \(allExercises.count) exercises")
+
         // Helper to find exercise by name from SwiftData
         func findExercise(_ name: String) -> Exercise? {
-            allExercises.first { $0.name.lowercased() == name.lowercased() }
+            let exercise = allExercises.first { $0.name.lowercased() == name.lowercased() }
+            if exercise == nil {
+                print("  ⚠️ Exercise not found: '\(name)'")
+            }
+            return exercise
         }
 
         // Seed preset templates using exercises from SwiftData
-        let presetTemplates = PresetTemplateSeeder.createPresetTemplates(exerciseFinder: findExercise)
+        let templateLibrary = TemplateLibrary()
+        let presetTemplates = templateLibrary.convertToModels(exerciseFinder: findExercise)
+
+        var successCount = 0
+        var emptyTemplateCount = 0
 
         for template in presetTemplates {
             context.insert(template)
+
+            if template.exercises.isEmpty {
+                print("  ⚠️ Template '\(template.name)' has NO exercises!")
+                emptyTemplateCount += 1
+            } else {
+                print("  ✓ Template '\(template.name)' created with \(template.exercises.count) exercises")
+                successCount += 1
+            }
         }
 
         do {
             try context.save()
+            // Process pending changes to ensure templates are available for program seeding
+            context.processPendingChanges()
             UserDefaults.standard.set(true, forKey: "hasSeededTemplates")
-            print("✅ Preset templates seeded successfully (\(presetTemplates.count) templates)")
+            print("✅ Preset templates seeded successfully (\(successCount) valid, \(emptyTemplateCount) empty, \(presetTemplates.count) total)")
+
+            if emptyTemplateCount > 0 {
+                print("⚠️  WARNING: \(emptyTemplateCount) templates were created without exercises. Check exercise names!")
+            }
         } catch {
             print("❌ Failed to seed templates: \(error)")
         }
     }
 
+    /// Seed preset training programs on first launch
+    private func seedProgramsIfNeeded() async {
+        let hasSeeded = UserDefaults.standard.bool(forKey: "hasSeededPrograms")
+
+        guard !hasSeeded else {
+            print("✅ Programs already seeded")
+            return
+        }
+
+        await MainActor.run {
+            self.seedingProgress = "Setting up training programs..."
+        }
+
+        print("🌱 Seeding preset programs...")
+
+        // Create background context for seeding (don't block main context!)
+        let context = ModelContext(modelContainer)
+
+        // Fetch all templates from SwiftData (already seeded)
+        let templateDescriptor = FetchDescriptor<WorkoutTemplate>()
+        let allTemplates: [WorkoutTemplate]
+
+        do {
+            allTemplates = try context.fetch(templateDescriptor)
+        } catch {
+            print("❌ Failed to fetch templates for program seeding: \(error)")
+            return
+        }
+
+        print("  📋 Loaded \(allTemplates.count) templates")
+
+        // Helper to find template by name from SwiftData
+        func findTemplate(_ name: String) -> WorkoutTemplate? {
+            let template = allTemplates.first { $0.name.lowercased() == name.lowercased() }
+            if template == nil {
+                print("  ⚠️ Template not found: '\(name)'")
+                print("     Available templates: \(allTemplates.map { $0.name }.joined(separator: ", "))")
+            } else {
+                // Verify template has exercises
+                if template!.exercises.isEmpty {
+                    print("  ⚠️ Template '\(name)' found but has NO exercises!")
+                } else {
+                    print("  ✓ Template '\(name)' found with \(template!.exercises.count) exercises")
+                }
+            }
+            return template
+        }
+
+        // Get preset program DTOs
+        let programDTOs = ProgramLibrary.allPrograms
+
+        // Convert DTOs to models and insert
+        for programDTO in programDTOs {
+            print("  📝 Processing program: \(programDTO.name)")
+            let program = programDTO.toModel(templateFinder: findTemplate)
+
+            // Verify program has days with templates
+            var totalDays = 0
+            var daysWithTemplates = 0
+            for week in program.weeks {
+                for day in week.days {
+                    totalDays += 1
+                    if day.template != nil {
+                        daysWithTemplates += 1
+                    }
+                }
+            }
+
+            context.insert(program)
+            print("  ✓ Added: \(program.name) - \(daysWithTemplates)/\(totalDays) days have templates")
+        }
+
+        do {
+            try context.save()
+            UserDefaults.standard.set(true, forKey: "hasSeededPrograms")
+            print("✅ Preset programs seeded successfully (\(programDTOs.count) programs)")
+        } catch {
+            print("❌ Failed to seed programs: \(error)")
+        }
+    }
+
+    // MARK: - Debug Helpers
+
+    /// Delete all data from database (useful after model changes)
+    /// WARNING: This will delete ALL user data!
+    func deleteAllData() async throws {
+        print("🗑️ Deleting all data...")
+
+        let context = modelContainer.mainContext
+
+        // Delete all model types
+        try context.delete(model: Workout.self)
+        try context.delete(model: WorkoutExercise.self)
+        try context.delete(model: WorkoutSet.self)
+        try context.delete(model: Exercise.self)
+        try context.delete(model: NutritionLog.self)
+        try context.delete(model: Meal.self)
+        try context.delete(model: FoodEntry.self)
+        try context.delete(model: FoodItem.self)
+        try context.delete(model: ServingUnit.self)
+        try context.delete(model: UserProfile.self)
+        try context.delete(model: BodyweightEntry.self)
+        try context.delete(model: PersonalRecord.self)
+        try context.delete(model: WorkoutTemplate.self)
+        try context.delete(model: TemplateExercise.self)
+        try context.delete(model: TrainingProgram.self)
+        try context.delete(model: ProgramWeek.self)
+        try context.delete(model: ProgramDay.self)
+
+        try context.save()
+
+        // Reset seeding flags
+        UserDefaults.standard.set(false, forKey: "hasSeededLibraries")
+        UserDefaults.standard.set(false, forKey: "hasSeededTemplates")
+        UserDefaults.standard.set(false, forKey: "hasSeededPrograms")
+
+        print("✅ All data deleted")
+    }
+
+    /// Reset all seeding flags and reseed data
+    /// Call this from a debug menu or when troubleshooting data issues
+    /// WARNING: This will recreate all preset data
+    func resetAndReseedAllData() async {
+        print("🔄 Resetting and reseeding all data...")
+
+        // Delete all existing data first
+        do {
+            try await deleteAllData()
+        } catch {
+            print("❌ Failed to delete data: \(error)")
+            return
+        }
+
+        // Reseed everything
+        await seedLibrariesIfNeeded()
+        await seedTemplatesIfNeeded()
+        await seedProgramsIfNeeded()
+        await createDefaultProfileIfNeeded()
+
+        print("✅ All data reseeded successfully")
+    }
+
+    /// Reset only program seeding (useful if templates exist but programs are broken)
+    func reseedProgramsOnly() async {
+        print("🔄 Reseeding programs only...")
+
+        UserDefaults.standard.set(false, forKey: "hasSeededPrograms")
+        await seedProgramsIfNeeded()
+
+        print("✅ Programs reseeded")
+    }
+
+    // MARK: - Profile Management
+
     /// Create default user profile on first launch
     private func createDefaultProfileIfNeeded() async {
-        let context = modelContainer.mainContext
+        // Create background context (don't block main context!)
+        let context = ModelContext(modelContainer)
 
         // Check if profile already exists
         let fetchDescriptor = FetchDescriptor<UserProfile>()
@@ -190,7 +416,10 @@ extension PersistenceController {
                 BodyweightEntry.self,
                 PersonalRecord.self,
                 WorkoutTemplate.self,
-                TemplateExercise.self
+                TemplateExercise.self,
+                TrainingProgram.self,
+                ProgramWeek.self,
+                ProgramDay.self
             ])
 
             let modelConfiguration = ModelConfiguration(
@@ -266,7 +495,9 @@ extension PersistenceController {
             )
             context.insert(sampleFood)
 
-            let foodEntry = FoodEntry(foodItem: sampleFood, servingAmount: 200)
+            // Food now has default gram unit automatically
+            let defaultUnit = sampleFood.getDefaultUnit()
+            let foodEntry = FoodEntry(foodItem: sampleFood, amount: 200, selectedUnit: defaultUnit)
             let breakfastMeal = sampleNutritionLog.getMeal(type: .breakfast)
             breakfastMeal.foodEntries.append(foodEntry)
 

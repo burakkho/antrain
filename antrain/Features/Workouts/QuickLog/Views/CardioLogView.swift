@@ -8,11 +8,36 @@ struct CardioLogView: View {
     @AppStorage("weightUnit") private var weightUnit: String = "Kilograms"
     @State private var viewModel: CardioLogViewModel?
 
+    // Computed pace unit text
+    private var paceUnitText: String {
+        weightUnit == "Pounds" ? String(localized: "min/mile") : String(localized: "min/km")
+    }
+
     var body: some View {
         NavigationStack {
             if let viewModel {
-                @Bindable var viewModel = viewModel
-                Form {
+                formContent(viewModel: viewModel)
+            } else {
+                DSLoadingView(message: "Loading...")
+            }
+        }
+        .onAppear {
+            if viewModel == nil {
+                let vm = CardioLogViewModel(workoutRepository: appDependencies.workoutRepository)
+                vm.weightUnit = weightUnit
+                viewModel = vm
+            }
+        }
+        .onChange(of: weightUnit) { _, newValue in
+            // Update viewModel when unit changes
+            viewModel?.weightUnit = newValue
+        }
+    }
+
+    @ViewBuilder
+    private func formContent(viewModel: CardioLogViewModel) -> some View {
+        @Bindable var viewModel = viewModel
+        Form {
                     // Cardio Type
                     Section("Cardio Type") {
                         Picker("Type", selection: $viewModel.cardioType) {
@@ -71,7 +96,7 @@ struct CardioLogView: View {
                                 Text("Auto-calculated")
                                     .foregroundStyle(DSColors.textSecondary)
                                 Spacer()
-                                Text(String(format: "%.2f \(String(localized: "min/km"))", calculatedPace))
+                                Text(String(format: "%.2f \(paceUnitText)", calculatedPace))
                                     .font(DSTypography.headline)
                             }
                         }
@@ -79,7 +104,7 @@ struct CardioLogView: View {
                         HStack {
                             TextField("Manual Pace", value: $viewModel.pace, format: .number.precision(.fractionLength(0...2)))
                                 .keyboardType(.decimalPad)
-                            Text(String(localized: "min/km"))
+                            Text(paceUnitText)
                                 .foregroundStyle(DSColors.textSecondary)
                         }
                     }
@@ -116,23 +141,14 @@ struct CardioLogView: View {
                                 .foregroundStyle(DSColors.error)
                         }
                     }
-                }
-                .navigationTitle("Log Cardio")
-                .navigationBarTitleDisplayMode(.inline)
-                .toolbar {
-                    ToolbarItem(placement: .cancellationAction) {
-                        Button("Cancel") {
-                            dismiss()
-                        }
-                    }
-                }
-            } else {
-                DSLoadingView(message: "Loading...")
-            }
         }
-        .onAppear {
-            if viewModel == nil {
-                viewModel = CardioLogViewModel(workoutRepository: appDependencies.workoutRepository)
+        .navigationTitle("Log Cardio")
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .cancellationAction) {
+                Button("Cancel") {
+                    dismiss()
+                }
             }
         }
     }

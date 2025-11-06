@@ -227,9 +227,9 @@ struct DailyNutritionView: View {
     // MARK: - Helpers
     private func formattedDate(_ date: Date) -> String {
         if Calendar.current.isDateInToday(date) {
-            return "Today"
+            return String(localized: "Today")
         } else if Calendar.current.isDateInYesterday(date) {
-            return "Yesterday"
+            return String(localized: "Yesterday")
         } else {
             let formatter = DateFormatter()
             formatter.dateStyle = .medium
