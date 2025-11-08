@@ -7,6 +7,7 @@ struct HomeView: View {
     @State private var viewModel: HomeViewModel?
     @State private var showCardioLog = false
     @State private var showMetConLog = false
+    @State private var showSettings = false
 
     var body: some View {
         NavigationStack {
@@ -36,6 +37,16 @@ struct HomeView: View {
                 .padding(DSSpacing.md)
             }
             .navigationTitle("Home")
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button {
+                        showSettings = true
+                    } label: {
+                        Image(systemName: "gearshape.fill")
+                            .foregroundStyle(DSColors.textSecondary)
+                    }
+                }
+            }
             .background(DSColors.backgroundPrimary)
             .refreshable {
                 await viewModel?.loadData()
@@ -69,6 +80,9 @@ struct HomeView: View {
             .sheet(isPresented: $showMetConLog) {
                 MetConLogView()
                     .environmentObject(appDependencies)
+            }
+            .fullScreenCover(isPresented: $showSettings) {
+                SettingsView()
             }
         }
     }
@@ -212,7 +226,129 @@ struct HomeView: View {
 
 // MARK: - Preview
 
-#Preview {
-    HomeView()
-        .environmentObject(AppDependencies.preview)
+#Preview("Home - Light Mode") {
+    @Previewable @State var workoutManager = ActiveWorkoutManager()
+    
+    NavigationStack {
+        ScrollView {
+            VStack(spacing: DSSpacing.lg) {
+                // Quick Actions Preview
+                VStack(alignment: .leading, spacing: DSSpacing.sm) {
+                    Text("Quick Actions")
+                        .font(DSTypography.title3)
+                        .foregroundStyle(DSColors.textPrimary)
+                    
+                    HStack(spacing: DSSpacing.md) {
+                        QuickActionButton(
+                            icon: "dumbbell.fill",
+                            title: "Start Workout"
+                        ) {}
+                        
+                        QuickActionButton(
+                            icon: "figure.run",
+                            title: "Log Cardio"
+                        ) {}
+                        
+                        QuickActionButton(
+                            icon: "fork.knife",
+                            title: "Log Meal"
+                        ) {}
+                    }
+                }
+                
+                // Nutrition Preview
+                CompactNutritionSummary(
+                    calories: 1450,
+                    calorieGoal: 2000,
+                    protein: 85,
+                    proteinGoal: 150,
+                    carbs: 150,
+                    carbsGoal: 200,
+                    fats: 45,
+                    fatsGoal: 65,
+                    onTap: {}
+                )
+                
+                // Workout Preview
+                VStack(alignment: .leading, spacing: DSSpacing.sm) {
+                    Text("Recent Workouts")
+                        .font(DSTypography.title3)
+                        .foregroundStyle(DSColors.textPrimary)
+                    
+                    RecentWorkoutRow(
+                        workout: Workout(date: Date(), type: .lifting)
+                    )
+                    
+                    RecentWorkoutRow(
+                        workout: Workout(date: Date().addingTimeInterval(-86400), type: .cardio)
+                    )
+                }
+            }
+            .padding(DSSpacing.md)
+        }
+        .navigationTitle("Home")
+        .background(DSColors.backgroundPrimary)
+    }
+}
+
+#Preview("Home - Dark Mode") {
+    @Previewable @State var workoutManager = ActiveWorkoutManager()
+    
+    NavigationStack {
+        ScrollView {
+            VStack(spacing: DSSpacing.lg) {
+                // Quick Actions
+                VStack(alignment: .leading, spacing: DSSpacing.sm) {
+                    Text("Quick Actions")
+                        .font(DSTypography.title3)
+                        .foregroundStyle(DSColors.textPrimary)
+                    
+                    HStack(spacing: DSSpacing.md) {
+                        QuickActionButton(
+                            icon: "dumbbell.fill",
+                            title: "Start Workout"
+                        ) {}
+                        
+                        QuickActionButton(
+                            icon: "figure.run",
+                            title: "Log Cardio"
+                        ) {}
+                        
+                        QuickActionButton(
+                            icon: "fork.knife",
+                            title: "Log Meal"
+                        ) {}
+                    }
+                }
+                
+                // Nutrition
+                CompactNutritionSummary(
+                    calories: 1800,
+                    calorieGoal: 2000,
+                    protein: 120,
+                    proteinGoal: 150,
+                    carbs: 180,
+                    carbsGoal: 200,
+                    fats: 55,
+                    fatsGoal: 65,
+                    onTap: {}
+                )
+                
+                // Workouts
+                VStack(alignment: .leading, spacing: DSSpacing.sm) {
+                    Text("Recent Workouts")
+                        .font(DSTypography.title3)
+                        .foregroundStyle(DSColors.textPrimary)
+                    
+                    RecentWorkoutRow(
+                        workout: Workout(date: Date(), type: .lifting)
+                    )
+                }
+            }
+            .padding(DSSpacing.md)
+        }
+        .navigationTitle("Home")
+        .background(DSColors.backgroundPrimary)
+    }
+    .preferredColorScheme(.dark)
 }

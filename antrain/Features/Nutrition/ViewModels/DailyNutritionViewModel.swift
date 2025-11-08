@@ -21,7 +21,12 @@ final class DailyNutritionViewModel {
     var nutritionLog: NutritionLog?
     var userProfile: UserProfile?
     var isLoading = true  // Start as loading
-    var errorMessage: String?
+    var errorMessage: String?  // Screen-level errors (loading failures)
+
+    // Toast notifications
+    var showToast = false
+    var toastMessage: LocalizedStringKey = ""
+    var toastType: DSToast.ToastType = .error
 
     // Daily macro goals (loaded from UserProfile)
     var dailyCaloriesGoal: Double = 2000
@@ -124,7 +129,7 @@ final class DailyNutritionViewModel {
 
     func addFood(to mealType: Meal.MealType, food: FoodItem, amount: Double, unit: ServingUnit) async {
         guard let log = nutritionLog else {
-            errorMessage = "No nutrition log available"
+            showToastMessage("No nutrition log available", type: .error)
             return
         }
 
@@ -145,7 +150,7 @@ final class DailyNutritionViewModel {
             // Refresh log
             await loadTodayLog()
         } catch {
-            errorMessage = "Failed to add food: \(error.localizedDescription)"
+            showToastMessage("Failed to add food", type: .error)
         }
     }
 
@@ -156,8 +161,16 @@ final class DailyNutritionViewModel {
             try await nutritionRepository.removeFood(from: log, mealType: mealType, foodEntryId: foodEntryId)
             await loadTodayLog()
         } catch {
-            errorMessage = "Failed to remove food: \(error.localizedDescription)"
+            showToastMessage("Failed to remove food", type: .error)
         }
+    }
+
+    // MARK: - Toast Helper
+
+    private func showToastMessage(_ message: LocalizedStringKey, type: DSToast.ToastType) {
+        toastMessage = message
+        toastType = type
+        showToast = true
     }
 
     func getMeal(for type: Meal.MealType) -> Meal {

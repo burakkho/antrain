@@ -6,7 +6,7 @@
 ![Swift](https://img.shields.io/badge/Swift-6.0-orange)
 ![SwiftUI](https://img.shields.io/badge/SwiftUI-Native-green)
 ![License](https://img.shields.io/badge/License-MIT-yellow)
-![Status](https://img.shields.io/badge/Status-v1.1-success)
+![Status](https://img.shields.io/badge/Status-v1.2-success)
 
 **A comprehensive fitness tracking app for strength athletes, CrossFit enthusiasts, and hybrid training.**
 
@@ -29,10 +29,14 @@
 - **🥗 Nutrition Tracking**: Daily macro tracking (calories, protein, carbs, fats) with meal logging
 - **📊 History & Progress**: Comprehensive workout and nutrition history with detailed views
 - **🏆 Personal Records**: Automatic PR detection and tracking with 1RM calculations
-- **👤 User Profile**: Goals management and bodyweight tracking with history
-- **📚 Libraries**: 180+ preset exercises and 100+ food items, with custom entry support
+- **👤 Profile Tab**: Personal metrics, bodyweight tracking with history, and quick settings access
+- **⚙️ App Settings**: Centralized preferences (notifications, theme, language) accessible from Home and Profile
+- **📚 Libraries**: 180+ preset exercises and 140+ food items, with custom entry support
 - **📋 Workout Templates**: Create and save custom workout templates for quick session starts
 - **🗓️ Training Programs**: 4 preset programs (Starting Strength, StrongLifts, PPL, 5/3/1) with progression tracking
+- **🏠 Home Screen Widgets**: 3 widget sizes with real-time workout data and deep linking
+- **🎤 Siri Shortcuts**: Voice control with "Hey Siri, start workout" in 3 languages
+- **✨ Modern Design**: Liquid Glass effects with haptic feedback across all interactions
 
 ### 🎯 Target Users
 
@@ -159,7 +163,7 @@ Comprehensive documentation is available in the `/docs` directory:
 
 ## 🗺 Roadmap
 
-### Current Status: v1.1 (Released 2025-11-06)
+### Current Status: v1.2 (Released 2025-11-08)
 
 #### ✅ Completed
 - Foundation & Core Architecture
@@ -174,13 +178,18 @@ Comprehensive documentation is available in the `/docs` directory:
 - Personal Records (PR) tracking with 1RM calculations
 - Comprehensive localization system (English, Turkish, Spanish)
 - iOS 18 + Swift 6 concurrency compliance
+- **Home Screen Widgets** (3 sizes with real-time data and deep linking)
+- **Siri Shortcuts & App Intents** (voice control in EN, TR, ES)
+- **Liquid Glass Design** (17 components with glassmorphism effects)
+- **Haptic Feedback** (premium tactile feedback across all interactions)
+- **Live Activities with Dynamic Island** (real-time workout tracking on Lock Screen and Dynamic Island)
 
-#### 🔜 Coming Soon (v1.2+)
+#### 🔜 Coming Soon (v1.3+)
+- Rest Timer for Live Activities (countdown timer in Dynamic Island)
 - Exercise library expansion (250+ exercises)
 - Custom exercise/food creation UI
 - Advanced analytics and progress charts with Swift Charts
 - HealthKit integration
-- Rest timer with Live Activities
 
 #### 🚀 Future Phases
 - Cloud sync across devices
@@ -263,9 +272,12 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **📊 Geçmiş ve İlerleme**: Detaylı görünümlerle kapsamlı antrenman ve beslenme geçmişi
 - **🏆 Kişisel Rekorlar**: Otomatik PR tespiti ve 1RM hesaplamaları ile takip
 - **👤 Kullanıcı Profili**: Hedef yönetimi ve geçmiş ile vücut ağırlığı takibi
-- **📚 Kütüphaneler**: 180+ hazır egzersiz ve 100+ besin öğesi, özel giriş desteği ile
+- **📚 Kütüphaneler**: 180+ hazır egzersiz ve 140+ besin öğesi, özel giriş desteği ile
 - **📋 Antrenman Şablonları**: Hızlı başlangıç için özel antrenman şablonları oluştur ve kaydet
 - **🗓️ Antrenman Programları**: 4 hazır program (Starting Strength, StrongLifts, PPL, 5/3/1) ile ilerleme takibi
+- **🏠 Ana Ekran Widget'ları**: Gerçek zamanlı antrenman verisi ve derin bağlantı ile 3 widget boyutu
+- **🎤 Siri Kısayolları**: 3 dilde "Hey Siri, antrenmana başla" sesli kontrol
+- **✨ Modern Tasarım**: Tüm etkileşimlerde haptik geri bildirimli Liquid Glass efektleri
 
 ### 🎯 Hedef Kullanıcılar
 
@@ -392,7 +404,7 @@ Kapsamlı dokümantasyon `/docs` dizininde mevcuttur:
 
 ## 🗺 Yol Haritası
 
-### Mevcut Durum: v1.1 (Yayınlandı 2025-11-06)
+### Mevcut Durum: v1.2 (Yayınlandı 2025-11-08)
 
 #### ✅ Tamamlandı
 - Temel Yapı ve Çekirdek Mimari
@@ -407,13 +419,18 @@ Kapsamlı dokümantasyon `/docs` dizininde mevcuttur:
 - 1RM hesaplamalı Kişisel Rekor (PR) takibi
 - Kapsamlı yerelleştirme sistemi (İngilizce, Türkçe, İspanyolca)
 - iOS 18 + Swift 6 eşzamanlılık uyumluluğu
+- **Ana Ekran Widget'ları** (gerçek zamanlı veri ve derin bağlantılı 3 boyut)
+- **Siri Kısayolları & App Intents** (İngilizce, Türkçe, İspanyolca sesli kontrol)
+- **Liquid Glass Tasarım** (glassmorphism efektli 17 bileşen)
+- **Haptik Geri Bildirim** (tüm etkileşimlerde premium dokunsal geri bildirim)
+- **Live Activities & Dynamic Island** (Lock Screen ve Dynamic Island'da gerçek zamanlı antrenman takibi)
 
-#### 🔜 Yakında (v1.2+)
+#### 🔜 Yakında (v1.3+)
+- Live Activities için Rest Timer (Dynamic Island'da geri sayım zamanlayıcı)
 - Egzersiz kütüphanesi genişletmesi (250+ egzersiz)
 - Özel egzersiz/besin oluşturma UI'ı
 - Swift Charts ile gelişmiş analitik ve ilerleme grafikleri
 - HealthKit entegrasyonu
-- Live Activities ile dinlenme zamanlayıcısı
 
 #### 🚀 Gelecek Aşamalar
 - Cihazlar arası cloud senkronizasyonu

@@ -11,6 +11,17 @@ import SwiftData
 
 @main
 struct antrainApp: App {
+    
+    init() {
+        // Register notification categories
+        NotificationService.shared.registerCategories()
+
+        // Initial notification status check and scheduling
+        Task { @MainActor in
+            await NotificationService.shared.updateAuthorizationStatus()
+            await NotificationService.shared.scheduleNextNotification()
+        }
+    }
     // Use PersistenceController for centralized ModelContainer management
     @MainActor
     private let persistenceController = PersistenceController.shared
@@ -27,22 +38,14 @@ struct antrainApp: App {
         AppDependencies(modelContainer: persistenceController.modelContainer)
     }
 
-    init() {
-        // Register notification categories
-        NotificationService.shared.registerCategories()
-
-        // Initial notification status check and scheduling
-        Task { @MainActor in
-            await NotificationService.shared.updateAuthorizationStatus()
-            await NotificationService.shared.scheduleNextNotification()
-        }
-    }
-
     var body: some Scene {
         WindowGroup {
             MainTabView()
                 .environmentObject(dependencies)
                 .environment(\.locale, .init(identifier: appLanguage))
+                .onOpenURL { url in
+                    handleURLOpen(url)
+                }
                 .onReceive(NotificationCenter.default.publisher(
                     for: NSNotification.Name("StartWorkoutFromNotification")
                 )) { notification in
@@ -62,6 +65,21 @@ struct antrainApp: App {
     }
 
     // MARK: - Deep Linking
+
+    private func handleURLOpen(_ url: URL) {
+        guard url.scheme == "antrain" else { return }
+        
+        switch url.host {
+        case "start-workout":
+            // Post notification to navigate to workout
+            NotificationCenter.default.post(
+                name: NSNotification.Name("NavigateToWorkout"),
+                object: nil
+            )
+        default:
+            break
+        }
+    }
 
     private func handleWorkoutDeepLink(_ userInfo: [AnyHashable: Any]?) {
         guard let userInfo = userInfo else { return }

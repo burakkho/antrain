@@ -1,0 +1,14 @@
+/* 
+  AppIntents.strings (English)
+  Localization for App Intents and Siri phrases
+*/
+
+/* Start Workout Intent */
+"intent.start_workout.title" = "Start Workout";
+"intent.start_workout.description" = "Begin your workout session";
+"intent.start_workout.success" = "Starting your workout";
+
+/* Siri Phrase Suggestions */
+"Start workout with ${applicationName}" = "Start workout with ${applicationName}";
+"Begin training in ${applicationName}" = "Begin training in ${applicationName}";
+"Start my workout in ${applicationName}" = "Start my workout in ${applicationName}";

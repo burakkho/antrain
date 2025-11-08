@@ -7,7 +7,14 @@ struct QuickActionButton: View {
     let action: () -> Void
 
     var body: some View {
-        Button(action: action) {
+        Button(action: {
+            // ROADMAP: Phase 1, Day 1 - Haptic Feedback
+            // Add medium impact haptic for satisfying tap feel
+            let generator = UIImpactFeedbackGenerator(style: .medium)
+            generator.impactOccurred()
+            
+            action()
+        }) {
             VStack(spacing: DSSpacing.xs) {
                 Image(systemName: icon)
                     .font(.system(size: 24))
@@ -21,8 +28,11 @@ struct QuickActionButton: View {
             }
             .frame(maxWidth: .infinity, minHeight: 80)
             .padding(.vertical, DSSpacing.md)
-            .background(DSColors.cardBackground)
-            .clipShape(RoundedRectangle(cornerRadius: DSCornerRadius.lg))
+            .background {
+                RoundedRectangle(cornerRadius: DSCornerRadius.lg)
+                    .fill(.regularMaterial)
+                    .shadow(color: .black.opacity(0.08), radius: 8, y: 4)
+            }
         }
         .buttonStyle(.plain)
     }

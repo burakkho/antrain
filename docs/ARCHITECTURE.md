@@ -102,9 +102,29 @@ Features/
 │       │       └── ActiveProgramCard.swift
 │       └── ViewModels/
 │           └── ProgramProgressTimelineViewModel.swift
+│
+├── Profile/                                 # v1.2: New Profile tab
+│   ├── Views/
+│   │   ├── ProfileView.swift                # Main profile tab
+│   │   └── Components/
+│   │       ├── ProfileNameEditorSheet.swift
+│   │       ├── ProfileHeightEditorSheet.swift
+│   │       ├── ProfileGenderEditorSheet.swift
+│   │       ├── ProfileDateOfBirthEditorSheet.swift
+│   │       ├── ProfileActivityLevelEditorSheet.swift
+│   │       ├── ProfileBodyweightEntrySheet.swift
+│   │       └── ProfileBodyweightHistorySheet.swift
+│   └── ViewModels/
+│       └── ProfileViewModel.swift
+│
+├── Settings/                                # v1.2: Simplified (app preferences only)
+│   └── Views/
+│       └── SettingsView.swift               # fullScreenCover from Home/Profile
 ```
 
-**Note:** WorkoutsView uses **iOS native segmented control** instead of nested TabView (iOS HIG compliance).
+**Note:**
+- WorkoutsView uses **iOS native segmented control** instead of nested TabView (iOS HIG compliance)
+- **v1.2:** Profile separated from Settings - Profile is now 4th tab, Settings is fullScreenCover modal
 
 **ViewModel Pattern:**
 ```swift

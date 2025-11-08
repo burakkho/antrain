@@ -6,30 +6,66 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		412234F42EBDEAB6008E9C41 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 412234F32EBDEAB5008E9C41 /* WidgetKit.framework */; };
+		412234F62EBDEAB6008E9C41 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 412234F52EBDEAB6008E9C41 /* SwiftUI.framework */; };
+		412235072EBDEAB6008E9C41 /* AntrainWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 412234F12EBDEAB5008E9C41 /* AntrainWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
-		411E82042EB754DC00693155 /* PBXContainerItemProxy */ = {
+		412235052EBDEAB6008E9C41 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 411E81EC2EB754DB00693155 /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = 411E81F32EB754DB00693155;
-			remoteInfo = antren;
-		};
-		411E820E2EB754DC00693155 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 411E81EC2EB754DB00693155 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 411E81F32EB754DB00693155;
-			remoteInfo = antren;
+			remoteGlobalIDString = 412234F02EBDEAB5008E9C41;
+			remoteInfo = AntrainWidgetExtension;
 		};
 /* End PBXContainerItemProxy section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		4122350C2EBDEAB6008E9C41 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				412235072EBDEAB6008E9C41 /* AntrainWidgetExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
 		411E81F42EB754DB00693155 /* antrain.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = antrain.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		411E82032EB754DC00693155 /* antrainTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = antrainTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		411E820D2EB754DC00693155 /* antrainUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = antrainUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		412234F12EBDEAB5008E9C41 /* AntrainWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = AntrainWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		412234F32EBDEAB5008E9C41 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
+		412234F52EBDEAB6008E9C41 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		4122350B2EBDEAB6008E9C41 /* Exceptions for "AntrainWidget" folder in "AntrainWidgetExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 412234F02EBDEAB5008E9C41 /* AntrainWidgetExtension */;
+		};
+		412235122EBDEFBE008E9C41 /* Exceptions for "AntrainWidget" folder in "antrain" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				WidgetDataHelper.swift,
+			);
+			target = 411E81F32EB754DB00693155 /* antrain */;
+		};
+		412238E02EBE695D008E9C41 /* Exceptions for "antrain" folder in "AntrainWidgetExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				AppIntents/StartWorkoutIntent.swift,
+				Core/Domain/State/WorkoutActivityAttributes.swift,
+			);
+			target = 412234F02EBDEAB5008E9C41 /* AntrainWidgetExtension */;
+		};
 		412E59032EBCDBFC00DBB67E /* Exceptions for "antrain" folder in "antrain" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
@@ -44,8 +80,18 @@
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
 				412E59032EBCDBFC00DBB67E /* Exceptions for "antrain" folder in "antrain" target */,
+				412238E02EBE695D008E9C41 /* Exceptions for "antrain" folder in "AntrainWidgetExtension" target */,
 			);
 			path = antrain;
+			sourceTree = "<group>";
+		};
+		412234F72EBDEAB6008E9C41 /* AntrainWidget */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				412235122EBDEFBE008E9C41 /* Exceptions for "AntrainWidget" folder in "antrain" target */,
+				4122350B2EBDEAB6008E9C41 /* Exceptions for "AntrainWidget" folder in "AntrainWidgetExtension" target */,
+			);
+			path = AntrainWidget;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -58,17 +104,12 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		411E82002EB754DC00693155 /* Frameworks */ = {
+		412234EE2EBDEAB5008E9C41 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		411E820A2EB754DC00693155 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
+				412234F62EBDEAB6008E9C41 /* SwiftUI.framework in Frameworks */,
+				412234F42EBDEAB6008E9C41 /* WidgetKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -79,6 +120,8 @@
 			isa = PBXGroup;
 			children = (
 				411E81F62EB754DB00693155 /* antrain */,
+				412234F72EBDEAB6008E9C41 /* AntrainWidget */,
+				412234F22EBDEAB5008E9C41 /* Frameworks */,
 				411E81F52EB754DB00693155 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -87,10 +130,18 @@
 			isa = PBXGroup;
 			children = (
 				411E81F42EB754DB00693155 /* antrain.app */,
-				411E82032EB754DC00693155 /* antrainTests.xctest */,
-				411E820D2EB754DC00693155 /* antrainUITests.xctest */,
+				412234F12EBDEAB5008E9C41 /* AntrainWidgetExtension.appex */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		412234F22EBDEAB5008E9C41 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				412234F32EBDEAB5008E9C41 /* WidgetKit.framework */,
+				412234F52EBDEAB6008E9C41 /* SwiftUI.framework */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -103,10 +154,12 @@
 				411E81F02EB754DB00693155 /* Sources */,
 				411E81F12EB754DB00693155 /* Frameworks */,
 				411E81F22EB754DB00693155 /* Resources */,
+				4122350C2EBDEAB6008E9C41 /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				412235062EBDEAB6008E9C41 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				411E81F62EB754DB00693155 /* antrain */,
@@ -118,45 +171,27 @@
 			productReference = 411E81F42EB754DB00693155 /* antrain.app */;
 			productType = "com.apple.product-type.application";
 		};
-		411E82022EB754DC00693155 /* antrainTests */ = {
+		412234F02EBDEAB5008E9C41 /* AntrainWidgetExtension */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 411E821A2EB754DC00693155 /* Build configuration list for PBXNativeTarget "antrainTests" */;
+			buildConfigurationList = 412235082EBDEAB6008E9C41 /* Build configuration list for PBXNativeTarget "AntrainWidgetExtension" */;
 			buildPhases = (
-				411E81FF2EB754DC00693155 /* Sources */,
-				411E82002EB754DC00693155 /* Frameworks */,
-				411E82012EB754DC00693155 /* Resources */,
+				412234ED2EBDEAB5008E9C41 /* Sources */,
+				412234EE2EBDEAB5008E9C41 /* Frameworks */,
+				412234EF2EBDEAB5008E9C41 /* Resources */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-				411E82052EB754DC00693155 /* PBXTargetDependency */,
 			);
-			name = antrainTests;
+			fileSystemSynchronizedGroups = (
+				412234F72EBDEAB6008E9C41 /* AntrainWidget */,
+			);
+			name = AntrainWidgetExtension;
 			packageProductDependencies = (
 			);
-			productName = antrenTests;
-			productReference = 411E82032EB754DC00693155 /* antrainTests.xctest */;
-			productType = "com.apple.product-type.bundle.unit-test";
-		};
-		411E820C2EB754DC00693155 /* antrainUITests */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 411E821D2EB754DC00693155 /* Build configuration list for PBXNativeTarget "antrainUITests" */;
-			buildPhases = (
-				411E82092EB754DC00693155 /* Sources */,
-				411E820A2EB754DC00693155 /* Frameworks */,
-				411E820B2EB754DC00693155 /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				411E820F2EB754DC00693155 /* PBXTargetDependency */,
-			);
-			name = antrainUITests;
-			packageProductDependencies = (
-			);
-			productName = antrenUITests;
-			productReference = 411E820D2EB754DC00693155 /* antrainUITests.xctest */;
-			productType = "com.apple.product-type.bundle.ui-testing";
+			productName = AntrainWidgetExtension;
+			productReference = 412234F12EBDEAB5008E9C41 /* AntrainWidgetExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
 		};
 /* End PBXNativeTarget section */
 
@@ -165,19 +200,14 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastSwiftUpdateCheck = 2600;
-				LastUpgradeCheck = 2600;
+				LastSwiftUpdateCheck = 2610;
+				LastUpgradeCheck = 2610;
 				TargetAttributes = {
 					411E81F32EB754DB00693155 = {
 						CreatedOnToolsVersion = 26.0.1;
 					};
-					411E82022EB754DC00693155 = {
-						CreatedOnToolsVersion = 26.0.1;
-						TestTargetID = 411E81F32EB754DB00693155;
-					};
-					411E820C2EB754DC00693155 = {
-						CreatedOnToolsVersion = 26.0.1;
-						TestTargetID = 411E81F32EB754DB00693155;
+					412234F02EBDEAB5008E9C41 = {
+						CreatedOnToolsVersion = 26.1;
 					};
 				};
 			};
@@ -198,8 +228,7 @@
 			projectRoot = "";
 			targets = (
 				411E81F32EB754DB00693155 /* antrain */,
-				411E82022EB754DC00693155 /* antrainTests */,
-				411E820C2EB754DC00693155 /* antrainUITests */,
+				412234F02EBDEAB5008E9C41 /* AntrainWidgetExtension */,
 			);
 		};
 /* End PBXProject section */
@@ -212,14 +241,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		411E82012EB754DC00693155 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		411E820B2EB754DC00693155 /* Resources */ = {
+		412234EF2EBDEAB5008E9C41 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -236,14 +258,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		411E81FF2EB754DC00693155 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		411E82092EB754DC00693155 /* Sources */ = {
+		412234ED2EBDEAB5008E9C41 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -253,15 +268,10 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		411E82052EB754DC00693155 /* PBXTargetDependency */ = {
+		412235062EBDEAB6008E9C41 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 411E81F32EB754DB00693155 /* antrain */;
-			targetProxy = 411E82042EB754DC00693155 /* PBXContainerItemProxy */;
-		};
-		411E820F2EB754DC00693155 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 411E81F32EB754DB00693155 /* antrain */;
-			targetProxy = 411E820E2EB754DC00693155 /* PBXContainerItemProxy */;
+			target = 412234F02EBDEAB5008E9C41 /* AntrainWidgetExtension */;
+			targetProxy = 412235052EBDEAB6008E9C41 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -271,6 +281,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
@@ -325,6 +336,7 @@
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -336,6 +348,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
@@ -383,6 +396,7 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				VALIDATE_PRODUCT = YES;
@@ -394,6 +408,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = antrain/antrain.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 8A645SUCS7;
@@ -402,12 +417,14 @@
 				INFOPLIST_FILE = antrain/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Antrain;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.sports";
+				INFOPLIST_KEY_NSSiriUsageDescription = "\"Antrain uses Siri to quickly start your workout sessions\"";
+				INFOPLIST_KEY_NSSupportsLiveActivities = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -435,6 +452,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = antrain/antrain.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 8A645SUCS7;
@@ -443,12 +461,14 @@
 				INFOPLIST_FILE = antrain/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Antrain;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.sports";
+				INFOPLIST_KEY_NSSiriUsageDescription = "\"Antrain uses Siri to quickly start your workout sessions\"";
+				INFOPLIST_KEY_NSSupportsLiveActivities = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -471,87 +491,65 @@
 			};
 			name = Release;
 		};
-		411E821B2EB754DC00693155 /* Debug */ = {
+		412235092EBDEAB6008E9C41 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				BUNDLE_LOADER = "$(TEST_HOST)";
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 8A645SUCS7;
 				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = burakkho.antrenTests;
+				INFOPLIST_FILE = AntrainWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = AntrainWidget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.1;
+				PRODUCT_BUNDLE_IDENTIFIER = burakkho.antrain.AntrainWidget;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
-				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/antrain.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/antrain";
 			};
 			name = Debug;
 		};
-		411E821C2EB754DC00693155 /* Release */ = {
+		4122350A2EBDEAB6008E9C41 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				BUNDLE_LOADER = "$(TEST_HOST)";
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 8A645SUCS7;
 				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = burakkho.antrenTests;
+				INFOPLIST_FILE = AntrainWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = AntrainWidget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.1;
+				PRODUCT_BUNDLE_IDENTIFIER = burakkho.antrain.AntrainWidget;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
-				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/antrain.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/antrain";
-			};
-			name = Release;
-		};
-		411E821E2EB754DC00693155 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 8A645SUCS7;
-				GENERATE_INFOPLIST_FILE = YES;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = burakkho.antrenUITests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				STRING_CATALOG_GENERATE_SYMBOLS = NO;
-				SWIFT_APPROACHABLE_CONCURRENCY = YES;
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_TARGET_NAME = antren;
-			};
-			name = Debug;
-		};
-		411E821F2EB754DC00693155 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 8A645SUCS7;
-				GENERATE_INFOPLIST_FILE = YES;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = burakkho.antrenUITests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				STRING_CATALOG_GENERATE_SYMBOLS = NO;
-				SWIFT_APPROACHABLE_CONCURRENCY = YES;
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_TARGET_NAME = antren;
 			};
 			name = Release;
 		};
@@ -576,20 +574,11 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		411E821A2EB754DC00693155 /* Build configuration list for PBXNativeTarget "antrainTests" */ = {
+		412235082EBDEAB6008E9C41 /* Build configuration list for PBXNativeTarget "AntrainWidgetExtension" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				411E821B2EB754DC00693155 /* Debug */,
-				411E821C2EB754DC00693155 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		411E821D2EB754DC00693155 /* Build configuration list for PBXNativeTarget "antrainUITests" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				411E821E2EB754DC00693155 /* Debug */,
-				411E821F2EB754DC00693155 /* Release */,
+				412235092EBDEAB6008E9C41 /* Debug */,
+				4122350A2EBDEAB6008E9C41 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

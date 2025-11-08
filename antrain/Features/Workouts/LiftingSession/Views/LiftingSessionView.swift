@@ -301,6 +301,10 @@ struct LiftingSessionView: View {
                         isKeyboardMode: isKeyboardMode,
                         suggestion: workoutExercise.exercise.map { viewModel.getSuggestion(for: $0.id) } ?? nil,
                         onAddSet: {
+                            // ROADMAP: Phase 1, Day 1 - Haptic Feedback
+                            // Light impact for adding set
+                            let generator = UIImpactFeedbackGenerator(style: .light)
+                            generator.impactOccurred()
                             viewModel.addSet(to: workoutExercise)
                         },
                         onUpdateSet: { set, reps, weight in
@@ -308,10 +312,14 @@ struct LiftingSessionView: View {
                         },
                         onToggleSet: { set in
                             viewModel.toggleSetCompletion(set)
+                            // Update Live Activity
+                            workoutManager?.updateLiveActivity()
                         },
                         onCompleteAllSets: {
                             withAnimation {
                                 viewModel.completeAllSetsForExercise(workoutExercise)
+                                // Update Live Activity
+                                workoutManager?.updateLiveActivity()
                             }
                         },
                         onDeleteSet: { set in

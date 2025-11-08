@@ -1,0 +1,14 @@
+/* 
+  AppIntents.strings (Turkish)
+  Localization for App Intents and Siri phrases
+*/
+
+/* Start Workout Intent */
+"intent.start_workout.title" = "Antrenmana Başla";
+"intent.start_workout.description" = "Antrenman seansını başlat";
+"intent.start_workout.success" = "Antrenman başlatılıyor";
+
+/* Siri Phrase Suggestions */
+"Start workout with ${applicationName}" = "${applicationName} ile antrenmana başla";
+"Begin training in ${applicationName}" = "${applicationName}'de antrenmana başla";
+"Start my workout in ${applicationName}" = "${applicationName}'de antrenmanımı başlat";

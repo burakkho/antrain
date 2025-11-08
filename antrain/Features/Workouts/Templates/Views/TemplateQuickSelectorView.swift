@@ -84,8 +84,11 @@ struct TemplateQuickSelectorView: View {
             }
         }
         .padding(10)
-        .background(Color(.secondarySystemBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 10))
+        .background {
+            RoundedRectangle(cornerRadius: 10)
+                .fill(.regularMaterial)
+                .shadow(color: .black.opacity(0.08), radius: 8, y: 4)
+        }
     }
 
     // MARK: - Loading View

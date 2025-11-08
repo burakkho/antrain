@@ -60,7 +60,13 @@ struct ExerciseCard: View {
             }
             .contextMenu {
                 // Delete via long press context menu
-                Button(role: .destructive, action: onDeleteExercise) {
+                Button(role: .destructive, action: {
+                    // ROADMAP: Phase 1, Day 1 - Haptic Feedback
+                    // Warning haptic for destructive action
+                    let generator = UINotificationFeedbackGenerator()
+                    generator.notificationOccurred(.warning)
+                    onDeleteExercise()
+                }) {
                     Label("Delete Exercise", systemImage: "trash")
                 }
             }
@@ -143,10 +149,19 @@ struct ExerciseCard: View {
             }
         }
         .padding(DSSpacing.md)
-        .background(DSColors.cardBackground)
-        .clipShape(RoundedRectangle(cornerRadius: DSCornerRadius.lg))
+        .background {
+            RoundedRectangle(cornerRadius: DSCornerRadius.lg)
+                .fill(.regularMaterial)
+                .shadow(color: .black.opacity(0.08), radius: 8, y: 4)
+        }
         .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-            Button(role: .destructive, action: onDeleteExercise) {
+            Button(role: .destructive, action: {
+                // ROADMAP: Phase 1, Day 1 - Haptic Feedback
+                // Warning haptic for swipe delete
+                let generator = UINotificationFeedbackGenerator()
+                generator.notificationOccurred(.warning)
+                onDeleteExercise()
+            }) {
                 Label("Delete", systemImage: "trash")
             }
         }

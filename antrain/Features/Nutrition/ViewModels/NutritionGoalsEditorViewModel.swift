@@ -3,33 +3,28 @@
 //  antrain
 //
 //  Created by Claude Code on 2025-02-11.
+//  Refactored: Simplified state management with direct macro→calorie calculation
 //
 
 import Foundation
 import Observation
 
 /// Manages nutrition goals editing business logic
+/// Simplified design: Macros drive calories (one-way)
 @Observable @MainActor
 final class NutritionGoalsEditorViewModel {
     // MARK: - Dependencies
     private let userProfileRepository: UserProfileRepositoryProtocol
 
     // MARK: - State
-    var calories: String = ""
-    var protein: String = ""
-    var carbs: String = ""
-    var fats: String = ""
+    /// Direct numeric values (no string conversion needed!)
+    var protein: Double = 150
+    var carbs: Double = 200
+    var fats: Double = 65
+
     var isSaving = false
     var errorMessage: String?
     var userProfile: UserProfile?
-
-    // Track which field user is editing
-    var lastEditedField: EditedField? = nil
-    // Prevent circular updates when programmatically changing values
-    var isUpdating = false
-
-    // Calculation mode
-    var calculationMode: CalculationMode = .macroToCalorie
 
     // TDEE Calculator
     var showTDEECalculator = false
@@ -41,25 +36,20 @@ final class NutritionGoalsEditorViewModel {
     // Onboarding wizard
     var showOnboarding = false
 
-    enum EditedField {
-        case calories, protein, carbs, fats
-    }
-
-    enum CalculationMode: String, CaseIterable {
-        case macroToCalorie = "Macros → Calories"
-        case calorieToMacro = "Calories → Macros"
-    }
-
     // MARK: - Computed Properties
 
+    /// Calories are automatically calculated from macros
+    /// Protein: 4 cal/g, Carbs: 4 cal/g, Fats: 9 cal/g
+    var calories: Double {
+        MacroCalculator.calculateCalories(
+            protein: protein,
+            carbs: carbs,
+            fats: fats
+        )
+    }
+
     var isValid: Bool {
-        guard let cal = Double(calories),
-              let pro = Double(protein),
-              let car = Double(carbs),
-              let fat = Double(fats) else {
-            return false
-        }
-        return cal > 0 && pro > 0 && car > 0 && fat > 0
+        protein > 0 && carbs > 0 && fats > 0
     }
 
     /// Check if user has required data for TDEE calculation
@@ -96,18 +86,18 @@ final class NutritionGoalsEditorViewModel {
             let profile = try await userProfileRepository.fetchOrCreateProfile()
             self.userProfile = profile
 
-            let cal = profile.dailyCalorieGoal
-            let pro = profile.dailyProteinGoal
-            let car = profile.dailyCarbsGoal
-            let fat = profile.dailyFatsGoal
-
-            calories = String(Int(cal))
-            protein = String(Int(pro))
-            carbs = String(Int(car))
-            fats = String(Int(fat))
+            // Load current values
+            protein = profile.dailyProteinGoal
+            carbs = profile.dailyCarbsGoal
+            fats = profile.dailyFatsGoal
 
             // Store original goals for difference indicator
-            originalGoals = (cal, pro, car, fat)
+            originalGoals = (
+                profile.dailyCalorieGoal,
+                profile.dailyProteinGoal,
+                profile.dailyCarbsGoal,
+                profile.dailyFatsGoal
+            )
 
             // Check if should show onboarding wizard
             let hasCompletedOnboarding = UserDefaults.standard.bool(forKey: "hasCompletedNutritionOnboarding")
@@ -119,86 +109,27 @@ final class NutritionGoalsEditorViewModel {
         }
     }
 
-    /// When user changes macros, calculate calories automatically
-    func handleMacroChange() {
-        guard let pro = Double(protein),
-              let car = Double(carbs),
-              let fat = Double(fats) else {
-            return
-        }
-
-        // Calculate calories from macros using MacroCalculator
-        let calculatedCalories = MacroCalculator.calculateCalories(
-            protein: pro,
-            carbs: car,
-            fats: fat
-        )
-        calories = String(Int(calculatedCalories))
-    }
-
-    /// When user changes calories, scale macros proportionally
-    func handleCalorieChange(_ newCalorieString: String) {
-        guard let newCalories = Double(newCalorieString),
-              let pro = Double(protein),
-              let car = Double(carbs),
-              let fat = Double(fats) else {
-            return
-        }
-
-        // Scale macros using MacroCalculator
-        guard let scaled = MacroCalculator.scaleMacrosToCalories(
-            currentProtein: pro,
-            currentCarbs: car,
-            currentFats: fat,
-            targetCalories: newCalories
-        ) else {
-            return
-        }
-
-        protein = String(Int(scaled.protein))
-        carbs = String(Int(scaled.carbs))
-        fats = String(Int(scaled.fats))
-    }
-
     /// Apply TDEE recommendation
     func applyTDEERecommendation(
         calories: Double,
         macros: (protein: Double, carbs: Double, fats: Double)
     ) {
-        isUpdating = true
-        defer { isUpdating = false }
-
-        self.calories = String(Int(calories))
-        self.protein = String(Int(macros.protein))
-        self.carbs = String(Int(macros.carbs))
-        self.fats = String(Int(macros.fats))
+        self.protein = macros.protein
+        self.carbs = macros.carbs
+        self.fats = macros.fats
     }
 
     /// Apply preset macro ratio
     func applyPreset(protein: Double, carbs: Double, fats: Double) {
-        isUpdating = true
-        defer { isUpdating = false }
-
-        self.protein = String(Int(protein))
-        self.carbs = String(Int(carbs))
-        self.fats = String(Int(fats))
-
-        // Recalculate calories using MacroCalculator
-        let calculatedCalories = MacroCalculator.calculateCalories(
-            protein: protein,
-            carbs: carbs,
-            fats: fats
-        )
-        self.calories = String(Int(calculatedCalories))
+        self.protein = protein
+        self.carbs = carbs
+        self.fats = fats
     }
 
     /// Save goals to profile
     func saveGoals() async throws {
-        guard let cal = Double(calories),
-              let pro = Double(protein),
-              let car = Double(carbs),
-              let fat = Double(fats) else {
-            errorMessage = "Please enter valid numbers for all fields"
+        guard isValid else {
+            errorMessage = "Please enter valid values for all macros"
             throw NSError(domain: "NutritionGoalsEditor", code: 1, userInfo: [NSLocalizedDescriptionKey: "Invalid input"])
         }
 
@@ -210,11 +141,12 @@ final class NutritionGoalsEditorViewModel {
                 throw NSError(domain: "NutritionGoalsEditor", code: 2, userInfo: [NSLocalizedDescriptionKey: "No profile found"])
             }
 
+            // Save with calculated calories
             profile.update(
-                dailyCalorieGoal: cal,
-                dailyProteinGoal: pro,
-                dailyCarbsGoal: car,
-                dailyFatsGoal: fat
+                dailyCalorieGoal: calories,
+                dailyProteinGoal: protein,
+                dailyCarbsGoal: carbs,
+                dailyFatsGoal: fats
             )
 
             isSaving = false

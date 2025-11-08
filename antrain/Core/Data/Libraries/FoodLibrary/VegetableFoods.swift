@@ -368,6 +368,165 @@ struct VegetableFoods {
                 ServingUnitDTO(unitType: .serving, gramsPerUnit: 150, description: String(localized: "1 serving"), isDefault: false, orderIndex: 2),
                 ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 3)
             ]
+        ),
+
+        // Additional Vegetables
+        FoodDTO(
+            name: String(localized: "Okra"),
+            calories: 33, protein: 1.9, carbs: 7, fats: 0.2,
+            servingSize: 100,
+            category: .vegetable,
+            servingUnits: [
+                ServingUnitDTO(unitType: .cup, gramsPerUnit: 100, description: String(localized: "1 cup"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .piece, gramsPerUnit: 12, description: String(localized: "1 pod"), isDefault: false, orderIndex: 1),
+                ServingUnitDTO(unitType: .serving, gramsPerUnit: 100, description: String(localized: "1 serving"), isDefault: false, orderIndex: 2),
+                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 3)
+            ]
+        ),
+        FoodDTO(
+            name: String(localized: "Peas (Fresh)"),
+            calories: 81, protein: 5.4, carbs: 14, fats: 0.4,
+            servingSize: 100,
+            category: .vegetable,
+            servingUnits: [
+                ServingUnitDTO(unitType: .cup, gramsPerUnit: 145, description: String(localized: "1 cup"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .serving, gramsPerUnit: 100, description: String(localized: "1 serving"), isDefault: false, orderIndex: 1),
+                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 2)
+            ]
+        ),
+        FoodDTO(
+            name: String(localized: "Corn (Fresh)"),
+            calories: 86, protein: 3.3, carbs: 19, fats: 1.4,
+            servingSize: 100,
+            category: .vegetable,
+            servingUnits: [
+                ServingUnitDTO(unitType: .piece, gramsPerUnit: 90, description: String(localized: "1 ear"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .cup, gramsPerUnit: 145, description: String(localized: "1 cup kernels"), isDefault: false, orderIndex: 1),
+                ServingUnitDTO(unitType: .serving, gramsPerUnit: 100, description: String(localized: "1 serving"), isDefault: false, orderIndex: 2),
+                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 3)
+            ]
+        ),
+        FoodDTO(
+            name: String(localized: "Onion"),
+            calories: 40, protein: 1.1, carbs: 9, fats: 0.1,
+            servingSize: 100,
+            category: .vegetable,
+            servingUnits: [
+                ServingUnitDTO(unitType: .piece, gramsPerUnit: 110, description: String(localized: "1 medium"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .cup, gramsPerUnit: 160, description: String(localized: "1 cup chopped"), isDefault: false, orderIndex: 1),
+                ServingUnitDTO(unitType: .serving, gramsPerUnit: 100, description: String(localized: "1 serving"), isDefault: false, orderIndex: 2),
+                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 3)
+            ]
+        ),
+        FoodDTO(
+            name: String(localized: "Garlic"),
+            calories: 149, protein: 6.4, carbs: 33, fats: 0.5,
+            servingSize: 10,
+            category: .vegetable,
+            servingUnits: [
+                ServingUnitDTO(unitType: .piece, gramsPerUnit: 3, description: String(localized: "1 clove"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .teaspoon, gramsPerUnit: 5, description: String(localized: "1 tsp"), isDefault: false, orderIndex: 1),
+                ServingUnitDTO(unitType: .serving, gramsPerUnit: 10, description: String(localized: "1 serving"), isDefault: false, orderIndex: 2),
+                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 3)
+            ]
+        ),
+        FoodDTO(
+            name: String(localized: "Leek"),
+            calories: 61, protein: 1.5, carbs: 14, fats: 0.3,
+            servingSize: 100,
+            category: .vegetable,
+            servingUnits: [
+                ServingUnitDTO(unitType: .piece, gramsPerUnit: 89, description: String(localized: "1 medium"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .cup, gramsPerUnit: 89, description: String(localized: "1 cup chopped"), isDefault: false, orderIndex: 1),
+                ServingUnitDTO(unitType: .serving, gramsPerUnit: 100, description: String(localized: "1 serving"), isDefault: false, orderIndex: 2),
+                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 3)
+            ]
+        ),
+
+        // Additional Fruits
+        FoodDTO(
+            name: String(localized: "Kiwi"),
+            calories: 61, protein: 1.1, carbs: 15, fats: 0.5,
+            servingSize: 100,
+            category: .fruit,
+            servingUnits: [
+                ServingUnitDTO(unitType: .piece, gramsPerUnit: 69, description: String(localized: "1 medium"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .cup, gramsPerUnit: 177, description: String(localized: "1 cup sliced"), isDefault: false, orderIndex: 1),
+                ServingUnitDTO(unitType: .serving, gramsPerUnit: 100, description: String(localized: "1 serving"), isDefault: false, orderIndex: 2),
+                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 3)
+            ]
+        ),
+        FoodDTO(
+            name: String(localized: "Grapefruit"),
+            calories: 42, protein: 0.8, carbs: 11, fats: 0.1,
+            servingSize: 150,
+            category: .fruit,
+            servingUnits: [
+                ServingUnitDTO(unitType: .piece, gramsPerUnit: 246, description: String(localized: "1/2 fruit"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .cup, gramsPerUnit: 230, description: String(localized: "1 cup sections"), isDefault: false, orderIndex: 1),
+                ServingUnitDTO(unitType: .serving, gramsPerUnit: 150, description: String(localized: "1 serving"), isDefault: false, orderIndex: 2),
+                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 3)
+            ]
+        ),
+        FoodDTO(
+            name: String(localized: "Melon"),
+            calories: 34, protein: 0.8, carbs: 8, fats: 0.2,
+            servingSize: 200,
+            category: .fruit,
+            servingUnits: [
+                ServingUnitDTO(unitType: .cup, gramsPerUnit: 160, description: String(localized: "1 cup diced"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .slice, gramsPerUnit: 200, description: String(localized: "1 wedge"), isDefault: false, orderIndex: 1),
+                ServingUnitDTO(unitType: .serving, gramsPerUnit: 200, description: String(localized: "1 serving"), isDefault: false, orderIndex: 2),
+                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 3)
+            ]
+        ),
+        FoodDTO(
+            name: String(localized: "Cherry"),
+            calories: 63, protein: 1.1, carbs: 16, fats: 0.2,
+            servingSize: 100,
+            category: .fruit,
+            servingUnits: [
+                ServingUnitDTO(unitType: .cup, gramsPerUnit: 138, description: String(localized: "1 cup"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .piece, gramsPerUnit: 8, description: String(localized: "1 cherry"), isDefault: false, orderIndex: 1),
+                ServingUnitDTO(unitType: .serving, gramsPerUnit: 100, description: String(localized: "1 serving"), isDefault: false, orderIndex: 2),
+                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 3)
+            ]
+        ),
+        FoodDTO(
+            name: String(localized: "Apricot"),
+            calories: 48, protein: 1.4, carbs: 11, fats: 0.4,
+            servingSize: 100,
+            category: .fruit,
+            servingUnits: [
+                ServingUnitDTO(unitType: .piece, gramsPerUnit: 35, description: String(localized: "1 apricot"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .cup, gramsPerUnit: 155, description: String(localized: "1 cup halves"), isDefault: false, orderIndex: 1),
+                ServingUnitDTO(unitType: .serving, gramsPerUnit: 100, description: String(localized: "1 serving"), isDefault: false, orderIndex: 2),
+                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 3)
+            ]
+        ),
+        FoodDTO(
+            name: String(localized: "Plum"),
+            calories: 46, protein: 0.7, carbs: 11, fats: 0.3,
+            servingSize: 100,
+            category: .fruit,
+            servingUnits: [
+                ServingUnitDTO(unitType: .piece, gramsPerUnit: 66, description: String(localized: "1 plum"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .cup, gramsPerUnit: 165, description: String(localized: "1 cup sliced"), isDefault: false, orderIndex: 1),
+                ServingUnitDTO(unitType: .serving, gramsPerUnit: 100, description: String(localized: "1 serving"), isDefault: false, orderIndex: 2),
+                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 3)
+            ]
+        ),
+        FoodDTO(
+            name: String(localized: "Fig"),
+            calories: 74, protein: 0.8, carbs: 19, fats: 0.3,
+            servingSize: 100,
+            category: .fruit,
+            servingUnits: [
+                ServingUnitDTO(unitType: .piece, gramsPerUnit: 50, description: String(localized: "1 fig"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .cup, gramsPerUnit: 149, description: String(localized: "1 cup"), isDefault: false, orderIndex: 1),
+                ServingUnitDTO(unitType: .serving, gramsPerUnit: 100, description: String(localized: "1 serving"), isDefault: false, orderIndex: 2),
+                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 3)
+            ]
         )
     ]
 }

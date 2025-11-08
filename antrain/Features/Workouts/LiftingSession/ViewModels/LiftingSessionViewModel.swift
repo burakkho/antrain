@@ -13,6 +13,12 @@ final class LiftingSessionViewModel {
     private let prDetectionService: PRDetectionService
     private let progressiveOverloadService: ProgressiveOverloadService
     private let userProfileRepository: UserProfileRepositoryProtocol
+    
+    /// Callback to update Live Activity (injected from ActiveWorkoutManager)
+    var onStateChanged: (() -> Void)?
+    
+    /// Timer for updating Live Activity duration every second
+    private var durationTimer: Timer?
 
     // MARK: - State
 
@@ -164,6 +170,9 @@ final class LiftingSessionViewModel {
         )
         exercises.append(workoutExercise)
         workout.exercises = exercises
+        
+        // Update Live Activity
+        onStateChanged?()
     }
 
     /// Remove exercise from workout
@@ -221,6 +230,9 @@ final class LiftingSessionViewModel {
         set.toggleCompletion()
         let generator = UIImpactFeedbackGenerator(style: .light)
         generator.impactOccurred()
+        
+        // Update Live Activity
+        onStateChanged?()
     }
 
     /// Complete all sets for an exercise
@@ -248,6 +260,9 @@ final class LiftingSessionViewModel {
     /// - Parameters:
     ///   - notes: Optional workout notes
     func saveWorkout(notes: String?) async {
+        // Stop duration timer
+        stopDurationTimer()
+        
         isLoading = true
         errorMessage = nil
 
@@ -332,6 +347,11 @@ final class LiftingSessionViewModel {
 
             // Success - notify views to refresh
             NotificationCenter.default.post(name: NSNotification.Name("WorkoutSaved"), object: nil)
+            
+            // Update widget data
+            Task { @MainActor in
+                await updateWidgetData()
+            }
         } catch {
             errorMessage = "Failed to save workout: \(error.localizedDescription)"
             print("❌ Workout save error: \(error)")
@@ -376,6 +396,64 @@ final class LiftingSessionViewModel {
     /// Total number of exercises in workout
     var totalExercisesCount: Int {
         exercises.count
+    }
+    
+    // MARK: - Live Activity Duration Timer
+    
+    /// Start timer to update Live Activity duration every second
+    func startDurationTimer() {
+        // Stop any existing timer first
+        stopDurationTimer()
+        
+        // Create timer that fires every second
+        durationTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
+            Task { @MainActor in
+                self?.onStateChanged?()
+            }
+        }
+        
+        // Ensure timer runs even during UI interactions
+        if let timer = durationTimer {
+            RunLoop.main.add(timer, forMode: .common)
+        }
+    }
+    
+    /// Stop duration timer
+    func stopDurationTimer() {
+        durationTimer?.invalidate()
+        durationTimer = nil
+    }
+    
+    // MARK: - Widget Data Update
+    
+    /// Update widget with current week's workout count
+    private func updateWidgetData() async {
+        do {
+            // Fetch this week's workouts
+            let calendar = Calendar.current
+            let now = Date()
+            guard let startOfWeek = calendar.date(from: calendar.dateComponents([.yearForWeekOfYear, .weekOfYear], from: now)) else {
+                return
+            }
+            
+            let allWorkouts = try await workoutRepository.fetchAll()
+            let thisWeekWorkouts = allWorkouts.filter { workout in
+                workout.date >= startOfWeek && workout.date <= now
+            }
+            
+            // Update widget data
+            WidgetDataHelper.shared.updateWorkoutCount(thisWeekWorkouts.count)
+            WidgetDataHelper.shared.updateLastWorkoutDate(now)
+            
+            // Get active program name if exists
+            let profile = try await userProfileRepository.fetchOrCreateProfile()
+            let programName = profile.activeProgram?.name
+            WidgetDataHelper.shared.updateActiveProgram(programName)
+            
+            print("✅ Widget data updated: \(thisWeekWorkouts.count) workouts this week")
+        } catch {
+            print("⚠️ Failed to update widget data: \(error)")
+        }
     }
     
     /// Get suggestion for a specific exercise

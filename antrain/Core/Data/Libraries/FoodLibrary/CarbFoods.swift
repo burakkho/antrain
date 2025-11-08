@@ -299,6 +299,127 @@ struct CarbFoods {
                 ServingUnitDTO(unitType: .piece, gramsPerUnit: 10, description: String(localized: "1 pretzel"), isDefault: false, orderIndex: 1),
                 ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 2)
             ]
+        ),
+
+        // Additional Breads
+        FoodDTO(
+            name: String(localized: "Rye Bread"),
+            calories: 259, protein: 8.5, carbs: 48, fats: 3.3,
+            servingSize: 50,
+            category: .carb,
+            servingUnits: [
+                ServingUnitDTO(unitType: .slice, gramsPerUnit: 32, description: String(localized: "1 slice"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .serving, gramsPerUnit: 50, description: String(localized: "2 slices"), isDefault: false, orderIndex: 1),
+                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 2)
+            ]
+        ),
+        FoodDTO(
+            name: String(localized: "Bran Bread"),
+            calories: 248, protein: 10, carbs: 47, fats: 3.5,
+            servingSize: 50,
+            category: .carb,
+            servingUnits: [
+                ServingUnitDTO(unitType: .slice, gramsPerUnit: 30, description: String(localized: "1 slice"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .serving, gramsPerUnit: 50, description: String(localized: "2 slices"), isDefault: false, orderIndex: 1),
+                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 2)
+            ]
+        ),
+
+        // Breakfast Items
+        FoodDTO(
+            name: String(localized: "Waffle"),
+            calories: 291, protein: 7, carbs: 49, fats: 8,
+            servingSize: 75,
+            category: .carb,
+            servingUnits: [
+                ServingUnitDTO(unitType: .piece, gramsPerUnit: 75, description: String(localized: "1 waffle"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .serving, gramsPerUnit: 75, description: String(localized: "1 serving"), isDefault: false, orderIndex: 1),
+                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 2)
+            ]
+        ),
+        FoodDTO(
+            name: String(localized: "Pancake"),
+            calories: 227, protein: 6, carbs: 28, fats: 10,
+            servingSize: 77,
+            category: .carb,
+            servingUnits: [
+                ServingUnitDTO(unitType: .piece, gramsPerUnit: 77, description: String(localized: "1 pancake"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .serving, gramsPerUnit: 77, description: String(localized: "1 serving"), isDefault: false, orderIndex: 1),
+                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 2)
+            ]
+        ),
+        FoodDTO(
+            name: String(localized: "Crepe"),
+            calories: 195, protein: 6, carbs: 24, fats: 8,
+            servingSize: 60,
+            category: .carb,
+            servingUnits: [
+                ServingUnitDTO(unitType: .piece, gramsPerUnit: 60, description: String(localized: "1 crepe"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .serving, gramsPerUnit: 60, description: String(localized: "1 serving"), isDefault: false, orderIndex: 1),
+                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 2)
+            ]
+        ),
+
+        // Snacks & Bars
+        FoodDTO(
+            name: String(localized: "Granola Bar"),
+            calories: 471, protein: 10, carbs: 64, fats: 20,
+            servingSize: 40,
+            category: .carb,
+            servingUnits: [
+                ServingUnitDTO(unitType: .piece, gramsPerUnit: 40, description: String(localized: "1 bar"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .serving, gramsPerUnit: 40, description: String(localized: "1 serving"), isDefault: false, orderIndex: 1),
+                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 2)
+            ]
+        ),
+        FoodDTO(
+            name: String(localized: "Popcorn"),
+            calories: 382, protein: 12, carbs: 78, fats: 4.5,
+            servingSize: 30,
+            category: .carb,
+            servingUnits: [
+                ServingUnitDTO(unitType: .cup, gramsPerUnit: 15, description: String(localized: "1 cup popped"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .serving, gramsPerUnit: 30, description: String(localized: "1 serving"), isDefault: false, orderIndex: 1),
+                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 2)
+            ]
+        ),
+        FoodDTO(
+            name: String(localized: "Rice Cake"),
+            calories: 387, protein: 8, carbs: 82, fats: 3,
+            servingSize: 9,
+            category: .carb,
+            servingUnits: [
+                ServingUnitDTO(unitType: .piece, gramsPerUnit: 9, description: String(localized: "1 cake"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .serving, gramsPerUnit: 18, description: String(localized: "2 cakes"), isDefault: false, orderIndex: 1),
+                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 2)
+            ]
+        ),
+
+        // Potato Products
+        FoodDTO(
+            name: String(localized: "French Fries"),
+            calories: 312, protein: 3.4, carbs: 41, fats: 15,
+            servingSize: 100,
+            category: .carb,
+            servingUnits: [
+                ServingUnitDTO(unitType: .serving, gramsPerUnit: 100, description: String(localized: "1 serving"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .cup, gramsPerUnit: 130, description: String(localized: "1 cup"), isDefault: false, orderIndex: 1),
+                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 2)
+            ]
+        ),
+
+        // Special Rice
+        FoodDTO(
+            name: String(localized: "Sushi Rice (Cooked)"),
+            calories: 140, protein: 2.5, carbs: 30, fats: 0.5,
+            servingSize: 150,
+            category: .carb,
+            servingUnits: [
+                ServingUnitDTO(unitType: .cup, gramsPerUnit: 150, description: String(localized: "1 cup"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .serving, gramsPerUnit: 100, description: String(localized: "1 serving"), isDefault: false, orderIndex: 1),
+                ServingUnitDTO(unitType: .tablespoon, gramsPerUnit: 15, description: String(localized: "1 tbsp"), isDefault: false, orderIndex: 2),
+                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 3)
+            ]
         )
     ]
 }

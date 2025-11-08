@@ -59,16 +59,6 @@ struct SwipeableNumberField: View {
             .disabled(!isKeyboardMode) // Disable when in swipe mode
             .onChange(of: value) { oldValue, newValue in
                 onUpdate()
-
-                // Auto-advance to next field if enabled and value changed
-                if shouldAutoAdvance && isKeyboardMode && isFocused && oldValue != newValue {
-                    // Only auto-advance for reps field
-                    if type == .reps {
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                            onNavigate?(.next)
-                        }
-                    }
-                }
             }
             .highPriorityGesture(
                 isKeyboardMode ? nil : DragGesture(minimumDistance: 20)

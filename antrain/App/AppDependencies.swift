@@ -28,7 +28,7 @@ final class AppDependencies: ObservableObject {
     // MARK: - Services
     let prDetectionService: PRDetectionService
     let progressiveOverloadService: ProgressiveOverloadService
-
+    
     // MARK: - Convenience Aliases
     var prRepository: PersonalRecordRepository {
         personalRecordRepository as! PersonalRecordRepository
@@ -56,13 +56,6 @@ final class AppDependencies: ObservableObject {
         self.progressiveOverloadService = ProgressiveOverloadService(
             workoutRepository: workoutRepository
         )
-
-        // Training Programs v2.0: Inject program repository into template repository for deletion safety
-        Task {
-            if let templateRepo = workoutTemplateRepository as? WorkoutTemplateRepository {
-                await templateRepo.setTrainingProgramRepository(trainingProgramRepository)
-            }
-        }
     }
 
     // MARK: - Preview Support

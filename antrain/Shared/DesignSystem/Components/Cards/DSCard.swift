@@ -12,9 +12,11 @@ struct DSCard<Content: View>: View {
     var body: some View {
         content
             .padding(DSSpacing.md)
-            .background(DSColors.cardBackground)
-            .clipShape(RoundedRectangle(cornerRadius: DSCornerRadius.lg))
-            .shadow(color: .black.opacity(0.05), radius: 4, y: 2)
+            .background {
+                RoundedRectangle(cornerRadius: DSCornerRadius.lg)
+                    .fill(.regularMaterial)
+                    .shadow(color: .black.opacity(0.08), radius: 8, y: 4)
+            }
     }
 }
 

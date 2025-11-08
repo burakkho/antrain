@@ -274,8 +274,11 @@ private struct ProgramActionCard: View {
             }
             .frame(width: 100)
             .padding(.vertical, DSSpacing.sm)
-            .background(DSColors.cardBackground)
-            .clipShape(RoundedRectangle(cornerRadius: DSCornerRadius.md))
+            .background {
+                RoundedRectangle(cornerRadius: DSCornerRadius.md)
+                    .fill(.regularMaterial)
+                    .shadow(color: .black.opacity(0.08), radius: 8, y: 4)
+            }
         }
         .buttonStyle(.plain)
     }
@@ -309,8 +312,11 @@ private struct InfoCard: View {
             Spacer()
         }
         .padding(DSSpacing.md)
-        .background(DSColors.cardBackground)
-        .clipShape(RoundedRectangle(cornerRadius: DSCornerRadius.md))
+        .background {
+            RoundedRectangle(cornerRadius: DSCornerRadius.md)
+                .fill(.regularMaterial)
+                .shadow(color: .black.opacity(0.08), radius: 8, y: 4)
+        }
     }
 }
 

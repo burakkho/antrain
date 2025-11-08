@@ -89,9 +89,11 @@ struct TemplateCard: View {
             }
         }
         .padding()
-        .background(Color(.systemBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 12))
-        .shadow(color: .black.opacity(0.05), radius: 8, y: 2)
+        .background {
+            RoundedRectangle(cornerRadius: 12)
+                .fill(.regularMaterial)
+                .shadow(color: .black.opacity(0.08), radius: 8, y: 4)
+        }
         // Leading swipe action: Start Workout
         .swipeActions(edge: .leading, allowsFullSwipe: true) {
             if let onStartWorkout {

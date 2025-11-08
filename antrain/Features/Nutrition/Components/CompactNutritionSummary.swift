@@ -71,8 +71,11 @@ struct CompactNutritionSummary: View {
             }
         }
         .padding(DSSpacing.sm)
-        .background(DSColors.cardBackground)
-        .cornerRadius(DSCornerRadius.lg)
+        .background {
+            RoundedRectangle(cornerRadius: DSCornerRadius.lg)
+                .fill(.regularMaterial)
+                .shadow(color: .black.opacity(0.08), radius: 8, y: 4)
+        }
         .onTapGesture {
             onTap()
         }

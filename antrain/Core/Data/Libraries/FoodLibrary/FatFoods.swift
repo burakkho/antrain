@@ -213,6 +213,79 @@ struct FatFoods {
                 ServingUnitDTO(unitType: .tablespoon, gramsPerUnit: 10, description: String(localized: "1 tbsp"), isDefault: false, orderIndex: 2),
                 ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 3)
             ]
+        ),
+
+        // Additional Nuts
+        FoodDTO(
+            name: String(localized: "Hazelnuts"),
+            calories: 628, protein: 15, carbs: 17, fats: 61,
+            servingSize: 28,
+            category: .fat,
+            servingUnits: [
+                ServingUnitDTO(unitType: .serving, gramsPerUnit: 28, description: String(localized: "1 serving"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .piece, gramsPerUnit: 1, description: String(localized: "1 hazelnut"), isDefault: false, orderIndex: 1),
+                ServingUnitDTO(unitType: .tablespoon, gramsPerUnit: 10, description: String(localized: "1 tbsp"), isDefault: false, orderIndex: 2),
+                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 3)
+            ]
+        ),
+
+        // Dairy Fats
+        FoodDTO(
+            name: String(localized: "Butter"),
+            calories: 717, protein: 0.9, carbs: 0.1, fats: 81,
+            servingSize: 14,
+            category: .fat,
+            servingUnits: [
+                ServingUnitDTO(unitType: .tablespoon, gramsPerUnit: 14, description: String(localized: "1 tbsp"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .teaspoon, gramsPerUnit: 5, description: String(localized: "1 tsp"), isDefault: false, orderIndex: 1),
+                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 2)
+            ]
+        ),
+        FoodDTO(
+            name: String(localized: "Margarine"),
+            calories: 719, protein: 0.2, carbs: 0.9, fats: 80,
+            servingSize: 14,
+            category: .fat,
+            servingUnits: [
+                ServingUnitDTO(unitType: .tablespoon, gramsPerUnit: 14, description: String(localized: "1 tbsp"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .teaspoon, gramsPerUnit: 5, description: String(localized: "1 tsp"), isDefault: false, orderIndex: 1),
+                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 2)
+            ]
+        ),
+        FoodDTO(
+            name: String(localized: "Labneh"),
+            calories: 112, protein: 5, carbs: 6, fats: 8,
+            servingSize: 100,
+            category: .fat,
+            servingUnits: [
+                ServingUnitDTO(unitType: .tablespoon, gramsPerUnit: 20, description: String(localized: "1 tbsp"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .serving, gramsPerUnit: 100, description: String(localized: "1 serving"), isDefault: false, orderIndex: 1),
+                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 2)
+            ]
+        ),
+        FoodDTO(
+            name: String(localized: "Cream Cheese"),
+            calories: 342, protein: 6, carbs: 4, fats: 34,
+            servingSize: 30,
+            category: .fat,
+            servingUnits: [
+                ServingUnitDTO(unitType: .tablespoon, gramsPerUnit: 15, description: String(localized: "1 tbsp"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .serving, gramsPerUnit: 30, description: String(localized: "1 oz"), isDefault: false, orderIndex: 1),
+                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 2)
+            ]
+        ),
+
+        // Additional Oils
+        FoodDTO(
+            name: String(localized: "Soybean Oil"),
+            calories: 884, protein: 0, carbs: 0, fats: 100,
+            servingSize: 14,
+            category: .fat,
+            servingUnits: [
+                ServingUnitDTO(unitType: .tablespoon, gramsPerUnit: 14, description: String(localized: "1 tbsp"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .teaspoon, gramsPerUnit: 5, description: String(localized: "1 tsp"), isDefault: false, orderIndex: 1),
+                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 2)
+            ]
         )
     ]
 }

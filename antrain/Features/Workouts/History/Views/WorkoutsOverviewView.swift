@@ -360,7 +360,11 @@ struct WorkoutsOverviewView: View {
             }
         }
         .padding(DSSpacing.sm)
-        .background(DSColors.cardBackground)
+        .background {
+            RoundedRectangle(cornerRadius: DSCornerRadius.md)
+                .fill(.regularMaterial)
+                .shadow(color: .black.opacity(0.08), radius: 8, y: 4)
+        }
         .overlay {
             // Border styling
             RoundedRectangle(cornerRadius: DSCornerRadius.md)
@@ -372,7 +376,6 @@ struct WorkoutsOverviewView: View {
                     )
                 )
         }
-        .clipShape(RoundedRectangle(cornerRadius: DSCornerRadius.md))
         .opacity(item.type.isRest ? 0.6 : 1.0)
     }
 
@@ -528,12 +531,111 @@ enum HistoryViewMode {
 
 #Preview("List Mode") {
     @Previewable @State var viewMode: HistoryViewMode = .list
-    WorkoutsOverviewView(viewMode: $viewMode)
-        .environmentObject(AppDependencies.preview)
+    @Previewable @State var workoutManager = ActiveWorkoutManager()
+    
+    NavigationStack {
+        ScrollView {
+            VStack(spacing: DSSpacing.md) {
+                // Quick Actions Preview
+                VStack(alignment: .leading, spacing: DSSpacing.sm) {
+                    Text("Quick Actions")
+                        .font(DSTypography.title3)
+                        .fontWeight(.semibold)
+                        .padding(.horizontal, DSSpacing.md)
+                    
+                    HStack(spacing: DSSpacing.sm) {
+                        QuickActionButton(
+                            icon: "dumbbell.fill",
+                            title: "Start Lifting"
+                        ) {}
+                        
+                        QuickActionButton(
+                            icon: "figure.run",
+                            title: "Log Cardio"
+                        ) {}
+                        
+                        QuickActionButton(
+                            icon: "flame.fill",
+                            title: "Log MetCon"
+                        ) {}
+                    }
+                    .padding(.horizontal, DSSpacing.md)
+                }
+                
+                // Mock workout cards
+                VStack(spacing: DSSpacing.sm) {
+                    DSCard {
+                        HStack(spacing: DSSpacing.md) {
+                            Image(systemName: "dumbbell.fill")
+                                .font(.title2)
+                                .foregroundStyle(DSColors.primary)
+                                .frame(width: 40)
+                            
+                            VStack(alignment: .leading, spacing: DSSpacing.xxs) {
+                                Text("Lifting")
+                                    .font(DSTypography.headline)
+                                    .foregroundStyle(DSColors.textPrimary)
+                                
+                                Text("Today")
+                                    .font(DSTypography.caption)
+                                    .foregroundStyle(DSColors.textSecondary)
+                                
+                                Text("5 exercises")
+                                    .font(DSTypography.caption)
+                                    .foregroundStyle(DSColors.textSecondary)
+                            }
+                            
+                            Spacer()
+                            
+                            Image(systemName: "chevron.right")
+                                .font(.caption)
+                                .foregroundStyle(DSColors.textSecondary)
+                        }
+                    }
+                    
+                    DSCard {
+                        HStack(spacing: DSSpacing.md) {
+                            Image(systemName: "figure.run")
+                                .font(.title2)
+                                .foregroundStyle(.blue)
+                                .frame(width: 40)
+                            
+                            VStack(alignment: .leading, spacing: DSSpacing.xxs) {
+                                Text("Cardio")
+                                    .font(DSTypography.headline)
+                                    .foregroundStyle(DSColors.textPrimary)
+                                
+                                Text("Yesterday")
+                                    .font(DSTypography.caption)
+                                    .foregroundStyle(DSColors.textSecondary)
+                                
+                                Text("30 min")
+                                    .font(DSTypography.caption)
+                                    .foregroundStyle(DSColors.textSecondary)
+                            }
+                            
+                            Spacer()
+                            
+                            Image(systemName: "chevron.right")
+                                .font(.caption)
+                                .foregroundStyle(DSColors.textSecondary)
+                        }
+                    }
+                }
+                .padding(.horizontal, DSSpacing.md)
+            }
+            .padding(.vertical, DSSpacing.md)
+        }
+        .navigationTitle("Workouts")
+        .navigationBarTitleDisplayMode(.large)
+    }
 }
 
 #Preview("Calendar Mode") {
     @Previewable @State var viewMode: HistoryViewMode = .calendar
+    @Previewable @State var workoutManager = ActiveWorkoutManager()
+    
     WorkoutsOverviewView(viewMode: $viewMode)
         .environmentObject(AppDependencies.preview)
+        .environment(workoutManager)
 }

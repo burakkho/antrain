@@ -360,6 +360,138 @@ struct ProteinFoods {
                 ServingUnitDTO(unitType: .tablespoon, gramsPerUnit: 10, description: String(localized: "1 tbsp"), isDefault: false, orderIndex: 1),
                 ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 2)
             ]
+        ),
+
+        // Additional Seafood
+        FoodDTO(
+            name: String(localized: "Trout"),
+            calories: 141, protein: 20, carbs: 0, fats: 6.6,
+            servingSize: 150,
+            category: .protein,
+            servingUnits: [
+                ServingUnitDTO(unitType: .piece, gramsPerUnit: 150, description: String(localized: "1 fillet"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .serving, gramsPerUnit: 100, description: String(localized: "1 serving"), isDefault: false, orderIndex: 1),
+                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 2)
+            ]
+        ),
+        FoodDTO(
+            name: String(localized: "Sea Bass"),
+            calories: 97, protein: 18, carbs: 0, fats: 2,
+            servingSize: 150,
+            category: .protein,
+            servingUnits: [
+                ServingUnitDTO(unitType: .piece, gramsPerUnit: 150, description: String(localized: "1 fillet"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .serving, gramsPerUnit: 100, description: String(localized: "1 serving"), isDefault: false, orderIndex: 1),
+                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 2)
+            ]
+        ),
+        FoodDTO(
+            name: String(localized: "Mackerel"),
+            calories: 205, protein: 19, carbs: 0, fats: 14,
+            servingSize: 100,
+            category: .protein,
+            servingUnits: [
+                ServingUnitDTO(unitType: .piece, gramsPerUnit: 100, description: String(localized: "1 fillet"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .serving, gramsPerUnit: 100, description: String(localized: "1 serving"), isDefault: false, orderIndex: 1),
+                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 2)
+            ]
+        ),
+        FoodDTO(
+            name: String(localized: "Anchovy"),
+            calories: 131, protein: 20, carbs: 0, fats: 4.8,
+            servingSize: 80,
+            category: .protein,
+            servingUnits: [
+                ServingUnitDTO(unitType: .serving, gramsPerUnit: 80, description: String(localized: "1 serving"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .piece, gramsPerUnit: 5, description: String(localized: "1 anchovy"), isDefault: false, orderIndex: 1),
+                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 2)
+            ]
+        ),
+
+        // Additional Meat Products
+        FoodDTO(
+            name: String(localized: "Beef Tenderloin"),
+            calories: 188, protein: 24, carbs: 0, fats: 10,
+            servingSize: 100,
+            category: .protein,
+            servingUnits: [
+                ServingUnitDTO(unitType: .piece, gramsPerUnit: 150, description: String(localized: "1 steak"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .serving, gramsPerUnit: 100, description: String(localized: "1 serving"), isDefault: false, orderIndex: 1),
+                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 2)
+            ]
+        ),
+        FoodDTO(
+            name: String(localized: "Meatballs"),
+            calories: 197, protein: 19, carbs: 7, fats: 10,
+            servingSize: 60,
+            category: .protein,
+            servingUnits: [
+                ServingUnitDTO(unitType: .piece, gramsPerUnit: 60, description: String(localized: "1 meatball"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .serving, gramsPerUnit: 100, description: String(localized: "1 serving"), isDefault: false, orderIndex: 1),
+                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 2)
+            ]
+        ),
+
+        // Processed Meats
+        FoodDTO(
+            name: String(localized: "Turkey Salami"),
+            calories: 172, protein: 16, carbs: 3, fats: 11,
+            servingSize: 50,
+            category: .protein,
+            servingUnits: [
+                ServingUnitDTO(unitType: .slice, gramsPerUnit: 10, description: String(localized: "1 slice"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .serving, gramsPerUnit: 50, description: String(localized: "1 serving"), isDefault: false, orderIndex: 1),
+                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 2)
+            ]
+        ),
+        FoodDTO(
+            name: String(localized: "Turkish Sausage (Sucuk)"),
+            calories: 467, protein: 18, carbs: 2, fats: 43,
+            servingSize: 50,
+            category: .protein,
+            servingUnits: [
+                ServingUnitDTO(unitType: .piece, gramsPerUnit: 50, description: String(localized: "1 piece"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .slice, gramsPerUnit: 10, description: String(localized: "1 slice"), isDefault: false, orderIndex: 1),
+                ServingUnitDTO(unitType: .serving, gramsPerUnit: 100, description: String(localized: "1 serving"), isDefault: false, orderIndex: 2),
+                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 3)
+            ]
+        ),
+
+        // Additional Cheese
+        FoodDTO(
+            name: String(localized: "Lor Cheese"),
+            calories: 173, protein: 13, carbs: 5, fats: 11,
+            servingSize: 100,
+            category: .protein,
+            servingUnits: [
+                ServingUnitDTO(unitType: .tablespoon, gramsPerUnit: 20, description: String(localized: "1 tbsp"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .serving, gramsPerUnit: 100, description: String(localized: "1 serving"), isDefault: false, orderIndex: 1),
+                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 2)
+            ]
+        ),
+        FoodDTO(
+            name: String(localized: "Kashar Cheese"),
+            calories: 375, protein: 25, carbs: 2, fats: 30,
+            servingSize: 30,
+            category: .protein,
+            servingUnits: [
+                ServingUnitDTO(unitType: .slice, gramsPerUnit: 30, description: String(localized: "1 slice"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .serving, gramsPerUnit: 100, description: String(localized: "1 serving"), isDefault: false, orderIndex: 1),
+                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 2)
+            ]
+        ),
+
+        // Protein Bars
+        FoodDTO(
+            name: String(localized: "Protein Bar"),
+            calories: 350, protein: 20, carbs: 40, fats: 10,
+            servingSize: 60,
+            category: .protein,
+            servingUnits: [
+                ServingUnitDTO(unitType: .piece, gramsPerUnit: 60, description: String(localized: "1 bar"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .serving, gramsPerUnit: 60, description: String(localized: "1 serving"), isDefault: false, orderIndex: 1),
+                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 2)
+            ]
         )
     ]
 }

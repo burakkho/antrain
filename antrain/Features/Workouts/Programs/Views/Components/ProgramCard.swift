@@ -92,8 +92,8 @@ struct ProgramCard: View {
         .padding()
         .background {
             RoundedRectangle(cornerRadius: 12)
-                .fill(.background)
-                .shadow(color: .black.opacity(0.1), radius: 4, y: 2)
+                .fill(.regularMaterial)
+                .shadow(color: .black.opacity(0.08), radius: 8, y: 4)
         }
     }
 }

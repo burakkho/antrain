@@ -93,9 +93,11 @@ struct ActiveWorkoutBar: View {
             }
             .padding(.horizontal, DSSpacing.sm)
             .padding(.vertical, DSSpacing.xs)
-            .background(DSColors.cardBackground)
-            .clipShape(RoundedRectangle(cornerRadius: DSCornerRadius.lg))
-            .shadow(color: .black.opacity(0.1), radius: 8, y: -2)
+            .background {
+                RoundedRectangle(cornerRadius: DSCornerRadius.lg)
+                    .fill(.regularMaterial)
+                    .shadow(color: .black.opacity(0.15), radius: 12, y: -4)
+            }
             .padding(.horizontal, DSSpacing.md)
             .onTapGesture {
                 withAnimation(.spring(response: 0.3)) {

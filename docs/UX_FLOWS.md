@@ -80,28 +80,81 @@
 
 ---
 
-## Settings Flow
+## Profile Flow (v1.2)
 
 ### Navigation Structure
 
 ```
 ┌─────────────────────────────────────────┐
-│ Settings                                 │
+│ Profile                    [⚙️ Settings] │
 ├─────────────────────────────────────────┤
 │ Profile                                  │
 │ • Name                         [Edit >] │
 │ • Height                       [Edit >] │
 │ • Gender                       [Edit >] │
+│ • Date of Birth                [Edit >] │
+│ • Activity Level               [Edit >] │
 ├─────────────────────────────────────────┤
-│ Preferences                              │
-│ • Weight Unit        [Kilograms ▼]     │
-│ • Language          [English ▼]        │
-│ • Theme             [System ▼]         │
-├─────────────────────────────────────────┤
-│ About                                    │
-│ • Version           1.0.0              │
+│ Bodyweight Tracking                      │
+│ • Current Weight: 75 kg                 │
+│ • [Add Weight Entry]                     │
+│ • [View Weight History >]                │
 └─────────────────────────────────────────┘
 ```
+
+### Profile Tab (4th Tab in TabBar)
+
+**Icon:** `person.fill` (SF Symbol)
+
+**Sections:**
+1. **Profile Information**
+   - Name → ProfileNameEditorSheet
+   - Height → ProfileHeightEditorSheet (cm/inches based on weight unit)
+   - Gender → ProfileGenderEditorSheet (picker)
+   - Date of Birth → ProfileDateOfBirthEditorSheet (calendar picker)
+   - Activity Level → ProfileActivityLevelEditorSheet (picker with descriptions)
+
+2. **Bodyweight Tracking**
+   - Current Weight display
+   - Add Weight Entry → ProfileBodyweightEntrySheet (weight, date, notes)
+   - View Weight History → ProfileBodyweightHistorySheet (list with delete)
+
+**Toolbar:**
+- Settings icon (⚙️) → Opens SettingsView as fullScreenCover
+
+---
+
+## Settings Flow (v1.2)
+
+### Access Points
+
+Settings is now accessed via **fullScreenCover** from:
+- Home Tab → Toolbar gear icon (⚙️)
+- Profile Tab → Toolbar gear icon (⚙️)
+
+### Navigation Structure
+
+```
+┌─────────────────────────────────────────┐
+│ [X] Settings                             │
+├─────────────────────────────────────────┤
+│ Notifications                            │
+│ • Workout Reminders      [Toggle]       │
+│ • Time                   [09:00]         │
+│ • Active Days            [M T W T F]    │
+├─────────────────────────────────────────┤
+│ Preferences                              │
+│ • Weight Unit        [Kilograms ▼]      │
+│ • Language          [English ▼]         │
+│ • Theme             [System ▼]          │
+├─────────────────────────────────────────┤
+│ About                                    │
+│ • Version           1.2.0               │
+└─────────────────────────────────────────┘
+```
+
+**Presentation:** fullScreenCover (modal)
+**Dismissal:** X button (top-left toolbar)
 
 ### Features Moved to Nutrition Tab
 
@@ -519,34 +572,44 @@
 
 ## Navigation Patterns
 
-### Tab Bar Structure
+### Tab Bar Structure (v1.2)
 
 ```
 ┌────────────────────────────────────────┐
 │          [Tab Bar - 4 Tabs]            │
 ├────────────────────────────────────────┤
-│  Home  │  Workouts  │  Nutrition  │  Settings  │
+│  Home  │  Workouts  │  Nutrition  │  Profile  │
 └────────────────────────────────────────┘
 ```
 
-**1. Home Tab**
+**1. Home Tab** (Icon: house.fill)
 - Root: HomeView
 - Quick actions lead to other tabs
+- Toolbar: Settings icon (⚙️) → fullScreenCover SettingsView
 
-**2. Workouts Tab**
-- Root: WorkoutHistoryView
+**2. Workouts Tab** (Icon: dumbbell.fill)
+- Root: WorkoutsView (segmented control for History/Templates/Programs)
 - Tap workout → WorkoutDetailView (push)
 - "Start Workout" button → LiftingSessionView (full screen modal)
 
-**3. Nutrition Tab**
+**3. Nutrition Tab** (Icon: fork.knife)
 - Root: DailyNutritionView
 - Date picker to change day
 - Add food → FoodSearchView (sheet modal)
+- Settings icon → NutritionSettingsView (sheet)
 
-**4. Settings Tab**
-- Root: SettingsView
-- Profile → ProfileView (push)
-- Goals → GoalsView (push)
+**4. Profile Tab** (Icon: person.fill) - NEW in v1.2
+- Root: ProfileView
+- Shows: Personal info (name, height, gender, DOB, activity level)
+- Shows: Bodyweight tracking with history
+- Edit fields → Sheet modals (ProfileNameEditorSheet, etc.)
+- Toolbar: Settings icon (⚙️) → fullScreenCover SettingsView
+
+**Settings (fullScreenCover)** - Changed in v1.2
+- Not in tab bar anymore
+- Accessed from Home and Profile toolbar
+- Contains: App preferences only (notifications, theme, language, version)
+- Dismissal: X button (top-left)
 
 ### Modal Presentations
 

@@ -43,10 +43,15 @@ final class ActiveWorkoutManager {
             saveBarPosition()
         }
     }
+    
+    /// Live Activity service (injected)
+    private let liveActivityService: LiveActivityServiceProtocol?
 
     // MARK: - Init
 
-    init() {
+    init(liveActivityService: LiveActivityServiceProtocol? = nil) {
+        self.liveActivityService = liveActivityService
+        
         // Load saved bar position
         if let savedPosition = UserDefaults.standard.string(forKey: Self.barPositionKey),
            let position = WorkoutBarPosition(rawValue: savedPosition) {
@@ -81,7 +86,21 @@ final class ActiveWorkoutManager {
         self.activeWorkout = workout
         self.activeViewModel = viewModel
         self.showFullScreen = true
+        
+        // Connect Live Activity updates
+        viewModel.onStateChanged = { [weak self] in
+            self?.updateLiveActivity()
+        }
+        
         saveState()
+        
+        // Start Live Activity
+        let workoutName = viewModel.workoutTitle ?? "Workout"
+        liveActivityService?.startActivity(workoutName: workoutName)
+        updateLiveActivity()
+        
+        // Start duration timer for real-time updates
+        viewModel.startDurationTimer()
     }
 
     /// Start a new workout from a template
@@ -112,6 +131,12 @@ final class ActiveWorkoutManager {
 
     /// Finish workout and clear state
     func finishWorkout() {
+        // Stop duration timer
+        activeViewModel?.stopDurationTimer()
+        
+        // End Live Activity
+        liveActivityService?.endActivity()
+        
         activeWorkout = nil
         activeViewModel = nil
         pendingTemplate = nil
@@ -122,6 +147,12 @@ final class ActiveWorkoutManager {
 
     /// Cancel workout and clear state
     func cancelWorkout() {
+        // Stop duration timer
+        activeViewModel?.stopDurationTimer()
+        
+        // End Live Activity
+        liveActivityService?.endActivity()
+        
         activeWorkout = nil
         activeViewModel = nil
         pendingTemplate = nil
@@ -177,6 +208,43 @@ final class ActiveWorkoutManager {
     /// Save bar position to UserDefaults
     private func saveBarPosition() {
         UserDefaults.standard.set(barPosition.rawValue, forKey: Self.barPositionKey)
+    }
+    
+    /// Update Live Activity with current workout state
+    func updateLiveActivity() {
+        guard let viewModel = activeViewModel,
+              let workout = activeWorkout else { return }
+        
+        // Get current exercise info
+        let currentExercise = viewModel.exercises.last
+        let currentExerciseName = currentExercise?.exercise?.name ?? "Starting..."
+        let currentSetNumber = currentExercise?.sets.filter(\.isCompleted).count ?? 0
+        let totalSetsForExercise = currentExercise?.sets.count ?? 0
+        
+        // Get last set info
+        let lastSet = currentExercise?.sets.last
+        let currentWeight = lastSet?.weight ?? 0
+        let currentReps = lastSet?.reps ?? 0
+        
+        // Calculate stats
+        let completedSets = self.completedSets
+        let totalVolume = viewModel.totalVolume
+        let duration = viewModel.duration
+        let exerciseCount = viewModel.exercises.count
+        
+        liveActivityService?.updateActivity(
+            currentExerciseName: currentExerciseName,
+            currentSetNumber: currentSetNumber + 1,
+            totalSets: totalSetsForExercise,
+            currentWeight: currentWeight,
+            currentReps: currentReps,
+            isResting: false, // Rest timer disabled - Phase 2 feature
+            restTimeRemaining: 0,
+            completedSets: completedSets,
+            totalVolume: totalVolume,
+            duration: duration,
+            exerciseCount: exerciseCount
+        )
     }
 
     /// Restore workout session from UserDefaults
@@ -238,6 +306,19 @@ final class ActiveWorkoutManager {
         self.activeWorkout = workout
         self.activeViewModel = viewModel
         self.showFullScreen = false // Start minimized
+        
+        // Connect Live Activity updates
+        viewModel.onStateChanged = { [weak self] in
+            self?.updateLiveActivity()
+        }
+        
+        // Restart Live Activity
+        let workoutName = viewModel.workoutTitle ?? "Workout"
+        liveActivityService?.startActivity(workoutName: workoutName)
+        updateLiveActivity()
+        
+        // Start duration timer
+        viewModel.startDurationTimer()
 
         return true
     }

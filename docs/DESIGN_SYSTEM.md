@@ -588,6 +588,167 @@ Button("Complete Set") {
 
 ---
 
-**Son Güncelleme:** 2025-02-11
-**Dosya Boyutu:** ~180 satır
-**Token Efficiency:** Code examples, clear structure
+## Profile Components (v1.2)
+
+### Sheet Components Pattern
+
+**Location:** `Features/Profile/Views/Components/`
+
+All Profile edit sheets follow a consistent pattern for better UX and maintainability.
+
+### Common Sheet Structure
+
+```swift
+struct ProfileEditSheet: View {
+    @Environment(\.dismiss) private var dismiss
+    let viewModel: ProfileViewModel
+    @State private var value: SomeType
+    @State private var isSaving = false
+    @State private var errorMessage: String?
+
+    var body: some View {
+        NavigationStack {
+            Form {
+                Section("Section Title") {
+                    // Edit UI
+                }
+
+                if let errorMessage {
+                    Section {
+                        Text(errorMessage)
+                            .font(DSTypography.caption)
+                            .foregroundStyle(DSColors.error)
+                    }
+                }
+            }
+            .navigationTitle("Edit Title")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel") { dismiss() }
+                }
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Save") {
+                        Task { await save() }
+                    }
+                    .disabled(isSaving || !isValid)
+                }
+            }
+        }
+        .onAppear {
+            value = viewModel.userProfile?.value ?? defaultValue
+        }
+    }
+
+    private func save() async {
+        isSaving = true
+        errorMessage = nil
+        do {
+            try await viewModel.updateValue(value)
+            dismiss()
+        } catch {
+            errorMessage = "Failed to save: \(error.localizedDescription)"
+            isSaving = false
+        }
+    }
+}
+```
+
+### Sheet Components
+
+#### 1. ProfileNameEditorSheet
+**Purpose:** Edit user's name
+**Input:** TextField (text)
+**Validation:** None (can be empty)
+**File:** `ProfileNameEditorSheet.swift`
+
+#### 2. ProfileHeightEditorSheet
+**Purpose:** Edit height (cm or inches based on weight unit)
+**Input:** TextField (decimal number)
+**Validation:** Must be > 0
+**Unit Conversion:** Automatic (cm ↔ inches)
+**File:** `ProfileHeightEditorSheet.swift`
+
+#### 3. ProfileGenderEditorSheet
+**Purpose:** Select gender
+**Input:** Picker (inline style)
+**Options:** Male, Female, Prefer not to say
+**File:** `ProfileGenderEditorSheet.swift`
+
+#### 4. ProfileDateOfBirthEditorSheet
+**Purpose:** Select date of birth
+**Input:** DatePicker (graphical style, .date components)
+**Range:** Up to today
+**Display:** Shows calculated age
+**Footer:** TDEE calculation explanation
+**File:** `ProfileDateOfBirthEditorSheet.swift`
+
+#### 5. ProfileActivityLevelEditorSheet
+**Purpose:** Select activity level
+**Input:** Picker (inline style with descriptions)
+**Options:** Sedentary, Lightly Active, Moderately Active, Very Active, Extra Active
+**Display:** Each option shows description from TDEECalculator
+**Footer:** TDEE calculation explanation
+**File:** `ProfileActivityLevelEditorSheet.swift`
+
+#### 6. ProfileBodyweightEntrySheet
+**Purpose:** Add new bodyweight entry
+**Inputs:**
+- DatePicker (date only)
+- TextField (weight - decimal)
+- TextField (notes - optional, multiline)
+
+**Validation:** Weight must be > 0
+**Unit Conversion:** Automatic (kg ↔ lbs)
+**File:** `ProfileBodyweightEntrySheet.swift`
+
+#### 7. ProfileBodyweightHistorySheet
+**Purpose:** View and delete bodyweight history
+**Display:** List with date, weight, notes
+**Actions:** Swipe to delete
+**Empty State:** "No History Yet" with icon
+**File:** `ProfileBodyweightHistorySheet.swift`
+
+### Design Consistency Rules
+
+1. **Navigation:** All sheets use NavigationStack
+2. **Title Display:** .inline for compact appearance
+3. **Toolbar Layout:**
+   - Cancel button: `.cancellationAction` placement
+   - Save button: `.confirmationAction` placement
+4. **Error Display:** Below input form, red text, caption font
+5. **Validation:** Save button disabled while saving or invalid
+6. **Data Loading:** `.onAppear` populates form with current values
+7. **Unit Awareness:** Respect user's weight unit preference (@AppStorage)
+8. **Async Saving:** All save operations use async/await
+
+### Usage Example
+
+```swift
+// In ProfileView.swift
+@State private var showNameEditor = false
+
+// Button to show sheet
+Button(action: { showNameEditor = true }) {
+    HStack {
+        Text("Name")
+        Spacer()
+        Text(viewModel.userProfile?.name ?? "Not set")
+            .foregroundStyle(DSColors.textSecondary)
+        Image(systemName: "chevron.right")
+            .font(.caption)
+            .foregroundStyle(DSColors.textTertiary)
+    }
+}
+
+// Sheet presentation
+.sheet(isPresented: $showNameEditor) {
+    ProfileNameEditorSheet(viewModel: viewModel)
+}
+```
+
+---
+
+**Son Güncelleme:** 2025-11-08 (v1.2)
+**Dosya Boyutu:** ~250 satır
+**Token Efficiency:** Code examples, clear structure, consistent patterns

@@ -209,6 +209,11 @@ struct SetRow: View {
 
                 // Toggle completion button
                 Button {
+                    // ROADMAP: Phase 1, Day 1 - Haptic Feedback
+                    // Success haptic on set completion
+                    let generator = UINotificationFeedbackGenerator()
+                    generator.notificationOccurred(.success)
+                    
                     withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
                         onToggle()
                     }

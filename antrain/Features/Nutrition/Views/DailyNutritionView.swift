@@ -33,12 +33,24 @@ struct DailyNutritionView: View {
                     }
                 }
                 .sheet(isPresented: $showNutritionGoalsEditor) {
+                    Task {
+                        await viewModel?.loadTodayLog()
+                    }
+                } content: {
                     if viewModel != nil {
                         SmartNutritionGoalsEditor()
                             .environmentObject(appDependencies)
                     }
                 }
         }
+        .toast(
+            isPresented: Binding(
+                get: { viewModel?.showToast ?? false },
+                set: { viewModel?.showToast = $0 }
+            ),
+            message: viewModel?.toastMessage ?? "",
+            type: viewModel?.toastType ?? .error
+        )
         .onAppear {
             // ViewModels'i SENKRON oluştur (hemen hazır)
             if viewModel == nil {

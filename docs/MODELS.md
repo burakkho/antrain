@@ -808,6 +808,25 @@ static var defaultProfile: UserProfile {
 }
 ```
 
+**UI Integration (v1.2):**
+- **ProfileView**: Main view in Profile tab (4th tab in MainTabView)
+  - Displays all profile fields with edit buttons
+  - Manages bodyweight tracking UI
+  - Toolbar Settings button → SettingsView (fullScreenCover)
+
+**Component Mapping:**
+- `name` → ProfileNameEditorSheet (TextField)
+- `height` → ProfileHeightEditorSheet (decimal input with unit conversion)
+- `gender` → ProfileGenderEditorSheet (Picker)
+- `dateOfBirth` → ProfileDateOfBirthEditorSheet (DatePicker graphical)
+- `activityLevel` → ProfileActivityLevelEditorSheet (Picker with descriptions)
+- `bodyweightEntries` → ProfileBodyweightEntrySheet (add), ProfileBodyweightHistorySheet (view/delete)
+
+**ViewModel:**
+- ProfileViewModel manages UserProfile CRUD operations
+- Loads profile on view appear
+- All updates are async/await with error handling
+
 ---
 
 ### BodyweightEntry
