@@ -130,28 +130,8 @@ struct WorkoutDetailView: View {
                                             .foregroundStyle(DSColors.textSecondary)
                                             .frame(width: 60, alignment: .leading)
 
-                                        // SetType indicator
-                                        if let setType = set.setType {
-                                            let parsedType = SetType.from(string: setType)
-                                            if parsedType != .normal {
-                                                Text(parsedType.icon)
-                                                    .font(.caption2)
-                                            }
-                                        }
-
                                         Text("\(set.reps) reps × \(set.weight.formattedWeight(unit: weightUnit))")
                                             .font(DSTypography.body)
-
-                                        // RPE indicator
-                                        if let rpe = set.rpe, rpe > 0 {
-                                            Text("@\(rpe)")
-                                                .font(DSTypography.caption)
-                                                .foregroundStyle(DSColors.textSecondary)
-                                                .padding(.horizontal, 4)
-                                                .padding(.vertical, 2)
-                                                .background(DSColors.cardBackground.opacity(0.5))
-                                                .cornerRadius(4)
-                                        }
 
                                         Spacer()
 
@@ -289,8 +269,21 @@ struct WorkoutDetailView: View {
     }
 
     private func formatDuration(_ duration: TimeInterval) -> String {
-        let minutes = Int(duration) / 60
-        return "\(minutes) min"
+        let totalSeconds = Int(duration)
+        let hours = totalSeconds / 3600
+        let minutes = (totalSeconds % 3600) / 60
+        let seconds = totalSeconds % 60
+
+        if hours > 0 {
+            // 1+ hours: show "1h 25m"
+            return "\(hours)h \(minutes)m"
+        } else if seconds > 0 {
+            // < 1 hour with seconds: show "25m 30s"
+            return "\(minutes)m \(seconds)s"
+        } else {
+            // Exactly minutes: show "25 min"
+            return "\(minutes) min"
+        }
     }
 
     private func formatWeight(_ weight: Double) -> String {

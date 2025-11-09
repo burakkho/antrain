@@ -1,5 +1,4 @@
 import SwiftUI
-import UniformTypeIdentifiers
 
 /// Settings view with app preferences and configuration
 struct SettingsView: View {
@@ -15,9 +14,6 @@ struct SettingsView: View {
     // Notification Settings
     @ObservedObject private var notificationService = NotificationService.shared
     @State private var showPermissionAlert = false
-
-    // Data Management
-    @State private var showImportPicker = false
 
     enum WeightUnit: String, CaseIterable {
         case kg = "Kilograms"
@@ -85,9 +81,6 @@ struct SettingsView: View {
 
                 // Data Management Section
                 DataManagementSection(
-                    onImport: {
-                        showImportPicker = true
-                    },
                     onExport: {
                         Task {
                             await viewModel?.exportWorkouts()
@@ -140,15 +133,6 @@ struct SettingsView: View {
                 Button("Not Now", role: .cancel) {}
             } message: {
                 Text("Antrain needs permission to send you workout reminders")
-            }
-            .fileImporter(
-                isPresented: $showImportPicker,
-                allowedContentTypes: [.commaSeparatedText, .plainText],
-                allowsMultipleSelection: false
-            ) { result in
-                Task {
-                    await viewModel?.handleImport(from: result)
-                }
             }
             .sheet(item: Binding(
                 get: { viewModel?.exportFileURL },

@@ -18,10 +18,6 @@ final class WorkoutSet {
     var notes: String?
     var restTime: TimeInterval?  // MVP scope dışı ama model hazır
 
-    // CSV import/export support (Hevy, Strong, Fitbod compatible)
-    var setType: String?  // "normal", "warmup", "dropset", "failure", custom types
-    var rpe: Int?  // Rate of Perceived Exertion (1-10)
-
     // Relationship
     var workoutExercise: WorkoutExercise?
 
@@ -30,9 +26,7 @@ final class WorkoutSet {
         weight: Double = 0.0,
         isCompleted: Bool = false,
         notes: String? = nil,
-        restTime: TimeInterval? = nil,
-        setType: String? = nil,
-        rpe: Int? = nil
+        restTime: TimeInterval? = nil
     ) {
         self.id = UUID()
         self.reps = reps
@@ -40,8 +34,6 @@ final class WorkoutSet {
         self.isCompleted = isCompleted
         self.notes = notes
         self.restTime = restTime
-        self.setType = setType
-        self.rpe = rpe
     }
 }
 
@@ -61,16 +53,6 @@ extension WorkoutSet {
     /// Display weight (0 = bodyweight)
     var displayWeight: String {
         weight == 0 ? "BW" : "\(weight) kg"
-    }
-
-    /// Parsed SetType from string (nonisolated)
-    nonisolated var parsedSetType: SetType {
-        SetType.from(string: setType)
-    }
-
-    /// Is this a warmup set?
-    nonisolated var isWarmup: Bool {
-        parsedSetType == .warmup
     }
 }
 

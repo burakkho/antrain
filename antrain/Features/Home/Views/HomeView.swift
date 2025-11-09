@@ -37,6 +37,7 @@ struct HomeView: View {
                 .padding(DSSpacing.md)
             }
             .navigationTitle("Home")
+            .navigationBarTitleDisplayMode(.large)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {

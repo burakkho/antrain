@@ -79,13 +79,6 @@ struct DayCard: View {
                         }
                         .foregroundStyle(.orange)
                     }
-
-                    // Suggested RPE
-                    if let rpe = day.suggestedRPE {
-                        Text("Target RPE: \(rpe)")
-                            .font(.caption2)
-                            .foregroundStyle(.secondary)
-                    }
                 }
 
                 Spacer()
@@ -109,8 +102,7 @@ struct DayCard: View {
         DayCard(
             day: ProgramDay(
                 dayOfWeek: 2, // Monday
-                name: "Upper Body Power",
-                suggestedRPE: 8
+                name: "Upper Body Power"
             )
         )
 
@@ -118,8 +110,7 @@ struct DayCard: View {
             day: ProgramDay(
                 dayOfWeek: 3, // Tuesday
                 name: "Lower Body Strength",
-                intensityOverride: 1.1,
-                suggestedRPE: 9
+                intensityOverride: 1.1
             )
         )
     }

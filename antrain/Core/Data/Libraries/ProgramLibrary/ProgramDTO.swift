@@ -75,20 +75,17 @@ struct DayDTO: Sendable {
     let name: String?
     let templateName: String?  // Reference to template by name
     let notes: String?
-    let suggestedRPE: Int?
 
     init(
         dayOfWeek: Int,
         name: String? = nil,
         templateName: String? = nil,
-        notes: String? = nil,
-        suggestedRPE: Int? = nil
+        notes: String? = nil
     ) {
         self.dayOfWeek = dayOfWeek
         self.name = name
         self.templateName = templateName
         self.notes = notes
-        self.suggestedRPE = suggestedRPE
     }
 }
 
@@ -154,8 +151,7 @@ extension DayDTO {
             dayOfWeek: dayOfWeek,
             name: name,
             notes: notes,
-            template: template,
-            suggestedRPE: suggestedRPE
+            template: template
         )
     }
 }

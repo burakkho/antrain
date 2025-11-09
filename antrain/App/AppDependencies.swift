@@ -28,7 +28,6 @@ final class AppDependencies: ObservableObject {
     // MARK: - Services
     let prDetectionService: PRDetectionService
     let progressiveOverloadService: ProgressiveOverloadService
-    let liveActivityManager: LiveActivityManager
     let widgetUpdateService: WidgetUpdateService
 
     // MARK: - Initialization
@@ -53,7 +52,6 @@ final class AppDependencies: ObservableObject {
         self.progressiveOverloadService = ProgressiveOverloadService(
             workoutRepository: workoutRepository
         )
-        self.liveActivityManager = LiveActivityManager()
         self.widgetUpdateService = WidgetUpdateService(
             workoutRepository: workoutRepository,
             userProfileRepository: userProfileRepository

@@ -37,6 +37,7 @@ struct SwipeableNumberField: View {
     @State private var feedbackColor: Color?
     @FocusState private var isFocused: Bool
     @AppStorage("weightUnit") private var weightUnit: String = "Kilograms"
+    @State private var debounceTask: Task<Void, Never>?
 
     // MARK: - Constants
 
@@ -58,7 +59,14 @@ struct SwipeableNumberField: View {
             .focused($isFocused)
             .disabled(!isKeyboardMode) // Disable when in swipe mode
             .onChange(of: value) { oldValue, newValue in
-                onUpdate()
+                // Debounce: Cancel previous task, wait 500ms before calling onUpdate
+                debounceTask?.cancel()
+                debounceTask = Task {
+                    try? await Task.sleep(nanoseconds: 500_000_000) // 0.5 seconds
+                    if !Task.isCancelled {
+                        onUpdate()
+                    }
+                }
             }
             .highPriorityGesture(
                 isKeyboardMode ? nil : DragGesture(minimumDistance: 20)
@@ -120,6 +128,13 @@ struct SwipeableNumberField: View {
                 // Sync external focus to internal focus (one-way binding)
                 if let newValue = newValue, isFocused != newValue {
                     isFocused = newValue
+                }
+            }
+            .onChange(of: isFocused) { oldFocused, newFocused in
+                // When focus is lost, immediately update (don't wait for debounce)
+                if oldFocused && !newFocused {
+                    debounceTask?.cancel()
+                    onUpdate()
                 }
             }
     }
@@ -218,6 +233,11 @@ struct SwipeableNumberField: View {
     private func updateValue(by increment: Double) {
         let newValue = max(0, value + increment) // Minimum 0
         value = newValue
+
+        // For gesture mode: immediate update (cancel debounce, update now)
+        debounceTask?.cancel()
+        onUpdate()
+
         triggerHaptic(for: abs(increment))
     }
 

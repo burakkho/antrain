@@ -145,20 +145,6 @@ struct SetRow: View {
                     .strikethrough(set.isCompleted, color: DSColors.textSecondary)
                     .frame(width: 30)
 
-                // SetType indicator (if not normal)
-                if let setType = set.setType {
-                    let parsedType = SetType.from(string: setType)
-                    if parsedType != .normal {
-                        Text(parsedType.icon)
-                            .font(.caption2)
-                            .frame(width: 16)
-                    } else {
-                        Spacer().frame(width: 16)  // Maintain alignment
-                    }
-                } else {
-                    Spacer().frame(width: 16)  // Maintain alignment
-                }
-
                 // Reps input with swipe gestures
                 SwipeableNumberField(
                     type: .reps,
@@ -220,17 +206,6 @@ struct SetRow: View {
                     .font(DSTypography.body)
                     .foregroundStyle(DSColors.textSecondary)
                     .strikethrough(set.isCompleted, color: DSColors.textSecondary)
-
-                // RPE indicator (if set)
-                if let rpe = set.rpe, rpe > 0 {
-                    Text("@\(rpe)")
-                        .font(.caption)
-                        .foregroundStyle(DSColors.textSecondary)
-                        .padding(.horizontal, 4)
-                        .padding(.vertical, 2)
-                        .background(DSColors.cardBackground.opacity(0.5))
-                        .cornerRadius(4)
-                }
 
                 // Toggle completion button
                 Button {

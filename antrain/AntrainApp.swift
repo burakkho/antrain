@@ -13,14 +13,11 @@ import SwiftData
 struct antrainApp: App {
     
     init() {
-        // Register notification categories
+        // Register notification categories (synchronous, no main thread blocking)
         NotificationService.shared.registerCategories()
 
-        // Initial notification status check and scheduling
-        Task { @MainActor in
-            await NotificationService.shared.updateAuthorizationStatus()
-            await NotificationService.shared.scheduleNextNotification()
-        }
+        // Apple Best Practice: Don't check notification status eagerly at app launch
+        // Status will be checked lazily in MainTabView.task after UI renders
     }
     // Use PersistenceController for centralized ModelContainer management
     @MainActor
@@ -56,8 +53,8 @@ struct antrainApp: App {
         .modelContainer(persistenceController.modelContainer)
         .onChange(of: scenePhase) { _, newPhase in
             if newPhase == .active {
-                // App became active, check if we need to re-schedule
-                Task { @MainActor in
+                // App became active, re-schedule notifications in background
+                Task {
                     await NotificationService.shared.scheduleNextNotification()
                 }
             }

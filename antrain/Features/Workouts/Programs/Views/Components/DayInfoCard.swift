@@ -56,28 +56,6 @@ struct DayInfoCard: View {
                 }
             }
 
-            // RPE target
-            if let rpeText = viewModel.rpeText,
-               let rpeDescription = viewModel.rpeDescription {
-                Divider()
-
-                HStack(spacing: DSSpacing.sm) {
-                    Image(systemName: "gauge.with.dots.needle.67percent")
-                        .foregroundStyle(DSColors.primary)
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("Target Intensity")
-                            .font(DSTypography.caption)
-                            .foregroundStyle(DSColors.textSecondary)
-                        Text(rpeText)
-                            .font(DSTypography.body)
-                            .fontWeight(.semibold)
-                        Text(rpeDescription)
-                            .font(DSTypography.caption)
-                            .foregroundStyle(DSColors.textSecondary)
-                    }
-                }
-            }
-
             // Modifiers
             if viewModel.hasModifiers {
                 Divider()

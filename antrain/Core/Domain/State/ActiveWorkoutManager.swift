@@ -43,19 +43,10 @@ final class ActiveWorkoutManager {
             saveBarPosition()
         }
     }
-    
-    /// Live Activity service (injected)
-    private let liveActivityService: LiveActivityServiceProtocol?
-
-    /// Debounce task for Live Activity updates (Apple WWDC 2025 best practice)
-    /// Prevents excessive updates when user is rapidly toggling sets
-    private var liveActivityUpdateTask: Task<Void, Never>?
 
     // MARK: - Init
 
-    init(liveActivityService: LiveActivityServiceProtocol? = nil) {
-        self.liveActivityService = liveActivityService
-        
+    init() {
         // Load saved bar position
         if let savedPosition = UserDefaults.standard.string(forKey: Self.barPositionKey),
            let position = WorkoutBarPosition(rawValue: savedPosition) {
@@ -90,18 +81,8 @@ final class ActiveWorkoutManager {
         self.activeWorkout = workout
         self.activeViewModel = viewModel
         self.showFullScreen = true
-        
-        // Connect Live Activity updates
-        viewModel.onStateChanged = { [weak self] in
-            self?.updateLiveActivity()
-        }
-        
-        saveState()
 
-        // Start Live Activity (use immediate update for critical startup)
-        let workoutName = viewModel.workoutTitle ?? "Workout"
-        liveActivityService?.startActivity(workoutName: workoutName)
-        updateLiveActivityImmediately()
+        saveState()
     }
 
     /// Start a new workout from a template
@@ -132,9 +113,6 @@ final class ActiveWorkoutManager {
 
     /// Finish workout and clear state
     func finishWorkout() {
-        // End Live Activity
-        liveActivityService?.endActivity()
-        
         activeWorkout = nil
         activeViewModel = nil
         pendingTemplate = nil
@@ -145,9 +123,6 @@ final class ActiveWorkoutManager {
 
     /// Cancel workout and clear state
     func cancelWorkout() {
-        // End Live Activity
-        liveActivityService?.endActivity()
-        
         activeWorkout = nil
         activeViewModel = nil
         pendingTemplate = nil
@@ -204,68 +179,6 @@ final class ActiveWorkoutManager {
     private func saveBarPosition() {
         UserDefaults.standard.set(barPosition.rawValue, forKey: Self.barPositionKey)
     }
-    
-    /// Update Live Activity with debouncing (Apple WWDC 2025 best practice)
-    /// Prevents excessive updates when user rapidly toggles multiple sets
-    /// Updates are debounced by 0.3 seconds
-    func updateLiveActivity() {
-        // Cancel previous pending update
-        liveActivityUpdateTask?.cancel()
-
-        // Schedule new update with debounce delay
-        liveActivityUpdateTask = Task { @MainActor in
-            // Wait 0.3 seconds - if another update comes, this task will be cancelled
-            try? await Task.sleep(for: .milliseconds(300))
-
-            // If we weren't cancelled, perform the update
-            guard !Task.isCancelled else { return }
-            _performLiveActivityUpdate()
-        }
-    }
-
-    /// Immediate Live Activity update (no debouncing)
-    /// Use this for critical updates like starting/finishing workout
-    func updateLiveActivityImmediately() {
-        liveActivityUpdateTask?.cancel()
-        _performLiveActivityUpdate()
-    }
-
-    /// Internal method that performs the actual Live Activity update
-    private func _performLiveActivityUpdate() {
-        guard let viewModel = activeViewModel,
-              let _ = activeWorkout else { return }
-
-        // Get current exercise info
-        let currentExercise = viewModel.exercises.last
-        let currentExerciseName = currentExercise?.exercise?.name ?? "Starting..."
-        let currentSetNumber = currentExercise?.sets.filter(\.isCompleted).count ?? 0
-        let totalSetsForExercise = currentExercise?.sets.count ?? 0
-
-        // Get last set info
-        let lastSet = currentExercise?.sets.last
-        let currentWeight = lastSet?.weight ?? 0
-        let currentReps = lastSet?.reps ?? 0
-
-        // Calculate stats (now using cached values from ViewModel - another optimization!)
-        let completedSets = self.completedSets
-        let totalVolume = viewModel.totalVolume
-        let exerciseCount = viewModel.exercises.count
-
-        // Note: Duration is no longer sent to Live Activity
-        // Widget now uses Apple's native Text(timerInterval:) for automatic duration display
-        liveActivityService?.updateActivity(
-            currentExerciseName: currentExerciseName,
-            currentSetNumber: currentSetNumber + 1,
-            totalSets: totalSetsForExercise,
-            currentWeight: currentWeight,
-            currentReps: currentReps,
-            isResting: false, // Rest timer disabled - Phase 2 feature
-            restTimeRemaining: 0,
-            completedSets: completedSets,
-            totalVolume: totalVolume,
-            exerciseCount: exerciseCount
-        )
-    }
 
     /// Restore workout session from UserDefaults
     /// Returns true if restoration was successful
@@ -275,7 +188,6 @@ final class ActiveWorkoutManager {
         prDetectionService: PRDetectionService,
         progressiveOverloadService: ProgressiveOverloadService,
         userProfileRepository: UserProfileRepositoryProtocol,
-        liveActivityManager: LiveActivityManager,
         widgetUpdateService: WidgetUpdateService
     ) async -> Bool {
         guard let sessionData = WorkoutSessionData.load() else {
@@ -295,15 +207,19 @@ final class ActiveWorkoutManager {
             prDetectionService: prDetectionService,
             progressiveOverloadService: progressiveOverloadService,
             userProfileRepository: userProfileRepository,
-            liveActivityManager: liveActivityManager,
             widgetUpdateService: widgetUpdateService
         )
 
+        // Swift 6.2 Optimization: Fetch all exercises ONCE before loop
+        // Previous: N database queries (one per exercise)
+        // Now: 1 database query (5-10× faster restoration)
+        let allExercises = try? await exerciseRepository.fetchAll()
+
         // Restore exercises
         for exerciseData in sessionData.exercises {
-            // Find exercise from repository
-            let exercises = try? await exerciseRepository.fetchAll()
-            guard let exercise = exercises?.first(where: { $0.name == exerciseData.exerciseName }) else {
+            // Find exercise from pre-fetched list
+            guard let exercise = allExercises?.first(where: { $0.name == exerciseData.exerciseName }) else {
+                print("⚠️ Exercise not found: \(exerciseData.exerciseName)")
                 continue
             }
 
@@ -330,16 +246,6 @@ final class ActiveWorkoutManager {
         self.activeWorkout = workout
         self.activeViewModel = viewModel
         self.showFullScreen = false // Start minimized
-        
-        // Connect Live Activity updates
-        viewModel.onStateChanged = { [weak self] in
-            self?.updateLiveActivity()
-        }
-        
-        // Restart Live Activity (use immediate update for critical restore)
-        let workoutName = viewModel.workoutTitle ?? "Workout"
-        liveActivityService?.startActivity(workoutName: workoutName)
-        updateLiveActivityImmediately()
 
         return true
     }

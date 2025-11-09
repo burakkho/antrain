@@ -7,7 +7,8 @@ struct NotificationSettingsSection: View {
     let onToast: (LocalizedStringKey, DSToast.ToastType) -> Void
 
     var body: some View {
-        Section {
+        Group {
+            Section {
             // Main notification toggle
             Toggle(isOn: Binding(
                 get: { notificationService.settings.isEnabled },
@@ -87,21 +88,29 @@ struct NotificationSettingsSection: View {
             }
         }
 
-        // iOS Settings Link (if permission denied)
-        if notificationService.settings.isEnabled && notificationService.authorizationStatus != .authorized {
-            Section {
-                Button {
-                    if let url = URL(string: UIApplication.openSettingsURLString) {
-                        UIApplication.shared.open(url)
-                    }
-                } label: {
-                    HStack {
-                        Text("Open iOS Settings")
-                        Spacer()
-                        Image(systemName: "arrow.up.forward.app")
-                            .font(.caption)
+            // iOS Settings Link (if permission denied)
+            if notificationService.settings.isEnabled && notificationService.authorizationStatus != .authorized {
+                Section {
+                    Button {
+                        if let url = URL(string: UIApplication.openSettingsURLString) {
+                            UIApplication.shared.open(url)
+                        }
+                    } label: {
+                        HStack {
+                            Text("Open iOS Settings")
+                            Spacer()
+                            Image(systemName: "arrow.up.forward.app")
+                                .font(.caption)
+                        }
                     }
                 }
+            }
+        }
+        .onAppear {
+            // Check notification authorization status when Settings screen opens
+            // This ensures we show accurate permission state to the user
+            Task {
+                await notificationService.updateAuthorizationStatus()
             }
         }
     }

@@ -42,7 +42,9 @@ final class NotificationService: NSObject, ObservableObject {
         super.init()
 
         center.delegate = self
-        Task { await updateAuthorizationStatus() }
+
+        // Apple Best Practice: Don't eagerly check authorization at init
+        // Status will be checked lazily when needed (e.g., Settings screen, MainTabView.task)
     }
 
     // MARK: - Authorization

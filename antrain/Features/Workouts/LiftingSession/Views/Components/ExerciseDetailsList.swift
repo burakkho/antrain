@@ -44,15 +44,6 @@ private struct SummarySetRow: View {
                 .foregroundStyle(.secondary)
                 .frame(width: 50, alignment: .leading)
 
-            // SetType indicator
-            if let setType = set.setType {
-                let parsedType = SetType.from(string: setType)
-                if parsedType != .normal {
-                    Text(parsedType.icon)
-                        .font(.caption2)
-                }
-            }
-
             Text("\(set.reps)")
                 .font(.body)
                 .fontWeight(.medium)
@@ -65,17 +56,6 @@ private struct SummarySetRow: View {
             Text("\(Int(set.weight)) kg")
                 .font(.body)
                 .fontWeight(.medium)
-
-            // RPE indicator
-            if let rpe = set.rpe, rpe > 0 {
-                Text("@\(rpe)")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .padding(.horizontal, 4)
-                    .padding(.vertical, 2)
-                    .background(.regularMaterial)
-                    .cornerRadius(4)
-            }
 
             Spacer()
 

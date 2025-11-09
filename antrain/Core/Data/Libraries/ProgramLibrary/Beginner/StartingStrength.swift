@@ -22,22 +22,19 @@ func startingStrengthProgram() -> ProgramDTO {
             DayDTO(
                 dayOfWeek: 2,
                 name: "Workout A",
-                templateName: "Starting Strength A",
-                suggestedRPE: isDeload ? 6 : 8
+                templateName: "Starting Strength A"
             ),
             // Wednesday - Workout B
             DayDTO(
                 dayOfWeek: 4,
                 name: "Workout B",
-                templateName: "Starting Strength B",
-                suggestedRPE: isDeload ? 6 : 8
+                templateName: "Starting Strength B"
             ),
             // Friday - Workout A
             DayDTO(
                 dayOfWeek: 6,
                 name: "Workout A",
-                templateName: "Starting Strength A",
-                suggestedRPE: isDeload ? 6 : 8
+                templateName: "Starting Strength A"
             )
         ]
 

@@ -28,43 +28,37 @@ func ppl6DayProgram() -> ProgramDTO {
             DayDTO(
                 dayOfWeek: 2,
                 name: "Push Day 1",
-                templateName: "PPL Push",
-                suggestedRPE: isDeload ? 6 : 8
+                templateName: "PPL Push"
             ),
             // Tuesday - Pull
             DayDTO(
                 dayOfWeek: 3,
                 name: "Pull Day 1",
-                templateName: "PPL Pull",
-                suggestedRPE: isDeload ? 6 : 8
+                templateName: "PPL Pull"
             ),
             // Wednesday - Legs
             DayDTO(
                 dayOfWeek: 4,
                 name: "Leg Day 1",
-                templateName: "PPL Legs",
-                suggestedRPE: isDeload ? 6 : 8
+                templateName: "PPL Legs"
             ),
             // Thursday - Push
             DayDTO(
                 dayOfWeek: 5,
                 name: "Push Day 2",
-                templateName: "PPL Push",
-                suggestedRPE: isDeload ? 6 : 8
+                templateName: "PPL Push"
             ),
             // Friday - Pull
             DayDTO(
                 dayOfWeek: 6,
                 name: "Pull Day 2",
-                templateName: "PPL Pull",
-                suggestedRPE: isDeload ? 6 : 8
+                templateName: "PPL Pull"
             ),
             // Saturday - Legs
             DayDTO(
                 dayOfWeek: 7,
                 name: "Leg Day 2",
-                templateName: "PPL Legs",
-                suggestedRPE: isDeload ? 6 : 8
+                templateName: "PPL Legs"
             )
         ]
 

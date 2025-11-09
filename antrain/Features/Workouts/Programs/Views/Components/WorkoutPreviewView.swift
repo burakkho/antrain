@@ -37,20 +37,6 @@ struct WorkoutPreviewView: View {
                         .fontWeight(.semibold)
                         .foregroundStyle(weekModifier >= 1.0 ? Color.primary : Color.orange)
                 }
-
-                // Suggested RPE
-                if let rpe = programDay.suggestedRPE {
-                    HStack {
-                        Label("Target RPE", systemImage: "gauge")
-                            .foregroundStyle(.secondary)
-
-                        Spacer()
-
-                        Text("\(rpe)")
-                            .fontWeight(.semibold)
-                            .foregroundStyle(.blue)
-                    }
-                }
             } header: {
                 Text("Day Info", comment: "Section header for day information")
             }
@@ -152,7 +138,6 @@ struct WorkoutPreviewView: View {
         name: "Push",
         notes: "Focus on progressive overload"
     )
-    programDay.suggestedRPE = 8
     programDay.template = template
 
     return NavigationStack {

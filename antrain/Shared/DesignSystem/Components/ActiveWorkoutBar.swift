@@ -198,7 +198,6 @@ struct ActiveWorkoutBar: View {
         prDetectionService: deps.prDetectionService,
         progressiveOverloadService: deps.progressiveOverloadService,
         userProfileRepository: deps.userProfileRepository,
-        liveActivityManager: deps.liveActivityManager,
         widgetUpdateService: deps.widgetUpdateService
     )
 

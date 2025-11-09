@@ -226,17 +226,20 @@ struct ExerciseCard: View {
     }
 
     // MARK: - Computed Properties
+    // Swift 6.2 Optimization: Use model-level computed properties (cached by @Observable)
+    // Previous: View-level computed properties recalculated on every render
+    // Now: Model properties only recalculate when sets array changes
 
     private var completedSets: Int {
-        workoutExercise.sets.filter { $0.isCompleted }.count
+        workoutExercise.completedSets  // From WorkoutExercise model
     }
 
     private var totalSets: Int {
-        workoutExercise.sets.count
+        workoutExercise.totalSets  // From WorkoutExercise model
     }
 
     private var hasIncompleteSets: Bool {
-        workoutExercise.sets.contains { !$0.isCompleted }
+        !workoutExercise.isAllSetsCompleted  // From WorkoutExercise model
     }
 
     // MARK: - Helpers

@@ -28,20 +28,17 @@ func strongLifts5x5Program() -> ProgramDTO {
                 DayDTO(
                     dayOfWeek: 2,
                     name: "Workout A",
-                    templateName: workoutA,
-                    suggestedRPE: isDeload ? 6 : 8
+                    templateName: workoutA
                 ),
                 DayDTO(
                     dayOfWeek: 4,
                     name: "Workout B",
-                    templateName: workoutB,
-                    suggestedRPE: isDeload ? 6 : 8
+                    templateName: workoutB
                 ),
                 DayDTO(
                     dayOfWeek: 6,
                     name: "Workout A",
-                    templateName: workoutA,
-                    suggestedRPE: isDeload ? 6 : 8
+                    templateName: workoutA
                 )
             ]
         } else {
@@ -50,20 +47,17 @@ func strongLifts5x5Program() -> ProgramDTO {
                 DayDTO(
                     dayOfWeek: 2,
                     name: "Workout B",
-                    templateName: workoutB,
-                    suggestedRPE: isDeload ? 6 : 8
+                    templateName: workoutB
                 ),
                 DayDTO(
                     dayOfWeek: 4,
                     name: "Workout A",
-                    templateName: workoutA,
-                    suggestedRPE: isDeload ? 6 : 8
+                    templateName: workoutA
                 ),
                 DayDTO(
                     dayOfWeek: 6,
                     name: "Workout B",
-                    templateName: workoutB,
-                    suggestedRPE: isDeload ? 6 : 8
+                    templateName: workoutB
                 )
             ]
         }

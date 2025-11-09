@@ -34,7 +34,10 @@ struct LiftingSessionView: View {
         NavigationStack {
             Group {
                 if let viewModel {
-                    if viewModel.exercises.isEmpty {
+                    if viewModel.isLoading {
+                        // Show loading while template is being loaded
+                        DSLoadingView(message: "Loading workout...")
+                    } else if viewModel.exercises.isEmpty {
                         emptyState(viewModel: viewModel)
                     } else {
                         exercisesList(viewModel: viewModel)
@@ -129,7 +132,6 @@ struct LiftingSessionView: View {
                             prDetectionService: appDependencies.prDetectionService,
                             progressiveOverloadService: appDependencies.progressiveOverloadService,
                             userProfileRepository: appDependencies.userProfileRepository,
-                            liveActivityManager: appDependencies.liveActivityManager,
                             widgetUpdateService: appDependencies.widgetUpdateService
                         )
 

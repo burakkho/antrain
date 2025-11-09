@@ -66,34 +66,6 @@ final class DayDetailViewModel {
         }
     }
 
-    /// RPE text
-    var rpeText: String? {
-        guard let rpe = day.suggestedRPE else { return nil }
-        return "RPE \(rpe)/10"
-    }
-
-    /// RPE description based on value
-    var rpeDescription: String? {
-        guard let rpe = day.suggestedRPE else { return nil }
-
-        switch rpe {
-        case 1...4:
-            return String(localized: "Very light effort")
-        case 5...6:
-            return String(localized: "Moderate effort, could do many more reps")
-        case 7:
-            return String(localized: "Challenging, could do 3 more reps")
-        case 8:
-            return String(localized: "Hard, could do 2 more reps")
-        case 9:
-            return String(localized: "Very hard, could do 1 more rep")
-        case 10:
-            return String(localized: "Maximum effort, no reps left")
-        default:
-            return nil
-        }
-    }
-
     /// Whether this day has any modifiers applied
     var hasModifiers: Bool {
         day.effectiveIntensityModifier != 1.0 ||

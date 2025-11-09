@@ -36,25 +36,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Empty state with helpful message when no PRs found
   - Relative date formatting (e.g., "2 days ago", "Last week")
 
-#### CSV Import/Export
+#### CSV Export
 - **CSV Export**: Backup workout data to CSV format
   - Compatible with popular fitness apps (Hevy, Strong, Fitbod)
   - Exports all workout history with exercise details
   - Share via Files app, email, or cloud storage
   - One-tap export from Settings
-
-- **CSV Import**: Import workouts from other apps
-  - Smart exercise name mapping system
-  - Outlier detection (e.g., 440kg → 44kg automatic correction)
-  - PR recalculation after import
-  - Support for multiple CSV formats
-  - Progress indicator during import
-  - Detailed import summary with stats
-
-- **Exercise Name Mapper**: Intelligent exercise matching
-  - Maps common exercise name variations
-  - Supports 50+ exercise name aliases
-  - Handles different naming conventions across apps
 
 #### Set Type System
 - **Set Type Differentiation**

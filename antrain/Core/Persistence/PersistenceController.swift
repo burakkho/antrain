@@ -21,6 +21,15 @@ final class PersistenceController {
     @MainActor
     private(set) var seedingProgress: String = ""
 
+    @MainActor
+    private(set) var currentStep: Int = 0
+
+    @MainActor
+    private(set) var totalSteps: Int = 4  // Libraries, Templates, Programs, Profile
+
+    @MainActor
+    private(set) var progressPercentage: Double = 0.0
+
     private init() {
         do {
             // Configure ModelContainer with all models
@@ -71,13 +80,22 @@ final class PersistenceController {
 
     // MARK: - Seeding Coordinator
 
+    /// Update seeding progress
+    private func updateProgress(step: Int, message: String) async {
+        await MainActor.run {
+            self.currentStep = step
+            self.seedingProgress = message
+            self.progressPercentage = Double(step) / Double(totalSteps)
+        }
+    }
+
     /// Performs all seeding operations on background thread
     private func performSeeding() async {
         // Update UI state on main thread
         await MainActor.run {
             self.isSeeding = true
-            self.seedingProgress = "Initializing..."
         }
+        await updateProgress(step: 0, message: "Initializing...")
 
         // Perform seeding
         await seedLibrariesIfNeeded()
@@ -88,6 +106,8 @@ final class PersistenceController {
         // Mark as complete
         await MainActor.run {
             self.isSeeding = false
+            self.currentStep = self.totalSteps
+            self.progressPercentage = 1.0
             self.seedingProgress = "Complete"
         }
 
@@ -100,12 +120,11 @@ final class PersistenceController {
 
         guard !hasSeeded else {
             print("✅ Libraries already seeded")
+            await updateProgress(step: 1, message: "Libraries ready")
             return
         }
 
-        await MainActor.run {
-            self.seedingProgress = "Loading exercises and foods..."
-        }
+        await updateProgress(step: 1, message: "Loading exercises and foods...")
 
         print("🌱 Seeding libraries...")
 
@@ -143,12 +162,11 @@ final class PersistenceController {
 
         guard !hasSeeded else {
             print("✅ Templates already seeded")
+            await updateProgress(step: 2, message: "Templates ready")
             return
         }
 
-        await MainActor.run {
-            self.seedingProgress = "Creating workout templates..."
-        }
+        await updateProgress(step: 2, message: "Creating workout templates...")
 
         print("🌱 Seeding preset templates...")
 
@@ -217,12 +235,11 @@ final class PersistenceController {
 
         guard !hasSeeded else {
             print("✅ Programs already seeded")
+            await updateProgress(step: 3, message: "Programs ready")
             return
         }
 
-        await MainActor.run {
-            self.seedingProgress = "Setting up training programs..."
-        }
+        await updateProgress(step: 3, message: "Setting up training programs...")
 
         print("🌱 Seeding preset programs...")
 
@@ -367,6 +384,8 @@ final class PersistenceController {
 
     /// Create default user profile on first launch
     private func createDefaultProfileIfNeeded() async {
+        await updateProgress(step: 4, message: "Creating your profile...")
+
         // Create background context (don't block main context!)
         let context = ModelContext(modelContainer)
 

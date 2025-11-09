@@ -17,6 +17,7 @@ struct DailyWorkoutSummary: View {
     @State private var topPRs: [PersonalRecord] = []
     @State private var isLoading = false
     @State private var errorMessage: String?
+    @State private var loadTask: Task<Void, Never>?
 
     /// Number of top PRs to display
     var limit: Int = 5
@@ -91,11 +92,24 @@ struct DailyWorkoutSummary: View {
 
     // MARK: - Load PRs
 
+    // Swift 6.2 Optimization: Debouncing pattern (WWDC 2024)
+    // Previous: Duplicate fetches when onAppear + WorkoutSaved notification fire together
+    // Now: Cancel pending task, debounce with 300ms delay to batch rapid calls
     private func loadTopPRs() {
-        isLoading = true
-        errorMessage = nil
+        // Cancel any pending load task
+        loadTask?.cancel()
 
-        Task {
+        // Create new debounced task
+        loadTask = Task {
+            // Debounce: wait 300ms before loading
+            try? await Task.sleep(for: .milliseconds(300))
+
+            // Check if task was cancelled during sleep
+            guard !Task.isCancelled else { return }
+
+            isLoading = true
+            errorMessage = nil
+
             do {
                 topPRs = try await appDependencies.personalRecordRepository.getTopPRs(limit: limit)
                 isLoading = false

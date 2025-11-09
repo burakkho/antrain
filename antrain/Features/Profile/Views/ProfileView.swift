@@ -139,6 +139,7 @@ struct ProfileView: View {
                     }
                 }
                 .navigationTitle("Profile")
+                .navigationBarTitleDisplayMode(.large)
                 .toolbar {
                     ToolbarItem(placement: .topBarTrailing) {
                         Button {

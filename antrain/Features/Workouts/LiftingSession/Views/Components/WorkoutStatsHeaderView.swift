@@ -64,6 +64,11 @@ struct WorkoutStatsHeaderView: View {
     // MARK: - Formatting
 
     private var formattedVolume: String {
+        // Nil safety: guard against NaN, infinity, or negative values
+        guard volume.isFinite, volume >= 0 else {
+            return "0kg"
+        }
+
         if volume >= 1000 {
             return String(format: "%.1fkg", volume / 1000 * 1000)
         } else {

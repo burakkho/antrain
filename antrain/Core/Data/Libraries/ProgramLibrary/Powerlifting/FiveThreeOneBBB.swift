@@ -19,10 +19,10 @@ func fiveThreeOneBBBProgram() -> ProgramDTO {
         let isDeload = (weekNum == 4)
 
         let days: [DayDTO] = [
-            DayDTO(dayOfWeek: 2, name: "Squat Day", templateName: "531 Squat", suggestedRPE: isDeload ? 6 : 8),
-            DayDTO(dayOfWeek: 3, name: "Bench Day", templateName: "531 Bench", suggestedRPE: isDeload ? 6 : 8),
-            DayDTO(dayOfWeek: 5, name: "Deadlift Day", templateName: "531 Deadlift", suggestedRPE: isDeload ? 6 : 8),
-            DayDTO(dayOfWeek: 6, name: "Press Day", templateName: "531 Press", suggestedRPE: isDeload ? 6 : 8)
+            DayDTO(dayOfWeek: 2, name: "Squat Day", templateName: "531 Squat"),
+            DayDTO(dayOfWeek: 3, name: "Bench Day", templateName: "531 Bench"),
+            DayDTO(dayOfWeek: 5, name: "Deadlift Day", templateName: "531 Deadlift"),
+            DayDTO(dayOfWeek: 6, name: "Press Day", templateName: "531 Press")
         ]
 
         weeks.append(WeekDTO(

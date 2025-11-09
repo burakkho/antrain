@@ -2,28 +2,11 @@ import SwiftUI
 
 /// Data management section component
 struct DataManagementSection: View {
-    let onImport: () -> Void
     let onExport: () -> Void
     let onRecalculatePRs: () -> Void
 
     var body: some View {
         Section {
-            // Import from CSV
-            Button(action: onImport) {
-                HStack {
-                    Image(systemName: "square.and.arrow.down")
-                        .foregroundStyle(DSColors.primary)
-                    VStack(alignment: .leading) {
-                        Text("Import from CSV")
-                            .foregroundStyle(DSColors.textPrimary)
-                        Text("Import from Hevy, Strong, Fitbod, etc.")
-                            .font(DSTypography.caption)
-                            .foregroundStyle(DSColors.textSecondary)
-                    }
-                    Spacer()
-                }
-            }
-
             // Export to CSV
             Button(action: onExport) {
                 HStack {
@@ -58,7 +41,7 @@ struct DataManagementSection: View {
         } header: {
             Text("Data Management")
         } footer: {
-            Text("Import workouts from other apps, export your data, or recalculate personal records.")
+            Text("Export your data or recalculate personal records.")
                 .font(DSTypography.caption)
         }
     }

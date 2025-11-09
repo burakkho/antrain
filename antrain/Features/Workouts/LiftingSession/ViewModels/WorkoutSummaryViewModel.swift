@@ -22,6 +22,9 @@ final class WorkoutSummaryViewModel {
     let workout: Workout
     let exercises: [WorkoutExercise]
 
+    // Cached duration (calculated once on init)
+    private let cachedDuration: TimeInterval
+
     // MARK: - State
 
     var isLoading = false
@@ -58,6 +61,15 @@ final class WorkoutSummaryViewModel {
         self.workoutRepository = workoutRepository
         self.prRepository = prRepository
         self.prDetectionService = prDetectionService
+
+        // Calculate duration once on init (performance optimization)
+        if workout.duration > 0 {
+            // Saved workout - use stored duration
+            self.cachedDuration = workout.duration
+        } else {
+            // Active workout - calculate duration from start time
+            self.cachedDuration = Date().timeIntervalSince(workout.date)
+        }
     }
 
     // MARK: - Data Loading
@@ -192,18 +204,28 @@ final class WorkoutSummaryViewModel {
     }
 
     /// Workout duration
+    /// Cached on initialization for performance (no repeated Date() calls)
     var duration: TimeInterval {
-        workout.duration
+        cachedDuration
     }
 
     /// Formatted duration string
     var durationDisplay: String {
-        let minutes = Int(duration) / 60
-        let seconds = Int(duration) % 60
-        if seconds > 0 {
+        let totalSeconds = Int(duration)
+        let hours = totalSeconds / 3600
+        let minutes = (totalSeconds % 3600) / 60
+        let seconds = totalSeconds % 60
+
+        if hours > 0 {
+            // 1+ hours: show "1h 25m"
+            return "\(hours)h \(minutes)m"
+        } else if seconds > 0 {
+            // < 1 hour with seconds: show "25m 30s"
             return "\(minutes)m \(seconds)s"
+        } else {
+            // Exactly minutes: show "25 min"
+            return "\(minutes) min"
         }
-        return "\(minutes) min"
     }
 
     /// Top 3 muscle groups trained

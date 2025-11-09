@@ -46,7 +46,7 @@ class CSVExportService {
     // MARK: - CSV Generation
 
     private func csvHeader() -> String {
-        return "\"title\",\"start_time\",\"end_time\",\"description\",\"exercise_title\",\"superset_id\",\"exercise_notes\",\"set_index\",\"set_type\",\"weight_kg\",\"reps\",\"distance_km\",\"duration_seconds\",\"rpe\"\n"
+        return "\"title\",\"start_time\",\"end_time\",\"description\",\"exercise_title\",\"exercise_notes\",\"set_index\",\"weight_kg\",\"reps\",\"distance_km\",\"duration_seconds\"\n"
     }
 
     private func flattenWorkout(_ workout: Workout) -> [String] {
@@ -69,7 +69,6 @@ class CSVExportService {
             guard let exerciseName = workoutExercise.exercise?.name else { continue }
 
             let exerciseTitle = escapeCSV(exerciseName)
-            let supersetId = escapeCSV(workoutExercise.supersetId ?? "")
 
             // Iterate sets
             for (index, set) in workoutExercise.sets.enumerated() {
@@ -79,15 +78,12 @@ class CSVExportService {
                     endTime,
                     description,
                     exerciseTitle,
-                    supersetId,
                     escapeCSV(set.notes ?? ""),  // exercise_notes
                     String(index),  // set_index
-                    escapeCSV(set.setType ?? "normal"),  // set_type
                     formatWeight(set.weight),  // weight_kg
                     String(set.reps),  // reps
                     "",  // distance_km (not used for lifting)
-                    "",  // duration_seconds (not used for sets)
-                    set.rpe != nil ? String(set.rpe!) : ""  // rpe
+                    ""  // duration_seconds (not used for sets)
                 ]
 
                 rows.append(row.joined(separator: ","))

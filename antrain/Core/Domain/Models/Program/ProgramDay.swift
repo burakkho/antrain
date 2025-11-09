@@ -31,9 +31,6 @@ final class ProgramDay: @unchecked Sendable {
     /// Day-specific volume override (nil = use week's modifier)
     var volumeOverride: Double?
 
-    /// Suggested RPE for this workout (1-10 scale)
-    var suggestedRPE: Int?
-
     // MARK: - Relationships
 
     /// Parent week
@@ -51,8 +48,7 @@ final class ProgramDay: @unchecked Sendable {
         notes: String? = nil,
         template: WorkoutTemplate? = nil,
         intensityOverride: Double? = nil,
-        volumeOverride: Double? = nil,
-        suggestedRPE: Int? = nil
+        volumeOverride: Double? = nil
     ) {
         self.id = UUID()
         self.dayOfWeek = dayOfWeek
@@ -61,7 +57,6 @@ final class ProgramDay: @unchecked Sendable {
         self.template = template
         self.intensityOverride = intensityOverride
         self.volumeOverride = volumeOverride
-        self.suggestedRPE = suggestedRPE
     }
 
     // MARK: - Computed Properties
@@ -146,13 +141,6 @@ final class ProgramDay: @unchecked Sendable {
             }
         }
 
-        // RPE validation
-        if let rpe = suggestedRPE {
-            guard rpe >= 1 && rpe <= 10 else {
-                throw ValidationError.invalidValue("RPE must be between 1-10")
-            }
-        }
-
         // Notes length validation
         if let notes = notes, notes.count > 500 {
             throw ValidationError.invalidValue("Notes must be 500 characters or less")
@@ -167,8 +155,7 @@ final class ProgramDay: @unchecked Sendable {
             notes: notes,
             template: template,
             intensityOverride: intensityOverride,
-            volumeOverride: volumeOverride,
-            suggestedRPE: suggestedRPE
+            volumeOverride: volumeOverride
         )
     }
 

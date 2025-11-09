@@ -14,9 +14,6 @@ final class WorkoutExercise: @unchecked Sendable {
     @Attribute(.unique) var id: UUID
     var orderIndex: Int
 
-    // CSV import/export support (superset grouping)
-    var supersetId: String?  // Groups exercises in a superset (e.g., "A", "B", "C")
-
     // Relationships
     var exercise: Exercise?  // Exercise silinirse nil olur
     @Relationship(deleteRule: .cascade)
@@ -25,13 +22,11 @@ final class WorkoutExercise: @unchecked Sendable {
 
     init(
         exercise: Exercise,
-        orderIndex: Int = 0,
-        supersetId: String? = nil
+        orderIndex: Int = 0
     ) {
         self.id = UUID()
         self.exercise = exercise
         self.orderIndex = orderIndex
-        self.supersetId = supersetId
     }
 }
 

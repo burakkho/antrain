@@ -157,8 +157,7 @@ struct DayDetailView: View {
                     dayOfWeek: 2,
                     name: "Push Day",
                     notes: "Focus on progressive overload. Track all weights.",
-                    template: template,
-                    suggestedRPE: 8
+                    template: template
                 )
                 day.week = week
 

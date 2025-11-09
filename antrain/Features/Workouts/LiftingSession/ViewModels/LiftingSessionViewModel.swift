@@ -13,7 +13,6 @@ final class LiftingSessionViewModel {
     private let prDetectionService: PRDetectionService
     private let progressiveOverloadService: ProgressiveOverloadService
     private let userProfileRepository: UserProfileRepositoryProtocol
-    internal let liveActivityManager: LiveActivityManager
     private let widgetUpdateService: WidgetUpdateService
 
     // MARK: - State
@@ -31,21 +30,6 @@ final class LiftingSessionViewModel {
     var programDay: ProgramDay?
     var programWeek: ProgramWeek?
 
-    // MARK: - Performance Cache (Apple WWDC 2025 best practice)
-
-    /// Cached total volume to avoid recalculating on every render
-    private var _cachedTotalVolume: Double?
-
-    /// Cached completed exercises count to avoid filtering on every render
-    private var _cachedCompletedExercisesCount: Int?
-
-    /// Invalidate all computed property caches
-    /// Call this whenever exercises or sets change
-    private func invalidateCache() {
-        _cachedTotalVolume = nil
-        _cachedCompletedExercisesCount = nil
-    }
-
     // MARK: - Initialization
 
     init(
@@ -54,7 +38,6 @@ final class LiftingSessionViewModel {
         prDetectionService: PRDetectionService,
         progressiveOverloadService: ProgressiveOverloadService,
         userProfileRepository: UserProfileRepositoryProtocol,
-        liveActivityManager: LiveActivityManager,
         widgetUpdateService: WidgetUpdateService
     ) {
         self.workoutRepository = workoutRepository
@@ -62,7 +45,6 @@ final class LiftingSessionViewModel {
         self.prDetectionService = prDetectionService
         self.progressiveOverloadService = progressiveOverloadService
         self.userProfileRepository = userProfileRepository
-        self.liveActivityManager = liveActivityManager
         self.widgetUpdateService = widgetUpdateService
         self.workout = Workout(date: Date(), type: .lifting)
     }
@@ -95,8 +77,12 @@ final class LiftingSessionViewModel {
             exercises.removeAll()
             workout.exercises = []
 
-            // Get week modifier from program context or active program
-            let userProfile = try await userProfileRepository.fetchOrCreateProfile()
+            // Parallel fetch: user profile and recent workouts (optimization to prevent sequential blocking)
+            async let userProfileTask = userProfileRepository.fetchOrCreateProfile()
+            async let recentWorkoutsTask = workoutRepository.fetchRecent(limit: 5)
+
+            let (userProfile, recentWorkouts) = try await (userProfileTask, recentWorkoutsTask)
+
             var weekModifier = 1.0
             var previousWorkouts: [Workout] = []
 
@@ -109,9 +95,7 @@ final class LiftingSessionViewModel {
                 weekModifier = week.intensityModifier
             }
 
-            // Fetch previous workouts for this template (last 5 for RPE analysis)
-            // Using fetchRecent() for database-level optimization (Apple best practice)
-            let recentWorkouts = try await workoutRepository.fetchRecent(limit: 5)
+            // Filter workouts for this template
             previousWorkouts = recentWorkouts.filter { workout in
                 // Match workouts that used this template
                 workout.exercises.contains { workoutEx in
@@ -128,10 +112,28 @@ final class LiftingSessionViewModel {
                 previousWorkouts: previousWorkouts
             )
 
-            // Convert each template exercise to workout exercise
-            for templateExercise in template.exercises.sorted(by: TemplateExercise.compare) {
-                // Fetch the actual exercise from repository
-                guard let exercise = try await exerciseRepository.fetchExercise(by: templateExercise.exerciseId) else {
+            // Parallel exercise fetch: fetch all exercises at once (optimization to prevent sequential blocking)
+            let sortedTemplateExercises = template.exercises.sorted(by: TemplateExercise.compare)
+            let fetchedExercises = try await withThrowingTaskGroup(of: (TemplateExercise, Exercise?).self) { group in
+                // Create fetch tasks for all exercises in parallel
+                for templateExercise in sortedTemplateExercises {
+                    group.addTask {
+                        let exercise = try await self.exerciseRepository.fetchExercise(by: templateExercise.exerciseId)
+                        return (templateExercise, exercise)
+                    }
+                }
+
+                // Collect results
+                var results: [(TemplateExercise, Exercise?)] = []
+                for try await result in group {
+                    results.append(result)
+                }
+                return results
+            }
+
+            // Convert each template exercise to workout exercise (now with pre-fetched data)
+            for (templateExercise, exercise) in fetchedExercises {
+                guard let exercise = exercise else {
                     print("⚠️ Exercise not found: \(templateExercise.exerciseName)")
                     continue
                 }
@@ -163,9 +165,6 @@ final class LiftingSessionViewModel {
             // Mark template as used
             try await templateRepository.markTemplateUsed(template)
 
-            // Invalidate cache after loading template
-            invalidateCache()
-
             print("✅ Loaded \(exercises.count) exercises from template: \(template.name)")
             if currentSuggestion != nil {
                 print("💡 Applied progressive overload suggestions with week modifier: \(weekModifier)")
@@ -188,12 +187,6 @@ final class LiftingSessionViewModel {
         )
         exercises.append(workoutExercise)
         workout.exercises = exercises
-
-        // Invalidate cache
-        invalidateCache()
-
-        // Update Live Activity
-        liveActivityManager.notifyStateChanged()
     }
 
     /// Remove exercise from workout
@@ -201,9 +194,6 @@ final class LiftingSessionViewModel {
         exercises.removeAll { $0.id == workoutExercise.id }
         workout.exercises = exercises
         reorderExercises()
-
-        // Invalidate cache
-        invalidateCache()
     }
 
     /// Reorder exercises
@@ -254,12 +244,6 @@ final class LiftingSessionViewModel {
         set.toggleCompletion()
         let generator = UIImpactFeedbackGenerator(style: .light)
         generator.impactOccurred()
-
-        // Invalidate cache (completion affects volume and completed exercises count)
-        invalidateCache()
-
-        // Update Live Activity
-        liveActivityManager.notifyStateChanged()
     }
 
     /// Complete all sets for an exercise
@@ -267,26 +251,17 @@ final class LiftingSessionViewModel {
         workoutExercise.completeAllSets()
         let generator = UINotificationFeedbackGenerator()
         generator.notificationOccurred(.success)
-
-        // Invalidate cache
-        invalidateCache()
     }
 
     /// Update set values
     func updateSet(_ set: WorkoutSet, reps: Int, weight: Double) {
         set.reps = reps
         set.weight = weight
-
-        // Invalidate cache (weight/reps affect volume if set is completed)
-        invalidateCache()
     }
 
     /// Remove set from exercise
     func removeSet(_ set: WorkoutSet, from workoutExercise: WorkoutExercise) {
         workoutExercise.sets.removeAll { $0.id == set.id }
-
-        // Invalidate cache
-        invalidateCache()
     }
 
     // MARK: - Save & Cancel
@@ -401,7 +376,7 @@ final class LiftingSessionViewModel {
         !exercises.isEmpty
     }
 
-    // MARK: - Workout Statistics
+    // MARK: - Computed Properties
 
     /// Current workout duration
     var duration: TimeInterval {
@@ -409,48 +384,24 @@ final class LiftingSessionViewModel {
     }
 
     /// Total volume (sum of all completed sets' weight × reps)
-    /// Cached for performance - Apple WWDC 2025 best practice
     var totalVolume: Double {
-        if let cached = _cachedTotalVolume {
-            return cached
-        }
-
-        let volume = exercises.reduce(0) { total, exercise in
+        exercises.reduce(0) { total, exercise in
             total + exercise.sets.filter { $0.isCompleted }.reduce(0) { setTotal, set in
                 setTotal + (set.weight * Double(set.reps))
             }
         }
-
-        _cachedTotalVolume = volume
-        return volume
     }
 
     /// Number of exercises with at least one completed set
-    /// Cached for performance - Apple WWDC 2025 best practice
     var completedExercisesCount: Int {
-        if let cached = _cachedCompletedExercisesCount {
-            return cached
-        }
-
-        let count = exercises.filter { exercise in
+        exercises.filter { exercise in
             exercise.sets.contains { $0.isCompleted }
         }.count
-
-        _cachedCompletedExercisesCount = count
-        return count
     }
 
     /// Total number of exercises in workout
     var totalExercisesCount: Int {
         exercises.count
-    }
-
-    // MARK: - Live Activity Management
-
-    /// Access to LiveActivityManager for external state change callbacks
-    var onStateChanged: (() -> Void)? {
-        get { liveActivityManager.onStateChanged }
-        set { liveActivityManager.onStateChanged = newValue }
     }
 
     // MARK: - Exercise Suggestions
