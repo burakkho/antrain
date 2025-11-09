@@ -165,7 +165,7 @@ final class TemplatesViewModel {
     /// Duplicate a template with new name
     func duplicateTemplate(_ template: WorkoutTemplate, newName: String) async {
         do {
-            try await repository.duplicateTemplate(template, newName: newName)
+            let _ = try await repository.duplicateTemplate(template, newName: newName)
             // Refresh to show new template
             await fetchTemplates()
         } catch {

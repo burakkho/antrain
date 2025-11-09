@@ -9,7 +9,7 @@ import Foundation
 import SwiftData
 
 /// Repository protocol for Personal Record operations
-protocol PersonalRecordRepositoryProtocol: Sendable {
+protocol PersonalRecordRepositoryProtocol: Actor {
     /// Fetch all PRs
     func fetchAll() async throws -> [PersonalRecord]
 
@@ -27,6 +27,9 @@ protocol PersonalRecordRepositoryProtocol: Sendable {
 
     /// Check if a set would be a new PR
     func wouldBeNewPR(exerciseId: UUID, estimated1RM: Double) async throws -> Bool
+
+    /// Delete all PRs for a specific workout
+    func deletePRsForWorkout(_ workoutId: UUID) async throws
 }
 
 /// Concrete implementation of PersonalRecordRepository
@@ -92,15 +95,12 @@ actor PersonalRecordRepository: PersonalRecordRepositoryProtocol {
         if let existingPR = try await getPR(for: pr.exerciseId) {
             // Only save if new 1RM is higher
             guard pr.estimated1RM > existingPR.estimated1RM else {
-                print("Not a new PR - existing: \(existingPR.estimated1RM), new: \(pr.estimated1RM)")
                 return
             }
         }
 
         modelContext.insert(pr)
         try modelContext.save()
-
-        print("New PR saved: \(pr.exerciseName) - \(pr.estimated1RM)kg")
     }
 
     /// Delete a PR

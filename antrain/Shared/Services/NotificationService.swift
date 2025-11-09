@@ -113,7 +113,7 @@ final class NotificationService: NSObject, ObservableObject {
 
         // Get active program and today's workout
         // NOTE: Mock implementation for MVP - real integration in Phase 7
-        guard let todaysWorkout = getMockTodaysWorkout() else {
+        guard getMockTodaysWorkout() != nil else {
             print("[NotificationService] ⚠️ No today's workout")
             return
         }

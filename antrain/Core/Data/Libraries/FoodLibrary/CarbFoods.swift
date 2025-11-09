@@ -17,10 +17,9 @@ struct CarbFoods {
             servingSize: 150,
             category: .carb,
             servingUnits: [
-                ServingUnitDTO(unitType: .cup, gramsPerUnit: 150, description: String(localized: "1 cup"), isDefault: true, orderIndex: 0),
-                ServingUnitDTO(unitType: .serving, gramsPerUnit: 100, description: String(localized: "1 serving"), isDefault: false, orderIndex: 1),
-                ServingUnitDTO(unitType: .tablespoon, gramsPerUnit: 15, description: String(localized: "1 tbsp"), isDefault: false, orderIndex: 2),
-                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 3)
+                ServingUnitDTO(unitType: .cup, gramsPerUnit: 150, description: String(localized: "cup"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .tablespoon, gramsPerUnit: 15, description: String(localized: "tbsp"), isDefault: false, orderIndex: 1),
+                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 2)
             ]
         ),
         FoodDTO(
@@ -29,10 +28,9 @@ struct CarbFoods {
             servingSize: 150,
             category: .carb,
             servingUnits: [
-                ServingUnitDTO(unitType: .cup, gramsPerUnit: 150, description: String(localized: "1 cup"), isDefault: true, orderIndex: 0),
-                ServingUnitDTO(unitType: .serving, gramsPerUnit: 100, description: String(localized: "1 serving"), isDefault: false, orderIndex: 1),
-                ServingUnitDTO(unitType: .tablespoon, gramsPerUnit: 15, description: String(localized: "1 tbsp"), isDefault: false, orderIndex: 2),
-                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 3)
+                ServingUnitDTO(unitType: .cup, gramsPerUnit: 150, description: String(localized: "cup"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .tablespoon, gramsPerUnit: 15, description: String(localized: "tbsp"), isDefault: false, orderIndex: 1),
+                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 2)
             ]
         ),
         FoodDTO(
@@ -41,10 +39,9 @@ struct CarbFoods {
             servingSize: 150,
             category: .carb,
             servingUnits: [
-                ServingUnitDTO(unitType: .cup, gramsPerUnit: 150, description: String(localized: "1 cup"), isDefault: true, orderIndex: 0),
-                ServingUnitDTO(unitType: .serving, gramsPerUnit: 100, description: String(localized: "1 serving"), isDefault: false, orderIndex: 1),
-                ServingUnitDTO(unitType: .tablespoon, gramsPerUnit: 15, description: String(localized: "1 tbsp"), isDefault: false, orderIndex: 2),
-                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 3)
+                ServingUnitDTO(unitType: .cup, gramsPerUnit: 150, description: String(localized: "cup"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .tablespoon, gramsPerUnit: 15, description: String(localized: "tbsp"), isDefault: false, orderIndex: 1),
+                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 2)
             ]
         ),
         FoodDTO(
@@ -53,9 +50,8 @@ struct CarbFoods {
             servingSize: 150,
             category: .carb,
             servingUnits: [
-                ServingUnitDTO(unitType: .cup, gramsPerUnit: 150, description: String(localized: "1 cup"), isDefault: true, orderIndex: 0),
-                ServingUnitDTO(unitType: .serving, gramsPerUnit: 100, description: String(localized: "1 serving"), isDefault: false, orderIndex: 1),
-                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 2)
+                ServingUnitDTO(unitType: .cup, gramsPerUnit: 150, description: String(localized: "cup"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 1)
             ]
         ),
         FoodDTO(
@@ -64,10 +60,9 @@ struct CarbFoods {
             servingSize: 40,
             category: .carb,
             servingUnits: [
-                ServingUnitDTO(unitType: .cup, gramsPerUnit: 80, description: String(localized: "1 cup"), isDefault: true, orderIndex: 0),
-                ServingUnitDTO(unitType: .serving, gramsPerUnit: 40, description: String(localized: "1 serving"), isDefault: false, orderIndex: 1),
-                ServingUnitDTO(unitType: .tablespoon, gramsPerUnit: 10, description: String(localized: "1 tbsp"), isDefault: false, orderIndex: 2),
-                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 3)
+                ServingUnitDTO(unitType: .cup, gramsPerUnit: 80, description: String(localized: "cup"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .tablespoon, gramsPerUnit: 10, description: String(localized: "tbsp"), isDefault: false, orderIndex: 1),
+                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 2)
             ]
         ),
         FoodDTO(
@@ -76,9 +71,8 @@ struct CarbFoods {
             servingSize: 150,
             category: .carb,
             servingUnits: [
-                ServingUnitDTO(unitType: .cup, gramsPerUnit: 150, description: String(localized: "1 cup"), isDefault: true, orderIndex: 0),
-                ServingUnitDTO(unitType: .serving, gramsPerUnit: 100, description: String(localized: "1 serving"), isDefault: false, orderIndex: 1),
-                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 2)
+                ServingUnitDTO(unitType: .cup, gramsPerUnit: 150, description: String(localized: "cup"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 1)
             ]
         ),
 
@@ -89,9 +83,8 @@ struct CarbFoods {
             servingSize: 150,
             category: .carb,
             servingUnits: [
-                ServingUnitDTO(unitType: .cup, gramsPerUnit: 140, description: String(localized: "1 cup"), isDefault: true, orderIndex: 0),
-                ServingUnitDTO(unitType: .serving, gramsPerUnit: 100, description: String(localized: "1 serving"), isDefault: false, orderIndex: 1),
-                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 2)
+                ServingUnitDTO(unitType: .cup, gramsPerUnit: 140, description: String(localized: "cup"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 1)
             ]
         ),
         FoodDTO(
@@ -100,9 +93,8 @@ struct CarbFoods {
             servingSize: 150,
             category: .carb,
             servingUnits: [
-                ServingUnitDTO(unitType: .cup, gramsPerUnit: 140, description: String(localized: "1 cup"), isDefault: true, orderIndex: 0),
-                ServingUnitDTO(unitType: .serving, gramsPerUnit: 100, description: String(localized: "1 serving"), isDefault: false, orderIndex: 1),
-                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 2)
+                ServingUnitDTO(unitType: .cup, gramsPerUnit: 140, description: String(localized: "cup"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 1)
             ]
         ),
         FoodDTO(
@@ -111,9 +103,8 @@ struct CarbFoods {
             servingSize: 140,
             category: .carb,
             servingUnits: [
-                ServingUnitDTO(unitType: .cup, gramsPerUnit: 140, description: String(localized: "1 cup"), isDefault: true, orderIndex: 0),
-                ServingUnitDTO(unitType: .serving, gramsPerUnit: 100, description: String(localized: "1 serving"), isDefault: false, orderIndex: 1),
-                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 2)
+                ServingUnitDTO(unitType: .cup, gramsPerUnit: 140, description: String(localized: "cup"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 1)
             ]
         ),
 
@@ -124,9 +115,8 @@ struct CarbFoods {
             servingSize: 50,
             category: .carb,
             servingUnits: [
-                ServingUnitDTO(unitType: .slice, gramsPerUnit: 30, description: String(localized: "1 slice"), isDefault: true, orderIndex: 0),
-                ServingUnitDTO(unitType: .serving, gramsPerUnit: 50, description: String(localized: "2 slices"), isDefault: false, orderIndex: 1),
-                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 2)
+                ServingUnitDTO(unitType: .slice, gramsPerUnit: 30, description: String(localized: "slice"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 1)
             ]
         ),
         FoodDTO(
@@ -135,9 +125,8 @@ struct CarbFoods {
             servingSize: 50,
             category: .carb,
             servingUnits: [
-                ServingUnitDTO(unitType: .slice, gramsPerUnit: 30, description: String(localized: "1 slice"), isDefault: true, orderIndex: 0),
-                ServingUnitDTO(unitType: .serving, gramsPerUnit: 50, description: String(localized: "2 slices"), isDefault: false, orderIndex: 1),
-                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 2)
+                ServingUnitDTO(unitType: .slice, gramsPerUnit: 30, description: String(localized: "slice"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 1)
             ]
         ),
         FoodDTO(
@@ -146,9 +135,8 @@ struct CarbFoods {
             servingSize: 50,
             category: .carb,
             servingUnits: [
-                ServingUnitDTO(unitType: .slice, gramsPerUnit: 30, description: String(localized: "1 slice"), isDefault: true, orderIndex: 0),
-                ServingUnitDTO(unitType: .serving, gramsPerUnit: 50, description: String(localized: "2 slices"), isDefault: false, orderIndex: 1),
-                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 2)
+                ServingUnitDTO(unitType: .slice, gramsPerUnit: 30, description: String(localized: "slice"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 1)
             ]
         ),
         FoodDTO(
@@ -157,9 +145,8 @@ struct CarbFoods {
             servingSize: 60,
             category: .carb,
             servingUnits: [
-                ServingUnitDTO(unitType: .piece, gramsPerUnit: 60, description: String(localized: "1 pita"), isDefault: true, orderIndex: 0),
-                ServingUnitDTO(unitType: .serving, gramsPerUnit: 100, description: String(localized: "1 serving"), isDefault: false, orderIndex: 1),
-                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 2)
+                ServingUnitDTO(unitType: .piece, gramsPerUnit: 60, description: String(localized: "pita"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 1)
             ]
         ),
         FoodDTO(
@@ -168,9 +155,8 @@ struct CarbFoods {
             servingSize: 90,
             category: .carb,
             servingUnits: [
-                ServingUnitDTO(unitType: .piece, gramsPerUnit: 90, description: String(localized: "1 bagel"), isDefault: true, orderIndex: 0),
-                ServingUnitDTO(unitType: .serving, gramsPerUnit: 100, description: String(localized: "1 serving"), isDefault: false, orderIndex: 1),
-                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 2)
+                ServingUnitDTO(unitType: .piece, gramsPerUnit: 90, description: String(localized: "bagel"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 1)
             ]
         ),
 
@@ -181,8 +167,8 @@ struct CarbFoods {
             servingSize: 150,
             category: .carb,
             servingUnits: [
-                ServingUnitDTO(unitType: .piece, gramsPerUnit: 150, description: String(localized: "1 medium"), isDefault: true, orderIndex: 0),
-                ServingUnitDTO(unitType: .cup, gramsPerUnit: 130, description: String(localized: "1 cup cubed"), isDefault: false, orderIndex: 1),
+                ServingUnitDTO(unitType: .piece, gramsPerUnit: 150, description: String(localized: "medium"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .cup, gramsPerUnit: 130, description: String(localized: "cup cubed"), isDefault: false, orderIndex: 1),
                 ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 2)
             ]
         ),
@@ -192,8 +178,8 @@ struct CarbFoods {
             servingSize: 150,
             category: .carb,
             servingUnits: [
-                ServingUnitDTO(unitType: .piece, gramsPerUnit: 150, description: String(localized: "1 medium"), isDefault: true, orderIndex: 0),
-                ServingUnitDTO(unitType: .cup, gramsPerUnit: 130, description: String(localized: "1 cup cubed"), isDefault: false, orderIndex: 1),
+                ServingUnitDTO(unitType: .piece, gramsPerUnit: 150, description: String(localized: "medium"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .cup, gramsPerUnit: 130, description: String(localized: "cup cubed"), isDefault: false, orderIndex: 1),
                 ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 2)
             ]
         ),
@@ -203,8 +189,8 @@ struct CarbFoods {
             servingSize: 150,
             category: .carb,
             servingUnits: [
-                ServingUnitDTO(unitType: .piece, gramsPerUnit: 150, description: String(localized: "1 medium"), isDefault: true, orderIndex: 0),
-                ServingUnitDTO(unitType: .cup, gramsPerUnit: 130, description: String(localized: "1 cup cubed"), isDefault: false, orderIndex: 1),
+                ServingUnitDTO(unitType: .piece, gramsPerUnit: 150, description: String(localized: "medium"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .cup, gramsPerUnit: 130, description: String(localized: "cup cubed"), isDefault: false, orderIndex: 1),
                 ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 2)
             ]
         ),
@@ -216,9 +202,8 @@ struct CarbFoods {
             servingSize: 30,
             category: .carb,
             servingUnits: [
-                ServingUnitDTO(unitType: .cup, gramsPerUnit: 30, description: String(localized: "1 cup"), isDefault: true, orderIndex: 0),
-                ServingUnitDTO(unitType: .serving, gramsPerUnit: 30, description: String(localized: "1 serving"), isDefault: false, orderIndex: 1),
-                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 2)
+                ServingUnitDTO(unitType: .cup, gramsPerUnit: 30, description: String(localized: "cup"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 1)
             ]
         ),
         FoodDTO(
@@ -228,9 +213,8 @@ struct CarbFoods {
             category: .carb,
             servingUnits: [
                 ServingUnitDTO(unitType: .cup, gramsPerUnit: 50, description: String(localized: "1/2 cup"), isDefault: true, orderIndex: 0),
-                ServingUnitDTO(unitType: .serving, gramsPerUnit: 50, description: String(localized: "1 serving"), isDefault: false, orderIndex: 1),
-                ServingUnitDTO(unitType: .tablespoon, gramsPerUnit: 15, description: String(localized: "1 tbsp"), isDefault: false, orderIndex: 2),
-                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 3)
+                ServingUnitDTO(unitType: .tablespoon, gramsPerUnit: 15, description: String(localized: "tbsp"), isDefault: false, orderIndex: 1),
+                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 2)
             ]
         ),
         FoodDTO(
@@ -240,9 +224,8 @@ struct CarbFoods {
             category: .carb,
             servingUnits: [
                 ServingUnitDTO(unitType: .cup, gramsPerUnit: 50, description: String(localized: "1/2 cup"), isDefault: true, orderIndex: 0),
-                ServingUnitDTO(unitType: .serving, gramsPerUnit: 50, description: String(localized: "1 serving"), isDefault: false, orderIndex: 1),
-                ServingUnitDTO(unitType: .tablespoon, gramsPerUnit: 15, description: String(localized: "1 tbsp"), isDefault: false, orderIndex: 2),
-                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 3)
+                ServingUnitDTO(unitType: .tablespoon, gramsPerUnit: 15, description: String(localized: "tbsp"), isDefault: false, orderIndex: 1),
+                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 2)
             ]
         ),
 
@@ -253,9 +236,8 @@ struct CarbFoods {
             servingSize: 150,
             category: .carb,
             servingUnits: [
-                ServingUnitDTO(unitType: .cup, gramsPerUnit: 150, description: String(localized: "1 cup"), isDefault: true, orderIndex: 0),
-                ServingUnitDTO(unitType: .serving, gramsPerUnit: 100, description: String(localized: "1 serving"), isDefault: false, orderIndex: 1),
-                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 2)
+                ServingUnitDTO(unitType: .cup, gramsPerUnit: 150, description: String(localized: "cup"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 1)
             ]
         ),
         FoodDTO(
@@ -264,7 +246,7 @@ struct CarbFoods {
             servingSize: 50,
             category: .carb,
             servingUnits: [
-                ServingUnitDTO(unitType: .piece, gramsPerUnit: 50, description: String(localized: "1 tortilla"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .piece, gramsPerUnit: 50, description: String(localized: "tortilla"), isDefault: true, orderIndex: 0),
                 ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 1)
             ]
         ),
@@ -274,7 +256,7 @@ struct CarbFoods {
             servingSize: 50,
             category: .carb,
             servingUnits: [
-                ServingUnitDTO(unitType: .piece, gramsPerUnit: 50, description: String(localized: "1 tortilla"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .piece, gramsPerUnit: 50, description: String(localized: "tortilla"), isDefault: true, orderIndex: 0),
                 ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 1)
             ]
         ),
@@ -284,9 +266,8 @@ struct CarbFoods {
             servingSize: 30,
             category: .carb,
             servingUnits: [
-                ServingUnitDTO(unitType: .serving, gramsPerUnit: 30, description: String(localized: "1 serving"), isDefault: true, orderIndex: 0),
-                ServingUnitDTO(unitType: .piece, gramsPerUnit: 5, description: String(localized: "1 cracker"), isDefault: false, orderIndex: 1),
-                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 2)
+                ServingUnitDTO(unitType: .piece, gramsPerUnit: 5, description: String(localized: "cracker"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 1)
             ]
         ),
         FoodDTO(
@@ -295,9 +276,8 @@ struct CarbFoods {
             servingSize: 30,
             category: .carb,
             servingUnits: [
-                ServingUnitDTO(unitType: .serving, gramsPerUnit: 30, description: String(localized: "1 serving"), isDefault: true, orderIndex: 0),
-                ServingUnitDTO(unitType: .piece, gramsPerUnit: 10, description: String(localized: "1 pretzel"), isDefault: false, orderIndex: 1),
-                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 2)
+                ServingUnitDTO(unitType: .piece, gramsPerUnit: 10, description: String(localized: "pretzel"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 1)
             ]
         ),
 
@@ -308,9 +288,8 @@ struct CarbFoods {
             servingSize: 50,
             category: .carb,
             servingUnits: [
-                ServingUnitDTO(unitType: .slice, gramsPerUnit: 32, description: String(localized: "1 slice"), isDefault: true, orderIndex: 0),
-                ServingUnitDTO(unitType: .serving, gramsPerUnit: 50, description: String(localized: "2 slices"), isDefault: false, orderIndex: 1),
-                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 2)
+                ServingUnitDTO(unitType: .slice, gramsPerUnit: 32, description: String(localized: "slice"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 1)
             ]
         ),
         FoodDTO(
@@ -319,9 +298,8 @@ struct CarbFoods {
             servingSize: 50,
             category: .carb,
             servingUnits: [
-                ServingUnitDTO(unitType: .slice, gramsPerUnit: 30, description: String(localized: "1 slice"), isDefault: true, orderIndex: 0),
-                ServingUnitDTO(unitType: .serving, gramsPerUnit: 50, description: String(localized: "2 slices"), isDefault: false, orderIndex: 1),
-                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 2)
+                ServingUnitDTO(unitType: .slice, gramsPerUnit: 30, description: String(localized: "slice"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 1)
             ]
         ),
 
@@ -332,9 +310,8 @@ struct CarbFoods {
             servingSize: 75,
             category: .carb,
             servingUnits: [
-                ServingUnitDTO(unitType: .piece, gramsPerUnit: 75, description: String(localized: "1 waffle"), isDefault: true, orderIndex: 0),
-                ServingUnitDTO(unitType: .serving, gramsPerUnit: 75, description: String(localized: "1 serving"), isDefault: false, orderIndex: 1),
-                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 2)
+                ServingUnitDTO(unitType: .piece, gramsPerUnit: 75, description: String(localized: "waffle"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 1)
             ]
         ),
         FoodDTO(
@@ -343,9 +320,8 @@ struct CarbFoods {
             servingSize: 77,
             category: .carb,
             servingUnits: [
-                ServingUnitDTO(unitType: .piece, gramsPerUnit: 77, description: String(localized: "1 pancake"), isDefault: true, orderIndex: 0),
-                ServingUnitDTO(unitType: .serving, gramsPerUnit: 77, description: String(localized: "1 serving"), isDefault: false, orderIndex: 1),
-                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 2)
+                ServingUnitDTO(unitType: .piece, gramsPerUnit: 77, description: String(localized: "pancake"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 1)
             ]
         ),
         FoodDTO(
@@ -354,9 +330,8 @@ struct CarbFoods {
             servingSize: 60,
             category: .carb,
             servingUnits: [
-                ServingUnitDTO(unitType: .piece, gramsPerUnit: 60, description: String(localized: "1 crepe"), isDefault: true, orderIndex: 0),
-                ServingUnitDTO(unitType: .serving, gramsPerUnit: 60, description: String(localized: "1 serving"), isDefault: false, orderIndex: 1),
-                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 2)
+                ServingUnitDTO(unitType: .piece, gramsPerUnit: 60, description: String(localized: "crepe"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 1)
             ]
         ),
 
@@ -367,9 +342,8 @@ struct CarbFoods {
             servingSize: 40,
             category: .carb,
             servingUnits: [
-                ServingUnitDTO(unitType: .piece, gramsPerUnit: 40, description: String(localized: "1 bar"), isDefault: true, orderIndex: 0),
-                ServingUnitDTO(unitType: .serving, gramsPerUnit: 40, description: String(localized: "1 serving"), isDefault: false, orderIndex: 1),
-                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 2)
+                ServingUnitDTO(unitType: .piece, gramsPerUnit: 40, description: String(localized: "bar"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 1)
             ]
         ),
         FoodDTO(
@@ -378,9 +352,8 @@ struct CarbFoods {
             servingSize: 30,
             category: .carb,
             servingUnits: [
-                ServingUnitDTO(unitType: .cup, gramsPerUnit: 15, description: String(localized: "1 cup popped"), isDefault: true, orderIndex: 0),
-                ServingUnitDTO(unitType: .serving, gramsPerUnit: 30, description: String(localized: "1 serving"), isDefault: false, orderIndex: 1),
-                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 2)
+                ServingUnitDTO(unitType: .cup, gramsPerUnit: 15, description: String(localized: "cup popped"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 1)
             ]
         ),
         FoodDTO(
@@ -389,9 +362,8 @@ struct CarbFoods {
             servingSize: 9,
             category: .carb,
             servingUnits: [
-                ServingUnitDTO(unitType: .piece, gramsPerUnit: 9, description: String(localized: "1 cake"), isDefault: true, orderIndex: 0),
-                ServingUnitDTO(unitType: .serving, gramsPerUnit: 18, description: String(localized: "2 cakes"), isDefault: false, orderIndex: 1),
-                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 2)
+                ServingUnitDTO(unitType: .piece, gramsPerUnit: 9, description: String(localized: "cake"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 1)
             ]
         ),
 
@@ -402,9 +374,8 @@ struct CarbFoods {
             servingSize: 100,
             category: .carb,
             servingUnits: [
-                ServingUnitDTO(unitType: .serving, gramsPerUnit: 100, description: String(localized: "1 serving"), isDefault: true, orderIndex: 0),
-                ServingUnitDTO(unitType: .cup, gramsPerUnit: 130, description: String(localized: "1 cup"), isDefault: false, orderIndex: 1),
-                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 2)
+                ServingUnitDTO(unitType: .cup, gramsPerUnit: 130, description: String(localized: "cup"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 1)
             ]
         ),
 
@@ -415,10 +386,9 @@ struct CarbFoods {
             servingSize: 150,
             category: .carb,
             servingUnits: [
-                ServingUnitDTO(unitType: .cup, gramsPerUnit: 150, description: String(localized: "1 cup"), isDefault: true, orderIndex: 0),
-                ServingUnitDTO(unitType: .serving, gramsPerUnit: 100, description: String(localized: "1 serving"), isDefault: false, orderIndex: 1),
-                ServingUnitDTO(unitType: .tablespoon, gramsPerUnit: 15, description: String(localized: "1 tbsp"), isDefault: false, orderIndex: 2),
-                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 3)
+                ServingUnitDTO(unitType: .cup, gramsPerUnit: 150, description: String(localized: "cup"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .tablespoon, gramsPerUnit: 15, description: String(localized: "tbsp"), isDefault: false, orderIndex: 1),
+                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 2)
             ]
         )
     ]

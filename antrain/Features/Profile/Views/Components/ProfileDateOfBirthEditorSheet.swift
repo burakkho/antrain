@@ -18,8 +18,8 @@ struct ProfileDateOfBirthEditorSheet: View {
                         in: ...Date(),
                         displayedComponents: .date
                     )
-                    .datePickerStyle(.graphical)
-                    .frame(height: 400)
+                    .datePickerStyle(.wheel)
+                    .labelsHidden()
 
                     if let age = calculateAge(from: selectedDate) {
                         HStack {

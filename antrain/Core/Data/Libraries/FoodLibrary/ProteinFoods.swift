@@ -17,9 +17,8 @@ struct ProteinFoods {
             servingSize: 150,
             category: .protein,
             servingUnits: [
-                ServingUnitDTO(unitType: .serving, gramsPerUnit: 100, description: String(localized: "1 serving"), isDefault: true, orderIndex: 0),
-                ServingUnitDTO(unitType: .piece, gramsPerUnit: 150, description: String(localized: "1 piece"), isDefault: false, orderIndex: 1),
-                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 2)
+                ServingUnitDTO(unitType: .piece, gramsPerUnit: 150, description: String(localized: "piece"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 1)
             ]
         ),
         FoodDTO(
@@ -28,9 +27,8 @@ struct ProteinFoods {
             servingSize: 150,
             category: .protein,
             servingUnits: [
-                ServingUnitDTO(unitType: .serving, gramsPerUnit: 100, description: String(localized: "1 serving"), isDefault: true, orderIndex: 0),
-                ServingUnitDTO(unitType: .piece, gramsPerUnit: 150, description: String(localized: "1 piece"), isDefault: false, orderIndex: 1),
-                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 2)
+                ServingUnitDTO(unitType: .piece, gramsPerUnit: 150, description: String(localized: "piece"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 1)
             ]
         ),
         FoodDTO(
@@ -39,9 +37,8 @@ struct ProteinFoods {
             servingSize: 150,
             category: .protein,
             servingUnits: [
-                ServingUnitDTO(unitType: .serving, gramsPerUnit: 100, description: String(localized: "1 serving"), isDefault: true, orderIndex: 0),
-                ServingUnitDTO(unitType: .piece, gramsPerUnit: 150, description: String(localized: "1 piece"), isDefault: false, orderIndex: 1),
-                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 2)
+                ServingUnitDTO(unitType: .piece, gramsPerUnit: 150, description: String(localized: "piece"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 1)
             ]
         ),
         FoodDTO(
@@ -50,7 +47,7 @@ struct ProteinFoods {
             servingSize: 100,
             category: .protein,
             servingUnits: [
-                ServingUnitDTO(unitType: .serving, gramsPerUnit: 100, description: String(localized: "1 serving"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .serving, gramsPerUnit: 100, description: String(localized: "serving"), isDefault: true, orderIndex: 0),
                 ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 1)
             ]
         ),
@@ -62,9 +59,8 @@ struct ProteinFoods {
             servingSize: 100,
             category: .protein,
             servingUnits: [
-                ServingUnitDTO(unitType: .serving, gramsPerUnit: 100, description: String(localized: "1 serving"), isDefault: true, orderIndex: 0),
-                ServingUnitDTO(unitType: .piece, gramsPerUnit: 150, description: String(localized: "1 piece"), isDefault: false, orderIndex: 1),
-                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 2)
+                ServingUnitDTO(unitType: .piece, gramsPerUnit: 150, description: String(localized: "piece"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 1)
             ]
         ),
         FoodDTO(
@@ -73,7 +69,7 @@ struct ProteinFoods {
             servingSize: 100,
             category: .protein,
             servingUnits: [
-                ServingUnitDTO(unitType: .serving, gramsPerUnit: 100, description: String(localized: "1 serving"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .serving, gramsPerUnit: 100, description: String(localized: "serving"), isDefault: true, orderIndex: 0),
                 ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 1)
             ]
         ),
@@ -83,9 +79,8 @@ struct ProteinFoods {
             servingSize: 100,
             category: .protein,
             servingUnits: [
-                ServingUnitDTO(unitType: .serving, gramsPerUnit: 100, description: String(localized: "1 serving"), isDefault: true, orderIndex: 0),
-                ServingUnitDTO(unitType: .piece, gramsPerUnit: 150, description: String(localized: "1 piece"), isDefault: false, orderIndex: 1),
-                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 2)
+                ServingUnitDTO(unitType: .piece, gramsPerUnit: 150, description: String(localized: "piece"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 1)
             ]
         ),
         FoodDTO(
@@ -94,9 +89,8 @@ struct ProteinFoods {
             servingSize: 100,
             category: .protein,
             servingUnits: [
-                ServingUnitDTO(unitType: .serving, gramsPerUnit: 100, description: String(localized: "1 serving"), isDefault: true, orderIndex: 0),
-                ServingUnitDTO(unitType: .piece, gramsPerUnit: 150, description: String(localized: "1 piece"), isDefault: false, orderIndex: 1),
-                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 2)
+                ServingUnitDTO(unitType: .piece, gramsPerUnit: 150, description: String(localized: "piece"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 1)
             ]
         ),
 
@@ -107,9 +101,8 @@ struct ProteinFoods {
             servingSize: 150,
             category: .protein,
             servingUnits: [
-                ServingUnitDTO(unitType: .serving, gramsPerUnit: 100, description: String(localized: "1 serving"), isDefault: true, orderIndex: 0),
-                ServingUnitDTO(unitType: .piece, gramsPerUnit: 150, description: String(localized: "1 fillet"), isDefault: false, orderIndex: 1),
-                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 2)
+                ServingUnitDTO(unitType: .piece, gramsPerUnit: 150, description: String(localized: "fillet"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 1)
             ]
         ),
         FoodDTO(
@@ -118,9 +111,8 @@ struct ProteinFoods {
             servingSize: 100,
             category: .protein,
             servingUnits: [
-                ServingUnitDTO(unitType: .serving, gramsPerUnit: 100, description: String(localized: "1 serving"), isDefault: true, orderIndex: 0),
-                ServingUnitDTO(unitType: .container, gramsPerUnit: 80, description: String(localized: "1 can"), isDefault: false, orderIndex: 1),
-                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 2)
+                ServingUnitDTO(unitType: .container, gramsPerUnit: 80, description: String(localized: "can"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 1)
             ]
         ),
         FoodDTO(
@@ -129,9 +121,8 @@ struct ProteinFoods {
             servingSize: 150,
             category: .protein,
             servingUnits: [
-                ServingUnitDTO(unitType: .serving, gramsPerUnit: 100, description: String(localized: "1 serving"), isDefault: true, orderIndex: 0),
-                ServingUnitDTO(unitType: .piece, gramsPerUnit: 150, description: String(localized: "1 fillet"), isDefault: false, orderIndex: 1),
-                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 2)
+                ServingUnitDTO(unitType: .piece, gramsPerUnit: 150, description: String(localized: "fillet"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 1)
             ]
         ),
         FoodDTO(
@@ -140,9 +131,8 @@ struct ProteinFoods {
             servingSize: 150,
             category: .protein,
             servingUnits: [
-                ServingUnitDTO(unitType: .serving, gramsPerUnit: 100, description: String(localized: "1 serving"), isDefault: true, orderIndex: 0),
-                ServingUnitDTO(unitType: .piece, gramsPerUnit: 150, description: String(localized: "1 fillet"), isDefault: false, orderIndex: 1),
-                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 2)
+                ServingUnitDTO(unitType: .piece, gramsPerUnit: 150, description: String(localized: "fillet"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 1)
             ]
         ),
         FoodDTO(
@@ -151,9 +141,8 @@ struct ProteinFoods {
             servingSize: 100,
             category: .protein,
             servingUnits: [
-                ServingUnitDTO(unitType: .serving, gramsPerUnit: 100, description: String(localized: "1 serving"), isDefault: true, orderIndex: 0),
-                ServingUnitDTO(unitType: .piece, gramsPerUnit: 10, description: String(localized: "1 large shrimp"), isDefault: false, orderIndex: 1),
-                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 2)
+                ServingUnitDTO(unitType: .piece, gramsPerUnit: 10, description: String(localized: "large shrimp"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 1)
             ]
         ),
         FoodDTO(
@@ -162,9 +151,8 @@ struct ProteinFoods {
             servingSize: 80,
             category: .protein,
             servingUnits: [
-                ServingUnitDTO(unitType: .container, gramsPerUnit: 80, description: String(localized: "1 can"), isDefault: true, orderIndex: 0),
-                ServingUnitDTO(unitType: .serving, gramsPerUnit: 100, description: String(localized: "1 serving"), isDefault: false, orderIndex: 1),
-                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 2)
+                ServingUnitDTO(unitType: .container, gramsPerUnit: 80, description: String(localized: "can"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 1)
             ]
         ),
 
@@ -175,9 +163,8 @@ struct ProteinFoods {
             servingSize: 50,
             category: .protein,
             servingUnits: [
-                ServingUnitDTO(unitType: .piece, gramsPerUnit: 50, description: String(localized: "1 egg"), isDefault: true, orderIndex: 0),
-                ServingUnitDTO(unitType: .serving, gramsPerUnit: 100, description: String(localized: "2 eggs"), isDefault: false, orderIndex: 1),
-                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 2)
+                ServingUnitDTO(unitType: .piece, gramsPerUnit: 50, description: String(localized: "egg"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 1)
             ]
         ),
         FoodDTO(
@@ -186,9 +173,8 @@ struct ProteinFoods {
             servingSize: 60,
             category: .protein,
             servingUnits: [
-                ServingUnitDTO(unitType: .piece, gramsPerUnit: 30, description: String(localized: "1 egg white"), isDefault: true, orderIndex: 0),
-                ServingUnitDTO(unitType: .serving, gramsPerUnit: 100, description: String(localized: "3 egg whites"), isDefault: false, orderIndex: 1),
-                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 2)
+                ServingUnitDTO(unitType: .piece, gramsPerUnit: 30, description: String(localized: "egg white"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 1)
             ]
         ),
         FoodDTO(
@@ -197,9 +183,8 @@ struct ProteinFoods {
             servingSize: 170,
             category: .protein,
             servingUnits: [
-                ServingUnitDTO(unitType: .container, gramsPerUnit: 170, description: String(localized: "1 container"), isDefault: true, orderIndex: 0),
-                ServingUnitDTO(unitType: .serving, gramsPerUnit: 100, description: String(localized: "1 serving"), isDefault: false, orderIndex: 1),
-                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 2)
+                ServingUnitDTO(unitType: .container, gramsPerUnit: 170, description: String(localized: "container"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 1)
             ]
         ),
         FoodDTO(
@@ -209,8 +194,7 @@ struct ProteinFoods {
             category: .protein,
             servingUnits: [
                 ServingUnitDTO(unitType: .cup, gramsPerUnit: 125, description: String(localized: "1/2 cup"), isDefault: true, orderIndex: 0),
-                ServingUnitDTO(unitType: .serving, gramsPerUnit: 100, description: String(localized: "1 serving"), isDefault: false, orderIndex: 1),
-                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 2)
+                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 1)
             ]
         ),
         FoodDTO(
@@ -219,9 +203,8 @@ struct ProteinFoods {
             servingSize: 30,
             category: .protein,
             servingUnits: [
-                ServingUnitDTO(unitType: .slice, gramsPerUnit: 30, description: String(localized: "1 slice"), isDefault: true, orderIndex: 0),
-                ServingUnitDTO(unitType: .serving, gramsPerUnit: 100, description: String(localized: "1 serving"), isDefault: false, orderIndex: 1),
-                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 2)
+                ServingUnitDTO(unitType: .slice, gramsPerUnit: 30, description: String(localized: "slice"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 1)
             ]
         ),
         FoodDTO(
@@ -230,9 +213,8 @@ struct ProteinFoods {
             servingSize: 30,
             category: .protein,
             servingUnits: [
-                ServingUnitDTO(unitType: .slice, gramsPerUnit: 30, description: String(localized: "1 slice"), isDefault: true, orderIndex: 0),
-                ServingUnitDTO(unitType: .serving, gramsPerUnit: 100, description: String(localized: "1 serving"), isDefault: false, orderIndex: 1),
-                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 2)
+                ServingUnitDTO(unitType: .slice, gramsPerUnit: 30, description: String(localized: "slice"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 1)
             ]
         ),
 
@@ -243,9 +225,8 @@ struct ProteinFoods {
             servingSize: 200,
             category: .protein,
             servingUnits: [
-                ServingUnitDTO(unitType: .cup, gramsPerUnit: 200, description: String(localized: "1 cup"), isDefault: true, orderIndex: 0),
-                ServingUnitDTO(unitType: .serving, gramsPerUnit: 100, description: String(localized: "1 serving"), isDefault: false, orderIndex: 1),
-                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 2)
+                ServingUnitDTO(unitType: .cup, gramsPerUnit: 200, description: String(localized: "cup"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 1)
             ]
         ),
         FoodDTO(
@@ -254,9 +235,8 @@ struct ProteinFoods {
             servingSize: 150,
             category: .protein,
             servingUnits: [
-                ServingUnitDTO(unitType: .cup, gramsPerUnit: 150, description: String(localized: "1 cup"), isDefault: true, orderIndex: 0),
-                ServingUnitDTO(unitType: .serving, gramsPerUnit: 100, description: String(localized: "1 serving"), isDefault: false, orderIndex: 1),
-                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 2)
+                ServingUnitDTO(unitType: .cup, gramsPerUnit: 150, description: String(localized: "cup"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 1)
             ]
         ),
         FoodDTO(
@@ -265,9 +245,8 @@ struct ProteinFoods {
             servingSize: 150,
             category: .protein,
             servingUnits: [
-                ServingUnitDTO(unitType: .cup, gramsPerUnit: 150, description: String(localized: "1 cup"), isDefault: true, orderIndex: 0),
-                ServingUnitDTO(unitType: .serving, gramsPerUnit: 100, description: String(localized: "1 serving"), isDefault: false, orderIndex: 1),
-                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 2)
+                ServingUnitDTO(unitType: .cup, gramsPerUnit: 150, description: String(localized: "cup"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 1)
             ]
         ),
         FoodDTO(
@@ -276,9 +255,8 @@ struct ProteinFoods {
             servingSize: 150,
             category: .protein,
             servingUnits: [
-                ServingUnitDTO(unitType: .cup, gramsPerUnit: 150, description: String(localized: "1 cup"), isDefault: true, orderIndex: 0),
-                ServingUnitDTO(unitType: .serving, gramsPerUnit: 100, description: String(localized: "1 serving"), isDefault: false, orderIndex: 1),
-                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 2)
+                ServingUnitDTO(unitType: .cup, gramsPerUnit: 150, description: String(localized: "cup"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 1)
             ]
         ),
         FoodDTO(
@@ -287,9 +265,8 @@ struct ProteinFoods {
             servingSize: 100,
             category: .protein,
             servingUnits: [
-                ServingUnitDTO(unitType: .cup, gramsPerUnit: 100, description: String(localized: "1 cup"), isDefault: true, orderIndex: 0),
-                ServingUnitDTO(unitType: .serving, gramsPerUnit: 100, description: String(localized: "1 serving"), isDefault: false, orderIndex: 1),
-                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 2)
+                ServingUnitDTO(unitType: .cup, gramsPerUnit: 100, description: String(localized: "cup"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 1)
             ]
         ),
 
@@ -300,9 +277,8 @@ struct ProteinFoods {
             servingSize: 100,
             category: .protein,
             servingUnits: [
-                ServingUnitDTO(unitType: .serving, gramsPerUnit: 100, description: String(localized: "1 serving"), isDefault: true, orderIndex: 0),
-                ServingUnitDTO(unitType: .piece, gramsPerUnit: 150, description: String(localized: "1 block"), isDefault: false, orderIndex: 1),
-                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 2)
+                ServingUnitDTO(unitType: .piece, gramsPerUnit: 150, description: String(localized: "block"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 1)
             ]
         ),
         FoodDTO(
@@ -311,9 +287,8 @@ struct ProteinFoods {
             servingSize: 100,
             category: .protein,
             servingUnits: [
-                ServingUnitDTO(unitType: .serving, gramsPerUnit: 100, description: String(localized: "1 serving"), isDefault: true, orderIndex: 0),
-                ServingUnitDTO(unitType: .piece, gramsPerUnit: 150, description: String(localized: "1 block"), isDefault: false, orderIndex: 1),
-                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 2)
+                ServingUnitDTO(unitType: .piece, gramsPerUnit: 150, description: String(localized: "block"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 1)
             ]
         ),
         FoodDTO(
@@ -322,7 +297,7 @@ struct ProteinFoods {
             servingSize: 100,
             category: .protein,
             servingUnits: [
-                ServingUnitDTO(unitType: .serving, gramsPerUnit: 100, description: String(localized: "1 serving"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .serving, gramsPerUnit: 100, description: String(localized: "serving"), isDefault: true, orderIndex: 0),
                 ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 1)
             ]
         ),
@@ -334,8 +309,8 @@ struct ProteinFoods {
             servingSize: 30,
             category: .protein,
             servingUnits: [
-                ServingUnitDTO(unitType: .scoop, gramsPerUnit: 30, description: String(localized: "1 scoop"), isDefault: true, orderIndex: 0),
-                ServingUnitDTO(unitType: .tablespoon, gramsPerUnit: 10, description: String(localized: "1 tbsp"), isDefault: false, orderIndex: 1),
+                ServingUnitDTO(unitType: .scoop, gramsPerUnit: 30, description: String(localized: "scoop"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .tablespoon, gramsPerUnit: 10, description: String(localized: "tbsp"), isDefault: false, orderIndex: 1),
                 ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 2)
             ]
         ),
@@ -345,8 +320,8 @@ struct ProteinFoods {
             servingSize: 30,
             category: .protein,
             servingUnits: [
-                ServingUnitDTO(unitType: .scoop, gramsPerUnit: 30, description: String(localized: "1 scoop"), isDefault: true, orderIndex: 0),
-                ServingUnitDTO(unitType: .tablespoon, gramsPerUnit: 10, description: String(localized: "1 tbsp"), isDefault: false, orderIndex: 1),
+                ServingUnitDTO(unitType: .scoop, gramsPerUnit: 30, description: String(localized: "scoop"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .tablespoon, gramsPerUnit: 10, description: String(localized: "tbsp"), isDefault: false, orderIndex: 1),
                 ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 2)
             ]
         ),
@@ -356,8 +331,8 @@ struct ProteinFoods {
             servingSize: 30,
             category: .protein,
             servingUnits: [
-                ServingUnitDTO(unitType: .scoop, gramsPerUnit: 30, description: String(localized: "1 scoop"), isDefault: true, orderIndex: 0),
-                ServingUnitDTO(unitType: .tablespoon, gramsPerUnit: 10, description: String(localized: "1 tbsp"), isDefault: false, orderIndex: 1),
+                ServingUnitDTO(unitType: .scoop, gramsPerUnit: 30, description: String(localized: "scoop"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .tablespoon, gramsPerUnit: 10, description: String(localized: "tbsp"), isDefault: false, orderIndex: 1),
                 ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 2)
             ]
         ),
@@ -369,9 +344,8 @@ struct ProteinFoods {
             servingSize: 150,
             category: .protein,
             servingUnits: [
-                ServingUnitDTO(unitType: .piece, gramsPerUnit: 150, description: String(localized: "1 fillet"), isDefault: true, orderIndex: 0),
-                ServingUnitDTO(unitType: .serving, gramsPerUnit: 100, description: String(localized: "1 serving"), isDefault: false, orderIndex: 1),
-                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 2)
+                ServingUnitDTO(unitType: .piece, gramsPerUnit: 150, description: String(localized: "fillet"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 1)
             ]
         ),
         FoodDTO(
@@ -380,9 +354,8 @@ struct ProteinFoods {
             servingSize: 150,
             category: .protein,
             servingUnits: [
-                ServingUnitDTO(unitType: .piece, gramsPerUnit: 150, description: String(localized: "1 fillet"), isDefault: true, orderIndex: 0),
-                ServingUnitDTO(unitType: .serving, gramsPerUnit: 100, description: String(localized: "1 serving"), isDefault: false, orderIndex: 1),
-                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 2)
+                ServingUnitDTO(unitType: .piece, gramsPerUnit: 150, description: String(localized: "fillet"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 1)
             ]
         ),
         FoodDTO(
@@ -391,9 +364,8 @@ struct ProteinFoods {
             servingSize: 100,
             category: .protein,
             servingUnits: [
-                ServingUnitDTO(unitType: .piece, gramsPerUnit: 100, description: String(localized: "1 fillet"), isDefault: true, orderIndex: 0),
-                ServingUnitDTO(unitType: .serving, gramsPerUnit: 100, description: String(localized: "1 serving"), isDefault: false, orderIndex: 1),
-                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 2)
+                ServingUnitDTO(unitType: .piece, gramsPerUnit: 100, description: String(localized: "fillet"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 1)
             ]
         ),
         FoodDTO(
@@ -402,9 +374,8 @@ struct ProteinFoods {
             servingSize: 80,
             category: .protein,
             servingUnits: [
-                ServingUnitDTO(unitType: .serving, gramsPerUnit: 80, description: String(localized: "1 serving"), isDefault: true, orderIndex: 0),
-                ServingUnitDTO(unitType: .piece, gramsPerUnit: 5, description: String(localized: "1 anchovy"), isDefault: false, orderIndex: 1),
-                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 2)
+                ServingUnitDTO(unitType: .piece, gramsPerUnit: 5, description: String(localized: "anchovy"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 1)
             ]
         ),
 
@@ -415,9 +386,8 @@ struct ProteinFoods {
             servingSize: 100,
             category: .protein,
             servingUnits: [
-                ServingUnitDTO(unitType: .piece, gramsPerUnit: 150, description: String(localized: "1 steak"), isDefault: true, orderIndex: 0),
-                ServingUnitDTO(unitType: .serving, gramsPerUnit: 100, description: String(localized: "1 serving"), isDefault: false, orderIndex: 1),
-                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 2)
+                ServingUnitDTO(unitType: .piece, gramsPerUnit: 150, description: String(localized: "steak"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 1)
             ]
         ),
         FoodDTO(
@@ -426,9 +396,8 @@ struct ProteinFoods {
             servingSize: 60,
             category: .protein,
             servingUnits: [
-                ServingUnitDTO(unitType: .piece, gramsPerUnit: 60, description: String(localized: "1 meatball"), isDefault: true, orderIndex: 0),
-                ServingUnitDTO(unitType: .serving, gramsPerUnit: 100, description: String(localized: "1 serving"), isDefault: false, orderIndex: 1),
-                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 2)
+                ServingUnitDTO(unitType: .piece, gramsPerUnit: 60, description: String(localized: "meatball"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 1)
             ]
         ),
 
@@ -439,9 +408,8 @@ struct ProteinFoods {
             servingSize: 50,
             category: .protein,
             servingUnits: [
-                ServingUnitDTO(unitType: .slice, gramsPerUnit: 10, description: String(localized: "1 slice"), isDefault: true, orderIndex: 0),
-                ServingUnitDTO(unitType: .serving, gramsPerUnit: 50, description: String(localized: "1 serving"), isDefault: false, orderIndex: 1),
-                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 2)
+                ServingUnitDTO(unitType: .slice, gramsPerUnit: 10, description: String(localized: "slice"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 1)
             ]
         ),
         FoodDTO(
@@ -450,10 +418,9 @@ struct ProteinFoods {
             servingSize: 50,
             category: .protein,
             servingUnits: [
-                ServingUnitDTO(unitType: .piece, gramsPerUnit: 50, description: String(localized: "1 piece"), isDefault: true, orderIndex: 0),
-                ServingUnitDTO(unitType: .slice, gramsPerUnit: 10, description: String(localized: "1 slice"), isDefault: false, orderIndex: 1),
-                ServingUnitDTO(unitType: .serving, gramsPerUnit: 100, description: String(localized: "1 serving"), isDefault: false, orderIndex: 2),
-                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 3)
+                ServingUnitDTO(unitType: .piece, gramsPerUnit: 50, description: String(localized: "piece"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .slice, gramsPerUnit: 10, description: String(localized: "slice"), isDefault: false, orderIndex: 1),
+                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 2)
             ]
         ),
 
@@ -464,9 +431,8 @@ struct ProteinFoods {
             servingSize: 100,
             category: .protein,
             servingUnits: [
-                ServingUnitDTO(unitType: .tablespoon, gramsPerUnit: 20, description: String(localized: "1 tbsp"), isDefault: true, orderIndex: 0),
-                ServingUnitDTO(unitType: .serving, gramsPerUnit: 100, description: String(localized: "1 serving"), isDefault: false, orderIndex: 1),
-                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 2)
+                ServingUnitDTO(unitType: .tablespoon, gramsPerUnit: 20, description: String(localized: "tbsp"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 1)
             ]
         ),
         FoodDTO(
@@ -475,9 +441,8 @@ struct ProteinFoods {
             servingSize: 30,
             category: .protein,
             servingUnits: [
-                ServingUnitDTO(unitType: .slice, gramsPerUnit: 30, description: String(localized: "1 slice"), isDefault: true, orderIndex: 0),
-                ServingUnitDTO(unitType: .serving, gramsPerUnit: 100, description: String(localized: "1 serving"), isDefault: false, orderIndex: 1),
-                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 2)
+                ServingUnitDTO(unitType: .slice, gramsPerUnit: 30, description: String(localized: "slice"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 1)
             ]
         ),
 
@@ -488,9 +453,8 @@ struct ProteinFoods {
             servingSize: 60,
             category: .protein,
             servingUnits: [
-                ServingUnitDTO(unitType: .piece, gramsPerUnit: 60, description: String(localized: "1 bar"), isDefault: true, orderIndex: 0),
-                ServingUnitDTO(unitType: .serving, gramsPerUnit: 60, description: String(localized: "1 serving"), isDefault: false, orderIndex: 1),
-                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 2)
+                ServingUnitDTO(unitType: .piece, gramsPerUnit: 60, description: String(localized: "bar"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 1)
             ]
         )
     ]

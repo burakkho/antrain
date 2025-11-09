@@ -141,7 +141,8 @@ struct FoodSearchView: View {
                                 .tag(unit as ServingUnit?)
                         }
                     }
-                    .pickerStyle(.segmented)
+                    .pickerStyle(.menu)
+                    .tint(DSColors.primary)
                 }
 
                 // Amount input

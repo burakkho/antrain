@@ -10,9 +10,9 @@ import Foundation
 /// Service for detecting new Personal Records (PRs) in workouts
 /// Automatically analyzes lifting workouts and saves new PRs
 actor PRDetectionService {
-    private let prRepository: PersonalRecordRepository
+    private let prRepository: PersonalRecordRepositoryProtocol
 
-    init(prRepository: PersonalRecordRepository) {
+    init(prRepository: PersonalRecordRepositoryProtocol) {
         self.prRepository = prRepository
     }
 
@@ -74,7 +74,6 @@ actor PRDetectionService {
         )
 
         guard isNewPR else {
-            print("Not a new PR for \(workoutExercise.exerciseName): \(bestEstimated1RM)kg")
             return nil
         }
 
@@ -102,5 +101,20 @@ actor PRDetectionService {
 
         // Detect new PRs
         _ = try await detectAndSavePRs(from: workout)
+    }
+
+    /// Recalculate ALL PRs from scratch
+    /// Useful for fixing incorrect PR values after import
+    func recalculateAllPRs(workouts: [Workout]) async throws {
+        // Delete all existing PRs
+        let allPRs = try await prRepository.fetchAll()
+        for pr in allPRs {
+            try await prRepository.delete(pr)
+        }
+
+        // Recalculate PRs from all workouts
+        for workout in workouts {
+            _ = try await detectAndSavePRs(from: workout)
+        }
     }
 }

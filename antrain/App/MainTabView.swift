@@ -129,14 +129,20 @@ struct MainTabView: View {
         .onAppear {
             // Silently restore active workout session if exists
             Task {
-                await workoutManager.restoreState(
+                let restored = await workoutManager.restoreState(
                     workoutRepository: appDependencies.workoutRepository,
                     exerciseRepository: appDependencies.exerciseRepository,
                     prDetectionService: appDependencies.prDetectionService,
                     progressiveOverloadService: appDependencies.progressiveOverloadService,
-                    userProfileRepository: appDependencies.userProfileRepository
+                    userProfileRepository: appDependencies.userProfileRepository,
+                    liveActivityManager: appDependencies.liveActivityManager,
+                    widgetUpdateService: appDependencies.widgetUpdateService
                 )
-                
+
+                if restored {
+                    print("✅ Workout session restored successfully")
+                }
+
                 // Update widget data on app launch
                 await updateWidgetData()
             }
@@ -149,7 +155,7 @@ struct MainTabView: View {
         let controller = PersistenceController.shared
 
         // Poll seeding status
-        while await controller.isSeeding {
+        while controller.isSeeding {
             await MainActor.run {
                 isSeeding = true
                 seedingProgress = controller.seedingProgress

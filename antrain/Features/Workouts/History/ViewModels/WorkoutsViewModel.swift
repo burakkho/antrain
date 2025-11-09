@@ -76,7 +76,7 @@ final class WorkoutsViewModel {
         // Add program schedule (if active program exists)
         if let program = activeProgram,
            let startDate = programStartDate,
-           let currentWeek = currentWeekNumber {
+           let _ = currentWeekNumber {
 
             // Preload all relationships to avoid lazy loading issues
             // Access weeks, days, and templates to force SwiftData to load them

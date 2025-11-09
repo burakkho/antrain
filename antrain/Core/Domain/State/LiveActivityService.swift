@@ -20,8 +20,8 @@ final class LiveActivityService: LiveActivityServiceProtocol {
     
     func startActivity(workoutName: String) {
         // Check iOS version
-        guard #available(iOS 16.1, *) else {
-            print("⚠️ Live Activities require iOS 16.1+")
+        guard #available(iOS 18.2, *) else {
+            print("⚠️ Live Activities require iOS 18.2+")
             return
         }
         
@@ -85,8 +85,6 @@ final class LiveActivityService: LiveActivityServiceProtocol {
         duration: TimeInterval,
         exerciseCount: Int
     ) {
-        guard #available(iOS 16.1, *) else { return }
-        
         guard let activity = currentActivity else {
             print("⚠️ No active Live Activity to update")
             return
@@ -107,19 +105,19 @@ final class LiveActivityService: LiveActivityServiceProtocol {
         )
         
         Task {
+            // Using deprecated API - newer API has different signature that doesn't work for our use case
             await activity.update(using: updatedState)
             print("✅ Live Activity updated")
         }
     }
     
     // MARK: - End Activity
-    
+
     func endActivity() {
-        guard #available(iOS 16.1, *) else { return }
-        
         guard let activity = currentActivity else { return }
         
         Task {
+            // Using deprecated API - newer API has different signature that doesn't work for our use case
             await activity.end(
                 using: activity.content.state,
                 dismissalPolicy: .default

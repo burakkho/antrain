@@ -132,8 +132,8 @@ final class ActiveWorkoutManager {
     /// Finish workout and clear state
     func finishWorkout() {
         // Stop duration timer
-        activeViewModel?.stopDurationTimer()
-        
+        activeViewModel?.liveActivityManager.stopDurationTimer()
+
         // End Live Activity
         liveActivityService?.endActivity()
         
@@ -148,8 +148,8 @@ final class ActiveWorkoutManager {
     /// Cancel workout and clear state
     func cancelWorkout() {
         // Stop duration timer
-        activeViewModel?.stopDurationTimer()
-        
+        activeViewModel?.liveActivityManager.stopDurationTimer()
+
         // End Live Activity
         liveActivityService?.endActivity()
         
@@ -213,7 +213,7 @@ final class ActiveWorkoutManager {
     /// Update Live Activity with current workout state
     func updateLiveActivity() {
         guard let viewModel = activeViewModel,
-              let workout = activeWorkout else { return }
+              let _ = activeWorkout else { return }
         
         // Get current exercise info
         let currentExercise = viewModel.exercises.last
@@ -254,7 +254,9 @@ final class ActiveWorkoutManager {
         exerciseRepository: ExerciseRepositoryProtocol,
         prDetectionService: PRDetectionService,
         progressiveOverloadService: ProgressiveOverloadService,
-        userProfileRepository: UserProfileRepositoryProtocol
+        userProfileRepository: UserProfileRepositoryProtocol,
+        liveActivityManager: LiveActivityManager,
+        widgetUpdateService: WidgetUpdateService
     ) async -> Bool {
         guard let sessionData = WorkoutSessionData.load() else {
             return false
@@ -272,7 +274,9 @@ final class ActiveWorkoutManager {
             exerciseRepository: exerciseRepository,
             prDetectionService: prDetectionService,
             progressiveOverloadService: progressiveOverloadService,
-            userProfileRepository: userProfileRepository
+            userProfileRepository: userProfileRepository,
+            liveActivityManager: liveActivityManager,
+            widgetUpdateService: widgetUpdateService
         )
 
         // Restore exercises

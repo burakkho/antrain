@@ -11,7 +11,77 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [1.2.0] - 2025-11-08
+## [1.2.0] - 2025-11-09
+
+### Added
+
+#### Personal Records Analysis
+- **Advanced PR Filtering System**
+  - Filter by date range (Last 7 days, Last 30 days, Last 3 months, Last year, All time)
+  - Filter by muscle group (Push, Pull, Legs, Core, Full Body)
+  - Search by exercise name with instant filtering
+  - Combined filters for precise PR discovery
+
+- **PR Statistics Dashboard**
+  - Total PRs count across all exercises
+  - Last 30 days PR count with percentage of total
+  - Last 7 days PR count with recent progress indicator
+  - Average PRs per week calculation
+  - Color-coded stat cards with SF Symbols
+
+- **Interactive PR Cards**
+  - Expandable exercise cards with smooth animations
+  - PR details: date, set info (reps × weight), volume
+  - PR history chart (Swift Charts) showing progress over time
+  - Empty state with helpful message when no PRs found
+  - Relative date formatting (e.g., "2 days ago", "Last week")
+
+#### CSV Import/Export
+- **CSV Export**: Backup workout data to CSV format
+  - Compatible with popular fitness apps (Hevy, Strong, Fitbod)
+  - Exports all workout history with exercise details
+  - Share via Files app, email, or cloud storage
+  - One-tap export from Settings
+
+- **CSV Import**: Import workouts from other apps
+  - Smart exercise name mapping system
+  - Outlier detection (e.g., 440kg → 44kg automatic correction)
+  - PR recalculation after import
+  - Support for multiple CSV formats
+  - Progress indicator during import
+  - Detailed import summary with stats
+
+- **Exercise Name Mapper**: Intelligent exercise matching
+  - Maps common exercise name variations
+  - Supports 50+ exercise name aliases
+  - Handles different naming conventions across apps
+
+#### Set Type System
+- **Set Type Differentiation**
+  - Support for multiple set types: Normal, Warmup, Dropset, Failure
+  - `SetType` enum with icon and color coding
+  - Foundation for advanced workout tracking
+  - Prepares for future features (auto-warmup suggestions, advanced analytics)
+
+#### Enhanced Live Activity & Widget Services
+- **LiveActivityManager**: Duration-based timer management
+  - Tracks workout duration with pause/resume support
+  - Updates Live Activity dynamically
+  - Efficient timer management with background support
+
+- **WidgetUpdateService**: Widget data synchronization
+  - Automatically updates Home Screen widgets
+  - Syncs workout summary data
+  - Ensures widgets show latest workout information
+
+#### Food Library Expansion
+- **New Food Categories** (400+ new foods)
+  - Fruits: 50+ fruits with accurate macros
+  - Turkish Foods: Traditional Turkish cuisine items
+  - International Foods: Global cuisine staples
+  - Packaged Foods: Common branded/packaged items
+  - Better serving size options
+  - More accurate nutritional data
 
 ### Changed
 

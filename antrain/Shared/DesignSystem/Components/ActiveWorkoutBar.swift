@@ -197,7 +197,9 @@ struct ActiveWorkoutBar: View {
         exerciseRepository: deps.exerciseRepository,
         prDetectionService: deps.prDetectionService,
         progressiveOverloadService: deps.progressiveOverloadService,
-        userProfileRepository: deps.userProfileRepository
+        userProfileRepository: deps.userProfileRepository,
+        liveActivityManager: deps.liveActivityManager,
+        widgetUpdateService: deps.widgetUpdateService
     )
 
     // Mock data

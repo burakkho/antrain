@@ -60,32 +60,7 @@ struct WorkoutsOverviewView: View {
                     .environmentObject(appDependencies)
             }
             .sheet(isPresented: $showWorkoutPreview) {
-                NavigationStack {
-                    if let previewDay = previewProgramDay, let template = previewDay.template {
-                        WorkoutPreviewView(
-                            programDay: previewDay,
-                            template: template,
-                            weekModifier: previewWeekModifier
-                        )
-                        .navigationTitle(previewDay.displayName)
-                        .navigationBarTitleDisplayMode(.inline)
-                        .toolbar {
-                            ToolbarItem(placement: .topBarLeading) {
-                                Button("Close") {
-                                    showWorkoutPreview = false
-                                }
-                            }
-                            ToolbarItem(placement: .topBarTrailing) {
-                                Button {
-                                    showWorkoutPreview = false
-                                    workoutManager.startWorkoutFromProgram(template, programDay: previewDay)
-                                } label: {
-                                    Label("Start", systemImage: "play.fill")
-                                }
-                            }
-                        }
-                    }
-                }
+                workoutPreviewSheet
             }
             .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("WorkoutSaved"))) { _ in
                 Task {
@@ -113,7 +88,17 @@ struct WorkoutsOverviewView: View {
             if viewMode == .list {
                 VStack(spacing: DSSpacing.md) {
                     // Quick Actions
-                    quickActionsSection
+                    QuickActionsCard(
+                        onStartLifting: {
+                            workoutManager.showFullScreen = true
+                        },
+                        onLogCardio: {
+                            showCardioLog = true
+                        },
+                        onLogMetCon: {
+                            showMetConLog = true
+                        }
+                    )
 
                     // PR Summary Card
                     DailyWorkoutSummary(limit: 5)
@@ -128,7 +113,11 @@ struct WorkoutsOverviewView: View {
                         emptyFilteredState
                             .padding(.top, DSSpacing.xl)
                     } else {
-                        workoutsListSection(viewModel: viewModel)
+                        WorkoutListView(
+                            workouts: viewModel.workouts,
+                            selectedFilter: selectedFilter,
+                            limit: 5
+                        )
                     }
                 }
                 .padding(.vertical, DSSpacing.md)
@@ -143,41 +132,6 @@ struct WorkoutsOverviewView: View {
         }
         .refreshable {
             await viewModel.loadWorkouts()
-        }
-    }
-
-    // MARK: - Quick Actions Section
-
-    private var quickActionsSection: some View {
-        VStack(alignment: .leading, spacing: DSSpacing.sm) {
-            Text("Quick Actions")
-                .font(DSTypography.title3)
-                .fontWeight(.semibold)
-                .padding(.horizontal, DSSpacing.md)
-
-            HStack(spacing: DSSpacing.sm) {
-                QuickActionButton(
-                    icon: "dumbbell.fill",
-                    title: "Start Lifting"
-                ) {
-                    workoutManager.showFullScreen = true
-                }
-
-                QuickActionButton(
-                    icon: "figure.run",
-                    title: "Log Cardio"
-                ) {
-                    showCardioLog = true
-                }
-
-                QuickActionButton(
-                    icon: "flame.fill",
-                    title: "Log MetCon"
-                ) {
-                    showMetConLog = true
-                }
-            }
-            .padding(.horizontal, DSSpacing.md)
         }
     }
 
@@ -233,173 +187,56 @@ struct WorkoutsOverviewView: View {
             ScrollView {
                 LazyVStack(spacing: DSSpacing.xs) {
                     ForEach(items) { item in
-                        calendarItemCard(item: item)
+                        CalendarItemCardView(
+                            item: item,
+                            onDelete: { workout in
+                                Task {
+                                    await viewModel?.deleteWorkout(workout)
+                                }
+                            },
+                            onStartWorkout: { template, programDay in
+                                workoutManager.startWorkoutFromProgram(template, programDay: programDay)
+                            },
+                            onPreview: { programDay, weekModifier in
+                                previewProgramDay = programDay
+                                previewWeekModifier = weekModifier
+                                showWorkoutPreview = true
+                            }
+                        )
                     }
                 }
             }
         }
     }
 
-    @ViewBuilder
-    private func calendarItemCard(item: CalendarItem) -> some View {
-        Group {
-            switch item.type {
-            case .completed(let workout):
-                // Completed workout - navigate to detail
-                NavigationLink(destination: WorkoutDetailView(workout: workout)) {
-                    itemCardContent(item: item)
-                }
-                .buttonStyle(.plain)
-                .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-                    Button(role: .destructive) {
-                        Task {
-                            await viewModel?.deleteWorkout(workout)
-                        }
-                    } label: {
-                        Label("Delete", systemImage: "trash")
-                    }
-                }
+    // MARK: - Workout Preview Sheet
 
-            case .planned(let programDay, let weekModifier):
-                // Planned workout - tap to preview, swipe to start/skip
-                Group {
-                    if let template = programDay.template {
-                        Button {
-                            previewProgramDay = programDay
-                            previewWeekModifier = weekModifier
-                            showWorkoutPreview = true
-                        } label: {
-                            itemCardContent(item: item)
-                        }
-                        .buttonStyle(.plain)
-                    } else {
-                        // Template not available - show non-interactive card
-                        itemCardContent(item: item)
-                            .opacity(0.5)
-                    }
-                }
-                .swipeActions(edge: .leading, allowsFullSwipe: true) {
-                    Button {
-                        // Start workout
-                        if let template = programDay.template {
-                            workoutManager.startWorkoutFromProgram(template, programDay: programDay)
-                        }
-                    } label: {
-                        Label("Start", systemImage: "play.fill")
-                    }
-                    .tint(.green)
-                }
-                .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-                    Button {
-                        // Skip workout (mark as completed with empty data)
-                        // TODO: Implement skip logic
-                    } label: {
-                        Label("Skip", systemImage: "forward.fill")
-                    }
-                    .tint(.orange)
-                }
-
-            case .rest:
-                // Rest day - no actions
-                itemCardContent(item: item)
-            }
-        }
-    }
-
-    private func itemCardContent(item: CalendarItem) -> some View {
-        HStack(spacing: DSSpacing.sm) {
-            // Icon with status indicator
-            ZStack(alignment: .bottomTrailing) {
-                Image(systemName: item.icon)
-                    .font(.title3)
-                    .foregroundStyle(itemColor(for: item))
-                    .frame(width: 40, height: 40)
-
-                // Status badge
-                if item.type.isCompleted {
-                    Image(systemName: "checkmark.circle.fill")
-                        .font(.caption)
-                        .foregroundStyle(.white)
-                        .background(Circle().fill(.green).frame(width: 16, height: 16))
-                        .offset(x: 4, y: 4)
-                }
-            }
-
-            // Content
-            VStack(alignment: .leading, spacing: 2) {
-                Text(item.title)
-                    .font(DSTypography.subheadline)
-                    .fontWeight(item.type.isCompleted ? .semibold : .regular)
-                    .foregroundStyle(DSColors.textPrimary)
-
-                if let subtitle = item.subtitle {
-                    Text(subtitle)
-                        .font(DSTypography.caption)
-                        .foregroundStyle(DSColors.textSecondary)
-                }
-
-                // Type indicator
-                HStack(spacing: 4) {
-                    Circle()
-                        .fill(itemColor(for: item))
-                        .frame(width: 6, height: 6)
-
-                    Text(itemTypeLabel(for: item))
-                        .font(.caption2)
-                        .foregroundStyle(itemColor(for: item))
-                }
-            }
-
-            Spacer()
-
-            // Chevron for completed and planned workouts
-            if item.type.isCompleted || item.type.isPlanned {
-                Image(systemName: "chevron.right")
-                    .font(.caption2)
-                    .foregroundStyle(DSColors.textSecondary)
-            }
-        }
-        .padding(DSSpacing.sm)
-        .background {
-            RoundedRectangle(cornerRadius: DSCornerRadius.md)
-                .fill(.regularMaterial)
-                .shadow(color: .black.opacity(0.08), radius: 8, y: 4)
-        }
-        .overlay {
-            // Border styling
-            RoundedRectangle(cornerRadius: DSCornerRadius.md)
-                .strokeBorder(
-                    itemColor(for: item).opacity(item.type.isPlanned ? 0.5 : 0.2),
-                    style: StrokeStyle(
-                        lineWidth: 2,
-                        dash: item.type.isPlanned ? [5, 3] : []
-                    )
+    private var workoutPreviewSheet: some View {
+        NavigationStack {
+            if let previewDay = previewProgramDay, let template = previewDay.template {
+                WorkoutPreviewView(
+                    programDay: previewDay,
+                    template: template,
+                    weekModifier: previewWeekModifier
                 )
-        }
-        .opacity(item.type.isRest ? 0.6 : 1.0)
-    }
-
-    // MARK: - Calendar Item Styling Helpers
-
-    private func itemColor(for item: CalendarItem) -> Color {
-        switch item.type {
-        case .completed:
-            return .green
-        case .planned:
-            return .orange
-        case .rest:
-            return .blue
-        }
-    }
-
-    private func itemTypeLabel(for item: CalendarItem) -> String {
-        switch item.type {
-        case .completed:
-            return String(localized: "Completed")
-        case .planned:
-            return String(localized: "Planned")
-        case .rest:
-            return String(localized: "Rest")
+                .navigationTitle(previewDay.displayName)
+                .navigationBarTitleDisplayMode(.inline)
+                .toolbar {
+                    ToolbarItem(placement: .topBarLeading) {
+                        Button("Close") {
+                            showWorkoutPreview = false
+                        }
+                    }
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button {
+                            showWorkoutPreview = false
+                            workoutManager.startWorkoutFromProgram(template, programDay: previewDay)
+                        } label: {
+                            Label("Start", systemImage: "play.fill")
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -411,49 +248,6 @@ struct WorkoutsOverviewView: View {
             title: "No \(selectedFilter.rawValue) Workouts",
             message: "Try adjusting your filter or log a new workout."
         )
-    }
-
-    // MARK: - Workouts List Section
-
-    private func workoutsListSection(viewModel: WorkoutsViewModel) -> some View {
-        LazyVStack(spacing: DSSpacing.sm) {
-            ForEach(filteredWorkouts(viewModel: viewModel)) { workout in
-                NavigationLink(destination: WorkoutDetailView(workout: workout)) {
-                    DSCard {
-                        HStack(spacing: DSSpacing.md) {
-                            Image(systemName: workoutIcon(for: workout.type))
-                                .font(.title2)
-                                .foregroundStyle(workoutColor(for: workout.type))
-                                .frame(width: 40)
-
-                            VStack(alignment: .leading, spacing: DSSpacing.xxs) {
-                                Text(workoutTypeText(for: workout.type))
-                                    .font(DSTypography.headline)
-                                    .foregroundStyle(DSColors.textPrimary)
-
-                                Text(workout.date, style: .date)
-                                    .font(DSTypography.caption)
-                                    .foregroundStyle(DSColors.textSecondary)
-
-                                if let info = workoutInfo(for: workout) {
-                                    Text(info)
-                                        .font(DSTypography.caption)
-                                        .foregroundStyle(DSColors.textSecondary)
-                                }
-                            }
-
-                            Spacer()
-
-                            Image(systemName: "chevron.right")
-                                .font(.caption)
-                                .foregroundStyle(DSColors.textSecondary)
-                        }
-                    }
-                }
-                .buttonStyle(.plain)
-            }
-        }
-        .padding(.horizontal, DSSpacing.md)
     }
 
     // MARK: - Filtered Workouts
@@ -476,48 +270,6 @@ struct WorkoutsOverviewView: View {
             }
         }
     }
-
-    // MARK: - Helpers
-
-    private func workoutIcon(for type: WorkoutType) -> String {
-        switch type {
-        case .lifting: return "dumbbell.fill"
-        case .cardio: return "figure.run"
-        case .metcon: return "flame.fill"
-        }
-    }
-
-    private func workoutTypeText(for type: WorkoutType) -> String {
-        type.displayName
-    }
-
-    private func workoutColor(for type: WorkoutType) -> Color {
-        switch type {
-        case .lifting: return DSColors.primary
-        case .cardio: return .blue
-        case .metcon: return .orange
-        }
-    }
-
-    private func workoutInfo(for workout: Workout) -> String? {
-        switch workout.type {
-        case .lifting:
-            let exerciseCount = workout.exercises.count
-            return "\(exerciseCount) exercise\(exerciseCount == 1 ? "" : "s")"
-        case .cardio:
-            if workout.duration > 0 {
-                let minutes = Int(workout.duration / 60)
-                return "\(minutes) min"
-            }
-            return nil
-        case .metcon:
-            if workout.duration > 0 {
-                let minutes = Int(workout.duration / 60)
-                return "\(minutes) min"
-            }
-            return nil
-        }
-    }
 }
 
 // MARK: - Supporting Types
@@ -532,36 +284,17 @@ enum HistoryViewMode {
 #Preview("List Mode") {
     @Previewable @State var viewMode: HistoryViewMode = .list
     @Previewable @State var workoutManager = ActiveWorkoutManager()
-    
+
     NavigationStack {
         ScrollView {
             VStack(spacing: DSSpacing.md) {
                 // Quick Actions Preview
-                VStack(alignment: .leading, spacing: DSSpacing.sm) {
-                    Text("Quick Actions")
-                        .font(DSTypography.title3)
-                        .fontWeight(.semibold)
-                        .padding(.horizontal, DSSpacing.md)
-                    
-                    HStack(spacing: DSSpacing.sm) {
-                        QuickActionButton(
-                            icon: "dumbbell.fill",
-                            title: "Start Lifting"
-                        ) {}
-                        
-                        QuickActionButton(
-                            icon: "figure.run",
-                            title: "Log Cardio"
-                        ) {}
-                        
-                        QuickActionButton(
-                            icon: "flame.fill",
-                            title: "Log MetCon"
-                        ) {}
-                    }
-                    .padding(.horizontal, DSSpacing.md)
-                }
-                
+                QuickActionsCard(
+                    onStartLifting: {},
+                    onLogCardio: {},
+                    onLogMetCon: {}
+                )
+
                 // Mock workout cards
                 VStack(spacing: DSSpacing.sm) {
                     DSCard {
@@ -570,52 +303,23 @@ enum HistoryViewMode {
                                 .font(.title2)
                                 .foregroundStyle(DSColors.primary)
                                 .frame(width: 40)
-                            
+
                             VStack(alignment: .leading, spacing: DSSpacing.xxs) {
                                 Text("Lifting")
                                     .font(DSTypography.headline)
                                     .foregroundStyle(DSColors.textPrimary)
-                                
+
                                 Text("Today")
                                     .font(DSTypography.caption)
                                     .foregroundStyle(DSColors.textSecondary)
-                                
+
                                 Text("5 exercises")
                                     .font(DSTypography.caption)
                                     .foregroundStyle(DSColors.textSecondary)
                             }
-                            
+
                             Spacer()
-                            
-                            Image(systemName: "chevron.right")
-                                .font(.caption)
-                                .foregroundStyle(DSColors.textSecondary)
-                        }
-                    }
-                    
-                    DSCard {
-                        HStack(spacing: DSSpacing.md) {
-                            Image(systemName: "figure.run")
-                                .font(.title2)
-                                .foregroundStyle(.blue)
-                                .frame(width: 40)
-                            
-                            VStack(alignment: .leading, spacing: DSSpacing.xxs) {
-                                Text("Cardio")
-                                    .font(DSTypography.headline)
-                                    .foregroundStyle(DSColors.textPrimary)
-                                
-                                Text("Yesterday")
-                                    .font(DSTypography.caption)
-                                    .foregroundStyle(DSColors.textSecondary)
-                                
-                                Text("30 min")
-                                    .font(DSTypography.caption)
-                                    .foregroundStyle(DSColors.textSecondary)
-                            }
-                            
-                            Spacer()
-                            
+
                             Image(systemName: "chevron.right")
                                 .font(.caption)
                                 .foregroundStyle(DSColors.textSecondary)
@@ -634,7 +338,7 @@ enum HistoryViewMode {
 #Preview("Calendar Mode") {
     @Previewable @State var viewMode: HistoryViewMode = .calendar
     @Previewable @State var workoutManager = ActiveWorkoutManager()
-    
+
     WorkoutsOverviewView(viewMode: $viewMode)
         .environmentObject(AppDependencies.preview)
         .environment(workoutManager)

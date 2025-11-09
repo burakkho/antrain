@@ -64,14 +64,14 @@ final class PersonalRecord: @unchecked Sendable {
 
 extension PersonalRecord {
     /// Formatted PR display
-    /// Example: "Bench Press: 100.0kg (8 reps x 85kg)"
+    /// Example: "Bench Press: 100kg (8 reps x 85kg)"
     func formattedDisplay(weightUnit: String = "Kilograms") -> String {
         let displayWeight = weightUnit == "Pounds" ? estimated1RM.kgToLbs() : estimated1RM
         let displayActual = weightUnit == "Pounds" ? actualWeight.kgToLbs() : actualWeight
         let unit = weightUnit == "Kilograms" ? "kg" : "lbs"
 
-        let weight1RMStr = String(format: "%.1f", displayWeight)
-        let actualWeightStr = String(format: "%.1f", displayActual)
+        let weight1RMStr = String(format: "%.0f", displayWeight)
+        let actualWeightStr = String(format: "%.0f", displayActual)
 
         if reps == 1 {
             return "\(exerciseName): \(weight1RMStr)\(unit)"
@@ -108,6 +108,21 @@ extension PersonalRecord {
                 return "\(months) month\(months == 1 ? "" : "s") ago"
             }
         }
+    }
+
+    /// Calculate percentage gain from a previous PR
+    /// Example: Current 100kg, Previous 95kg → +5.26%
+    func percentGain(from previousPR: PersonalRecord) -> Double {
+        guard previousPR.estimated1RM > 0 else { return 0 }
+        return ((estimated1RM - previousPR.estimated1RM) / previousPR.estimated1RM) * 100
+    }
+
+    /// Formatted percentage gain string
+    /// Example: "+5.3%" or "-2.1%"
+    func formattedPercentGain(from previousPR: PersonalRecord) -> String {
+        let gain = percentGain(from: previousPR)
+        let prefix = gain >= 0 ? "+" : ""
+        return "\(prefix)\(String(format: "%.1f", gain))%"
     }
 }
 

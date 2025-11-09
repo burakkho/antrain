@@ -22,55 +22,65 @@ struct DailyWorkoutSummary: View {
     var limit: Int = 5
 
     var body: some View {
-        DSCard {
-            VStack(alignment: .leading, spacing: DSSpacing.sm) {
-                // Header
-                HStack {
-                    Image(systemName: "trophy.fill")
-                        .foregroundStyle(DSColors.primary)
-                    Text("Personal Records")
-                        .font(DSTypography.title3)
-                        .foregroundStyle(DSColors.textPrimary)
+        NavigationLink(destination: PersonalRecordsAnalysisView().environmentObject(appDependencies)) {
+            DSCard {
+                VStack(alignment: .leading, spacing: DSSpacing.sm) {
+                    // Header
+                    HStack {
+                        Image(systemName: "trophy.fill")
+                            .foregroundStyle(DSColors.primary)
+                        Text("Personal Records")
+                            .font(DSTypography.title3)
+                            .foregroundStyle(DSColors.textPrimary)
 
-                    Spacer()
-                }
+                        Spacer()
 
-                if isLoading {
-                    // Loading state
-                    ProgressView()
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, DSSpacing.md)
-                } else if let errorMessage {
-                    // Error state
-                    Text(errorMessage)
-                        .font(DSTypography.caption)
-                        .foregroundStyle(DSColors.error)
-                        .padding(.vertical, DSSpacing.sm)
-                } else if topPRs.isEmpty {
-                    // Empty state
-                    VStack(spacing: DSSpacing.xs) {
-                        Text("No PRs yet")
-                            .font(DSTypography.body)
-                            .foregroundStyle(DSColors.textSecondary)
-
-                        Text("Complete a lifting workout to set your first PR!")
-                            .font(DSTypography.caption)
-                            .foregroundStyle(DSColors.textTertiary)
-                            .multilineTextAlignment(.center)
+                        // Chevron indicator
+                        if !topPRs.isEmpty && !isLoading {
+                            Image(systemName: "chevron.right")
+                                .font(.caption)
+                                .foregroundStyle(DSColors.textTertiary)
+                        }
                     }
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, DSSpacing.sm)
-                } else {
-                    // PR list
-                    VStack(spacing: DSSpacing.xs) {
-                        ForEach(topPRs) { pr in
-                            PRRow(pr: pr, weightUnit: weightUnit)
+
+                    if isLoading {
+                        // Loading state
+                        ProgressView()
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, DSSpacing.md)
+                    } else if let errorMessage {
+                        // Error state
+                        Text(errorMessage)
+                            .font(DSTypography.caption)
+                            .foregroundStyle(DSColors.error)
+                            .padding(.vertical, DSSpacing.sm)
+                    } else if topPRs.isEmpty {
+                        // Empty state
+                        VStack(spacing: DSSpacing.xs) {
+                            Text("No PRs yet")
+                                .font(DSTypography.body)
+                                .foregroundStyle(DSColors.textSecondary)
+
+                            Text("Complete a lifting workout to set your first PR!")
+                                .font(DSTypography.caption)
+                                .foregroundStyle(DSColors.textTertiary)
+                                .multilineTextAlignment(.center)
+                        }
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, DSSpacing.sm)
+                    } else {
+                        // PR list
+                        VStack(spacing: DSSpacing.xs) {
+                            ForEach(topPRs) { pr in
+                                PRRow(pr: pr, weightUnit: weightUnit)
+                            }
                         }
                     }
                 }
+                .padding(DSSpacing.md)
             }
-            .padding(DSSpacing.md)
         }
+        .buttonStyle(.plain)
         .onAppear {
             loadTopPRs()
         }

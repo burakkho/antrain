@@ -115,3 +115,7 @@ Temporary Items
 
 # Swift generated documentation
 docs/api/
+
+# Antrain specific
+*.backup
+workout_data.csv

@@ -22,11 +22,6 @@ actor ExerciseRepository: ExerciseRepositoryProtocol {
         return try modelContext.fetch(descriptor)
     }
 
-    /// Fetch all exercises (alias for fetchAll for compatibility)
-    func fetchAllExercises() async throws -> [Exercise] {
-        return try await fetchAll()
-    }
-
     /// Fetch exercise by ID
     func fetchExercise(by id: UUID) async throws -> Exercise? {
         let predicate = #Predicate<Exercise> { exercise in

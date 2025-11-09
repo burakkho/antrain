@@ -90,7 +90,7 @@ final class NutritionOnboardingViewModel {
             )
 
             // Add weight entry
-            try await userProfileRepository.addBodyweightEntry(
+            let _ = try await userProfileRepository.addBodyweightEntry(
                 weight: weight,
                 date: Date(),
                 notes: "Initial weight from onboarding"

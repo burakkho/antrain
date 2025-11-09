@@ -57,12 +57,10 @@ extension Double {
 
     /// Format weight based on unit preference
     /// - Parameter unit: "Kilograms" or "Pounds"
-    /// - Returns: Formatted weight string (e.g., "100 kg" or "220.5 lbs")
+    /// - Returns: Formatted weight string (e.g., "100 kg" or "220 lbs")
     nonisolated func formattedWeight(unit: String) -> String {
         let displayWeight = unit == "Pounds" ? self.kgToLbs() : self
-        let formatted = displayWeight.truncatingRemainder(dividingBy: 1) == 0
-            ? String(format: "%.0f", displayWeight)
-            : String(format: "%.1f", displayWeight)
+        let formatted = String(format: "%.0f", displayWeight)
         let unitSymbol = unit == "Pounds" ? "lbs" : "kg"
         return "\(formatted) \(unitSymbol)"
     }

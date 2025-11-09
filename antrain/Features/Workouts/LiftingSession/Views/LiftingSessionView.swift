@@ -129,7 +129,9 @@ struct LiftingSessionView: View {
                             exerciseRepository: appDependencies.exerciseRepository,
                             prDetectionService: appDependencies.prDetectionService,
                             progressiveOverloadService: appDependencies.progressiveOverloadService,
-                            userProfileRepository: appDependencies.userProfileRepository
+                            userProfileRepository: appDependencies.userProfileRepository,
+                            liveActivityManager: appDependencies.liveActivityManager,
+                            widgetUpdateService: appDependencies.widgetUpdateService
                         )
 
                         // Load initial template if provided (BEFORE setting viewModel)

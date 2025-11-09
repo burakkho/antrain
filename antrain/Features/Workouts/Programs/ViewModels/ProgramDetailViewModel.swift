@@ -11,9 +11,7 @@ import Observation
 
 // Suppress Sendable warnings for SwiftData models
 // SwiftData models are thread-safe when used with the same ModelContainer
-#if compiler(>=6.0)
-#warning("SwiftData Sendable conformance to be addressed in future Swift version")
-#endif
+// Note: SwiftData Sendable conformance will be addressed in future Swift version
 
 /// ViewModel for managing program detail view
 @Observable

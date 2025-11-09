@@ -83,14 +83,13 @@ extension ServingUnit {
     /// Get full display text with unit name
     /// Example: "1 porsiyon (100g)" or "1 serving (3.5oz)"
     func fullDisplayText(using weightUnit: String) -> String {
-        let weight = displayWeight(using: weightUnit)
-
-        // If it's just gram/ounce, return only the weight
+        // If it's just gram/ounce, return only the unit symbol
         if unitType == .gram || unitType == .ounce {
-            return weight
+            return weightUnit == "Pounds" ? "oz" : "g"
         }
 
         // For other units, show name + weight
+        let weight = displayWeight(using: weightUnit)
         return "\(unitDescription) (\(weight))"
     }
 

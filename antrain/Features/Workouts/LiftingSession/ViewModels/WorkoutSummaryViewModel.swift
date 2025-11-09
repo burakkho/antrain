@@ -14,7 +14,7 @@ final class WorkoutSummaryViewModel {
     // MARK: - Dependencies
 
     private let workoutRepository: WorkoutRepositoryProtocol
-    private let prRepository: PersonalRecordRepository
+    private let prRepository: PersonalRecordRepositoryProtocol
     private let prDetectionService: PRDetectionService
 
     // MARK: - Input Data
@@ -50,7 +50,7 @@ final class WorkoutSummaryViewModel {
         workout: Workout,
         exercises: [WorkoutExercise],
         workoutRepository: WorkoutRepositoryProtocol,
-        prRepository: PersonalRecordRepository,
+        prRepository: PersonalRecordRepositoryProtocol,
         prDetectionService: PRDetectionService
     ) {
         self.workout = workout

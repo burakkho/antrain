@@ -17,10 +17,9 @@ struct FatFoods {
             servingSize: 28,
             category: .fat,
             servingUnits: [
-                ServingUnitDTO(unitType: .serving, gramsPerUnit: 28, description: String(localized: "1 serving"), isDefault: true, orderIndex: 0),
-                ServingUnitDTO(unitType: .piece, gramsPerUnit: 1, description: String(localized: "1 almond"), isDefault: false, orderIndex: 1),
-                ServingUnitDTO(unitType: .tablespoon, gramsPerUnit: 10, description: String(localized: "1 tbsp"), isDefault: false, orderIndex: 2),
-                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 3)
+                ServingUnitDTO(unitType: .piece, gramsPerUnit: 1, description: String(localized: "almond"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .tablespoon, gramsPerUnit: 10, description: String(localized: "tbsp"), isDefault: false, orderIndex: 1),
+                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 2)
             ]
         ),
         FoodDTO(
@@ -29,10 +28,9 @@ struct FatFoods {
             servingSize: 28,
             category: .fat,
             servingUnits: [
-                ServingUnitDTO(unitType: .serving, gramsPerUnit: 28, description: String(localized: "1 serving"), isDefault: true, orderIndex: 0),
-                ServingUnitDTO(unitType: .piece, gramsPerUnit: 7, description: String(localized: "1 walnut half"), isDefault: false, orderIndex: 1),
-                ServingUnitDTO(unitType: .tablespoon, gramsPerUnit: 10, description: String(localized: "1 tbsp"), isDefault: false, orderIndex: 2),
-                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 3)
+                ServingUnitDTO(unitType: .piece, gramsPerUnit: 7, description: String(localized: "walnut half"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .tablespoon, gramsPerUnit: 10, description: String(localized: "tbsp"), isDefault: false, orderIndex: 1),
+                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 2)
             ]
         ),
         FoodDTO(
@@ -41,10 +39,9 @@ struct FatFoods {
             servingSize: 28,
             category: .fat,
             servingUnits: [
-                ServingUnitDTO(unitType: .serving, gramsPerUnit: 28, description: String(localized: "1 serving"), isDefault: true, orderIndex: 0),
-                ServingUnitDTO(unitType: .piece, gramsPerUnit: 1.5, description: String(localized: "1 cashew"), isDefault: false, orderIndex: 1),
-                ServingUnitDTO(unitType: .tablespoon, gramsPerUnit: 10, description: String(localized: "1 tbsp"), isDefault: false, orderIndex: 2),
-                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 3)
+                ServingUnitDTO(unitType: .piece, gramsPerUnit: 1.5, description: String(localized: "cashew"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .tablespoon, gramsPerUnit: 10, description: String(localized: "tbsp"), isDefault: false, orderIndex: 1),
+                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 2)
             ]
         ),
         FoodDTO(
@@ -53,9 +50,8 @@ struct FatFoods {
             servingSize: 28,
             category: .fat,
             servingUnits: [
-                ServingUnitDTO(unitType: .serving, gramsPerUnit: 28, description: String(localized: "1 serving"), isDefault: true, orderIndex: 0),
-                ServingUnitDTO(unitType: .tablespoon, gramsPerUnit: 10, description: String(localized: "1 tbsp"), isDefault: false, orderIndex: 1),
-                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 2)
+                ServingUnitDTO(unitType: .tablespoon, gramsPerUnit: 10, description: String(localized: "tbsp"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 1)
             ]
         ),
         FoodDTO(
@@ -64,10 +60,9 @@ struct FatFoods {
             servingSize: 28,
             category: .fat,
             servingUnits: [
-                ServingUnitDTO(unitType: .serving, gramsPerUnit: 28, description: String(localized: "1 serving"), isDefault: true, orderIndex: 0),
-                ServingUnitDTO(unitType: .piece, gramsPerUnit: 1, description: String(localized: "1 pistachio"), isDefault: false, orderIndex: 1),
-                ServingUnitDTO(unitType: .tablespoon, gramsPerUnit: 10, description: String(localized: "1 tbsp"), isDefault: false, orderIndex: 2),
-                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 3)
+                ServingUnitDTO(unitType: .piece, gramsPerUnit: 1, description: String(localized: "pistachio"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .tablespoon, gramsPerUnit: 10, description: String(localized: "tbsp"), isDefault: false, orderIndex: 1),
+                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 2)
             ]
         ),
 
@@ -78,10 +73,9 @@ struct FatFoods {
             servingSize: 16,
             category: .fat,
             servingUnits: [
-                ServingUnitDTO(unitType: .tablespoon, gramsPerUnit: 16, description: String(localized: "1 tbsp"), isDefault: true, orderIndex: 0),
-                ServingUnitDTO(unitType: .serving, gramsPerUnit: 32, description: String(localized: "2 tbsp"), isDefault: false, orderIndex: 1),
-                ServingUnitDTO(unitType: .teaspoon, gramsPerUnit: 5, description: String(localized: "1 tsp"), isDefault: false, orderIndex: 2),
-                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 3)
+                ServingUnitDTO(unitType: .tablespoon, gramsPerUnit: 16, description: String(localized: "tbsp"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .teaspoon, gramsPerUnit: 5, description: String(localized: "tsp"), isDefault: false, orderIndex: 1),
+                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 2)
             ]
         ),
         FoodDTO(
@@ -90,10 +84,9 @@ struct FatFoods {
             servingSize: 16,
             category: .fat,
             servingUnits: [
-                ServingUnitDTO(unitType: .tablespoon, gramsPerUnit: 16, description: String(localized: "1 tbsp"), isDefault: true, orderIndex: 0),
-                ServingUnitDTO(unitType: .serving, gramsPerUnit: 32, description: String(localized: "2 tbsp"), isDefault: false, orderIndex: 1),
-                ServingUnitDTO(unitType: .teaspoon, gramsPerUnit: 5, description: String(localized: "1 tsp"), isDefault: false, orderIndex: 2),
-                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 3)
+                ServingUnitDTO(unitType: .tablespoon, gramsPerUnit: 16, description: String(localized: "tbsp"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .teaspoon, gramsPerUnit: 5, description: String(localized: "tsp"), isDefault: false, orderIndex: 1),
+                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 2)
             ]
         ),
 
@@ -104,8 +97,8 @@ struct FatFoods {
             servingSize: 15,
             category: .fat,
             servingUnits: [
-                ServingUnitDTO(unitType: .tablespoon, gramsPerUnit: 15, description: String(localized: "1 tbsp"), isDefault: true, orderIndex: 0),
-                ServingUnitDTO(unitType: .teaspoon, gramsPerUnit: 5, description: String(localized: "1 tsp"), isDefault: false, orderIndex: 1),
+                ServingUnitDTO(unitType: .tablespoon, gramsPerUnit: 15, description: String(localized: "tbsp"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .teaspoon, gramsPerUnit: 5, description: String(localized: "tsp"), isDefault: false, orderIndex: 1),
                 ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 2)
             ]
         ),
@@ -115,8 +108,8 @@ struct FatFoods {
             servingSize: 15,
             category: .fat,
             servingUnits: [
-                ServingUnitDTO(unitType: .tablespoon, gramsPerUnit: 15, description: String(localized: "1 tbsp"), isDefault: true, orderIndex: 0),
-                ServingUnitDTO(unitType: .teaspoon, gramsPerUnit: 5, description: String(localized: "1 tsp"), isDefault: false, orderIndex: 1),
+                ServingUnitDTO(unitType: .tablespoon, gramsPerUnit: 15, description: String(localized: "tbsp"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .teaspoon, gramsPerUnit: 5, description: String(localized: "tsp"), isDefault: false, orderIndex: 1),
                 ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 2)
             ]
         ),
@@ -126,9 +119,8 @@ struct FatFoods {
             servingSize: 28,
             category: .fat,
             servingUnits: [
-                ServingUnitDTO(unitType: .serving, gramsPerUnit: 28, description: String(localized: "1 serving"), isDefault: true, orderIndex: 0),
-                ServingUnitDTO(unitType: .tablespoon, gramsPerUnit: 10, description: String(localized: "1 tbsp"), isDefault: false, orderIndex: 1),
-                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 2)
+                ServingUnitDTO(unitType: .tablespoon, gramsPerUnit: 10, description: String(localized: "tbsp"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 1)
             ]
         ),
         FoodDTO(
@@ -137,9 +129,8 @@ struct FatFoods {
             servingSize: 28,
             category: .fat,
             servingUnits: [
-                ServingUnitDTO(unitType: .serving, gramsPerUnit: 28, description: String(localized: "1 serving"), isDefault: true, orderIndex: 0),
-                ServingUnitDTO(unitType: .tablespoon, gramsPerUnit: 10, description: String(localized: "1 tbsp"), isDefault: false, orderIndex: 1),
-                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 2)
+                ServingUnitDTO(unitType: .tablespoon, gramsPerUnit: 10, description: String(localized: "tbsp"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 1)
             ]
         ),
 
@@ -150,8 +141,8 @@ struct FatFoods {
             servingSize: 14,
             category: .fat,
             servingUnits: [
-                ServingUnitDTO(unitType: .tablespoon, gramsPerUnit: 14, description: String(localized: "1 tbsp"), isDefault: true, orderIndex: 0),
-                ServingUnitDTO(unitType: .teaspoon, gramsPerUnit: 5, description: String(localized: "1 tsp"), isDefault: false, orderIndex: 1),
+                ServingUnitDTO(unitType: .tablespoon, gramsPerUnit: 14, description: String(localized: "tbsp"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .teaspoon, gramsPerUnit: 5, description: String(localized: "tsp"), isDefault: false, orderIndex: 1),
                 ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 2)
             ]
         ),
@@ -161,8 +152,8 @@ struct FatFoods {
             servingSize: 14,
             category: .fat,
             servingUnits: [
-                ServingUnitDTO(unitType: .tablespoon, gramsPerUnit: 14, description: String(localized: "1 tbsp"), isDefault: true, orderIndex: 0),
-                ServingUnitDTO(unitType: .teaspoon, gramsPerUnit: 5, description: String(localized: "1 tsp"), isDefault: false, orderIndex: 1),
+                ServingUnitDTO(unitType: .tablespoon, gramsPerUnit: 14, description: String(localized: "tbsp"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .teaspoon, gramsPerUnit: 5, description: String(localized: "tsp"), isDefault: false, orderIndex: 1),
                 ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 2)
             ]
         ),
@@ -172,8 +163,8 @@ struct FatFoods {
             servingSize: 14,
             category: .fat,
             servingUnits: [
-                ServingUnitDTO(unitType: .tablespoon, gramsPerUnit: 14, description: String(localized: "1 tbsp"), isDefault: true, orderIndex: 0),
-                ServingUnitDTO(unitType: .teaspoon, gramsPerUnit: 5, description: String(localized: "1 tsp"), isDefault: false, orderIndex: 1),
+                ServingUnitDTO(unitType: .tablespoon, gramsPerUnit: 14, description: String(localized: "tbsp"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .teaspoon, gramsPerUnit: 5, description: String(localized: "tsp"), isDefault: false, orderIndex: 1),
                 ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 2)
             ]
         ),
@@ -185,9 +176,9 @@ struct FatFoods {
             servingSize: 150,
             category: .fat,
             servingUnits: [
-                ServingUnitDTO(unitType: .piece, gramsPerUnit: 150, description: String(localized: "1 medium"), isDefault: true, orderIndex: 0),
-                ServingUnitDTO(unitType: .cup, gramsPerUnit: 130, description: String(localized: "1 cup cubed"), isDefault: false, orderIndex: 1),
-                ServingUnitDTO(unitType: .tablespoon, gramsPerUnit: 15, description: String(localized: "1 tbsp"), isDefault: false, orderIndex: 2),
+                ServingUnitDTO(unitType: .piece, gramsPerUnit: 150, description: String(localized: "medium"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .cup, gramsPerUnit: 130, description: String(localized: "cup cubed"), isDefault: false, orderIndex: 1),
+                ServingUnitDTO(unitType: .tablespoon, gramsPerUnit: 15, description: String(localized: "tbsp"), isDefault: false, orderIndex: 2),
                 ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 3)
             ]
         ),
@@ -197,9 +188,8 @@ struct FatFoods {
             servingSize: 30,
             category: .fat,
             servingUnits: [
-                ServingUnitDTO(unitType: .serving, gramsPerUnit: 30, description: String(localized: "1 serving"), isDefault: true, orderIndex: 0),
-                ServingUnitDTO(unitType: .piece, gramsPerUnit: 5, description: String(localized: "1 square"), isDefault: false, orderIndex: 1),
-                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 2)
+                ServingUnitDTO(unitType: .piece, gramsPerUnit: 5, description: String(localized: "square"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 1)
             ]
         ),
         FoodDTO(
@@ -208,10 +198,9 @@ struct FatFoods {
             servingSize: 80,
             category: .fat,
             servingUnits: [
-                ServingUnitDTO(unitType: .cup, gramsPerUnit: 80, description: String(localized: "1 cup shredded"), isDefault: true, orderIndex: 0),
-                ServingUnitDTO(unitType: .serving, gramsPerUnit: 80, description: String(localized: "1 serving"), isDefault: false, orderIndex: 1),
-                ServingUnitDTO(unitType: .tablespoon, gramsPerUnit: 10, description: String(localized: "1 tbsp"), isDefault: false, orderIndex: 2),
-                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 3)
+                ServingUnitDTO(unitType: .cup, gramsPerUnit: 80, description: String(localized: "cup shredded"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .tablespoon, gramsPerUnit: 10, description: String(localized: "tbsp"), isDefault: false, orderIndex: 1),
+                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 2)
             ]
         ),
 
@@ -222,10 +211,9 @@ struct FatFoods {
             servingSize: 28,
             category: .fat,
             servingUnits: [
-                ServingUnitDTO(unitType: .serving, gramsPerUnit: 28, description: String(localized: "1 serving"), isDefault: true, orderIndex: 0),
-                ServingUnitDTO(unitType: .piece, gramsPerUnit: 1, description: String(localized: "1 hazelnut"), isDefault: false, orderIndex: 1),
-                ServingUnitDTO(unitType: .tablespoon, gramsPerUnit: 10, description: String(localized: "1 tbsp"), isDefault: false, orderIndex: 2),
-                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 3)
+                ServingUnitDTO(unitType: .piece, gramsPerUnit: 1, description: String(localized: "hazelnut"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .tablespoon, gramsPerUnit: 10, description: String(localized: "tbsp"), isDefault: false, orderIndex: 1),
+                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 2)
             ]
         ),
 
@@ -236,8 +224,8 @@ struct FatFoods {
             servingSize: 14,
             category: .fat,
             servingUnits: [
-                ServingUnitDTO(unitType: .tablespoon, gramsPerUnit: 14, description: String(localized: "1 tbsp"), isDefault: true, orderIndex: 0),
-                ServingUnitDTO(unitType: .teaspoon, gramsPerUnit: 5, description: String(localized: "1 tsp"), isDefault: false, orderIndex: 1),
+                ServingUnitDTO(unitType: .tablespoon, gramsPerUnit: 14, description: String(localized: "tbsp"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .teaspoon, gramsPerUnit: 5, description: String(localized: "tsp"), isDefault: false, orderIndex: 1),
                 ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 2)
             ]
         ),
@@ -247,8 +235,8 @@ struct FatFoods {
             servingSize: 14,
             category: .fat,
             servingUnits: [
-                ServingUnitDTO(unitType: .tablespoon, gramsPerUnit: 14, description: String(localized: "1 tbsp"), isDefault: true, orderIndex: 0),
-                ServingUnitDTO(unitType: .teaspoon, gramsPerUnit: 5, description: String(localized: "1 tsp"), isDefault: false, orderIndex: 1),
+                ServingUnitDTO(unitType: .tablespoon, gramsPerUnit: 14, description: String(localized: "tbsp"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .teaspoon, gramsPerUnit: 5, description: String(localized: "tsp"), isDefault: false, orderIndex: 1),
                 ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 2)
             ]
         ),
@@ -258,9 +246,8 @@ struct FatFoods {
             servingSize: 100,
             category: .fat,
             servingUnits: [
-                ServingUnitDTO(unitType: .tablespoon, gramsPerUnit: 20, description: String(localized: "1 tbsp"), isDefault: true, orderIndex: 0),
-                ServingUnitDTO(unitType: .serving, gramsPerUnit: 100, description: String(localized: "1 serving"), isDefault: false, orderIndex: 1),
-                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 2)
+                ServingUnitDTO(unitType: .tablespoon, gramsPerUnit: 20, description: String(localized: "tbsp"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 1)
             ]
         ),
         FoodDTO(
@@ -269,8 +256,8 @@ struct FatFoods {
             servingSize: 30,
             category: .fat,
             servingUnits: [
-                ServingUnitDTO(unitType: .tablespoon, gramsPerUnit: 15, description: String(localized: "1 tbsp"), isDefault: true, orderIndex: 0),
-                ServingUnitDTO(unitType: .serving, gramsPerUnit: 30, description: String(localized: "1 oz"), isDefault: false, orderIndex: 1),
+                ServingUnitDTO(unitType: .tablespoon, gramsPerUnit: 15, description: String(localized: "tbsp"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .ounce, gramsPerUnit: 28, description: String(localized: "oz"), isDefault: false, orderIndex: 1),
                 ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 2)
             ]
         ),
@@ -282,8 +269,8 @@ struct FatFoods {
             servingSize: 14,
             category: .fat,
             servingUnits: [
-                ServingUnitDTO(unitType: .tablespoon, gramsPerUnit: 14, description: String(localized: "1 tbsp"), isDefault: true, orderIndex: 0),
-                ServingUnitDTO(unitType: .teaspoon, gramsPerUnit: 5, description: String(localized: "1 tsp"), isDefault: false, orderIndex: 1),
+                ServingUnitDTO(unitType: .tablespoon, gramsPerUnit: 14, description: String(localized: "tbsp"), isDefault: true, orderIndex: 0),
+                ServingUnitDTO(unitType: .teaspoon, gramsPerUnit: 5, description: String(localized: "tsp"), isDefault: false, orderIndex: 1),
                 ServingUnitDTO(unitType: .gram, gramsPerUnit: 1, description: String(localized: "g"), isDefault: false, orderIndex: 2)
             ]
         )

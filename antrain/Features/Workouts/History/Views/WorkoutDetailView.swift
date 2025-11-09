@@ -130,8 +130,28 @@ struct WorkoutDetailView: View {
                                             .foregroundStyle(DSColors.textSecondary)
                                             .frame(width: 60, alignment: .leading)
 
+                                        // SetType indicator
+                                        if let setType = set.setType {
+                                            let parsedType = SetType.from(string: setType)
+                                            if parsedType != .normal {
+                                                Text(parsedType.icon)
+                                                    .font(.caption2)
+                                            }
+                                        }
+
                                         Text("\(set.reps) reps × \(set.weight.formattedWeight(unit: weightUnit))")
                                             .font(DSTypography.body)
+
+                                        // RPE indicator
+                                        if let rpe = set.rpe, rpe > 0 {
+                                            Text("@\(rpe)")
+                                                .font(DSTypography.caption)
+                                                .foregroundStyle(DSColors.textSecondary)
+                                                .padding(.horizontal, 4)
+                                                .padding(.vertical, 2)
+                                                .background(DSColors.cardBackground.opacity(0.5))
+                                                .cornerRadius(4)
+                                        }
 
                                         Spacer()
 

@@ -28,11 +28,8 @@ final class AppDependencies: ObservableObject {
     // MARK: - Services
     let prDetectionService: PRDetectionService
     let progressiveOverloadService: ProgressiveOverloadService
-    
-    // MARK: - Convenience Aliases
-    var prRepository: PersonalRecordRepository {
-        personalRecordRepository as! PersonalRecordRepository
-    }
+    let liveActivityManager: LiveActivityManager
+    let widgetUpdateService: WidgetUpdateService
 
     // MARK: - Initialization
     init(modelContainer: ModelContainer) {
@@ -51,10 +48,15 @@ final class AppDependencies: ObservableObject {
 
         // Initialize services
         self.prDetectionService = PRDetectionService(
-            prRepository: personalRecordRepository as! PersonalRecordRepository
+            prRepository: personalRecordRepository
         )
         self.progressiveOverloadService = ProgressiveOverloadService(
             workoutRepository: workoutRepository
+        )
+        self.liveActivityManager = LiveActivityManager()
+        self.widgetUpdateService = WidgetUpdateService(
+            workoutRepository: workoutRepository,
+            userProfileRepository: userProfileRepository
         )
     }
 

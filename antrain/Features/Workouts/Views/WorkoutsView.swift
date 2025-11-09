@@ -61,6 +61,9 @@ enum WorkoutTypeFilter: String, CaseIterable {
 // MARK: - Preview
 
 #Preview {
+    @Previewable @State var workoutManager = ActiveWorkoutManager()
+
     WorkoutsView()
         .environmentObject(AppDependencies.preview)
+        .environment(workoutManager)
 }
