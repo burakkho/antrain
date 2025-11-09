@@ -3,7 +3,6 @@ import SwiftUI
 /// Data management section component
 struct DataManagementSection: View {
     let onExport: () -> Void
-    let onRecalculatePRs: () -> Void
 
     var body: some View {
         Section {
@@ -22,26 +21,10 @@ struct DataManagementSection: View {
                     Spacer()
                 }
             }
-
-            // Recalculate PRs
-            Button(action: onRecalculatePRs) {
-                HStack {
-                    Image(systemName: "arrow.triangle.2.circlepath")
-                        .foregroundStyle(DSColors.primary)
-                    VStack(alignment: .leading) {
-                        Text("Recalculate PRs")
-                            .foregroundStyle(DSColors.textPrimary)
-                        Text("Fix personal record calculations")
-                            .font(DSTypography.caption)
-                            .foregroundStyle(DSColors.textSecondary)
-                    }
-                    Spacer()
-                }
-            }
         } header: {
             Text("Data Management")
         } footer: {
-            Text("Export your data or recalculate personal records.")
+            Text("Export your workout data.")
                 .font(DSTypography.caption)
         }
     }

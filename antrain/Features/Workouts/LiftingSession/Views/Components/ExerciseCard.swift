@@ -61,10 +61,8 @@ struct ExerciseCard: View {
             .contextMenu {
                 // Delete via long press context menu
                 Button(role: .destructive, action: {
-                    // ROADMAP: Phase 1, Day 1 - Haptic Feedback
                     // Warning haptic for destructive action
-                    let generator = UINotificationFeedbackGenerator()
-                    generator.notificationOccurred(.warning)
+                    HapticManager.shared.delete()
                     onDeleteExercise()
                 }) {
                     Label("Delete Exercise", systemImage: "trash")
@@ -156,10 +154,8 @@ struct ExerciseCard: View {
         }
         .swipeActions(edge: .trailing, allowsFullSwipe: false) {
             Button(role: .destructive, action: {
-                // ROADMAP: Phase 1, Day 1 - Haptic Feedback
                 // Warning haptic for swipe delete
-                let generator = UINotificationFeedbackGenerator()
-                generator.notificationOccurred(.warning)
+                HapticManager.shared.delete()
                 onDeleteExercise()
             }) {
                 Label("Delete", systemImage: "trash")

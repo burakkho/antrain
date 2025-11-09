@@ -79,9 +79,8 @@ struct LiftingSessionView: View {
                             showModeToast = true
                         }
 
-                        // Haptic feedback
-                        let generator = UIImpactFeedbackGenerator(style: .medium)
-                        generator.impactOccurred()
+                        // Haptic feedback for mode toggle
+                        HapticManager.shared.medium()
 
                         // Hide toast after 1.5 seconds
                         Task {
@@ -155,6 +154,9 @@ struct LiftingSessionView: View {
                             workout: newViewModel.workout,
                             viewModel: newViewModel
                         )
+
+                        // Workout started haptic feedback
+                        HapticManager.shared.workoutStarted()
                     }
                 }
             }
@@ -299,10 +301,8 @@ struct LiftingSessionView: View {
                         isKeyboardMode: isKeyboardMode,
                         suggestion: workoutExercise.exercise.map { viewModel.getSuggestion(for: $0.id) } ?? nil,
                         onAddSet: {
-                            // ROADMAP: Phase 1, Day 1 - Haptic Feedback
                             // Light impact for adding set
-                            let generator = UIImpactFeedbackGenerator(style: .light)
-                            generator.impactOccurred()
+                            HapticManager.shared.light()
                             viewModel.addSet(to: workoutExercise)
                         },
                         onUpdateSet: { set, reps, weight in

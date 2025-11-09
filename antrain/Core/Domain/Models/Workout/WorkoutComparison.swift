@@ -76,9 +76,9 @@ struct WorkoutComparison {
     /// Summary text for quick display
     var summaryText: String {
         if volumeChange > 0 {
-            return String(format: "+%.1f kg volume", volumeChange)
+            return String(format: "+%.0f kg volume", volumeChange)
         } else if volumeChange < 0 {
-            return String(format: "%.1f kg volume", volumeChange)
+            return String(format: "%.0f kg volume", volumeChange)
         } else {
             return "Same volume"
         }
@@ -122,9 +122,9 @@ struct ExerciseImprovement {
     /// Display text for this improvement
     var displayText: String {
         if volumeChange > 0 {
-            return String(format: "+%.1f kg", volumeChange)
+            return String(format: "+%.0f kg", volumeChange)
         } else if volumeChange < 0 {
-            return String(format: "%.1f kg", volumeChange)
+            return String(format: "%.0f kg", volumeChange)
         } else {
             return "Same"
         }

@@ -316,19 +316,10 @@ struct SwipeableNumberField: View {
     }
 
     private func triggerHaptic(for increment: Double) {
-        let generator = UIImpactFeedbackGenerator()
-
-        // Different haptic intensity based on increment
-        let smallThreshold: Double = weightUnit == "Pounds" ? 5 : 2.5
-        let mediumThreshold: Double = weightUnit == "Pounds" ? 25 : 10
-
-        if increment <= smallThreshold {
-            generator.impactOccurred(intensity: 0.5) // Light
-        } else if increment <= mediumThreshold {
-            generator.impactOccurred(intensity: 0.7) // Medium
-        } else {
-            generator.impactOccurred(intensity: 1.0) // Heavy
-        }
+        // Convert increment to kg for consistent haptic thresholds
+        // (HapticManager uses kg-based thresholds: 5kg, 25kg)
+        let normalizedIncrement = weightUnit == "Pounds" ? increment * 0.453592 : increment
+        HapticManager.shared.valueAdjusted(magnitude: normalizedIncrement)
     }
 }
 

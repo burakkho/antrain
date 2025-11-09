@@ -8,11 +8,9 @@ struct QuickActionButton: View {
 
     var body: some View {
         Button(action: {
-            // ROADMAP: Phase 1, Day 1 - Haptic Feedback
-            // Add medium impact haptic for satisfying tap feel
-            let generator = UIImpactFeedbackGenerator(style: .medium)
-            generator.impactOccurred()
-            
+            // Medium impact haptic for satisfying tap feel
+            HapticManager.shared.medium()
+
             action()
         }) {
             VStack(spacing: DSSpacing.xs) {

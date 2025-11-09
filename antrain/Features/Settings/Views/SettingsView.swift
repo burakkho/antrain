@@ -10,6 +10,7 @@ struct SettingsView: View {
     @AppStorage("weightUnit") private var weightUnit: WeightUnit = .kg
     @AppStorage("appLanguage") private var appLanguage: String = "en"
     @AppStorage("appTheme") private var appTheme: AppTheme = .system
+    @AppStorage("hapticsEnabled") private var hapticsEnabled: Bool = true
 
     // Notification Settings
     @ObservedObject private var notificationService = NotificationService.shared
@@ -79,16 +80,22 @@ struct SettingsView: View {
                     }
                 }
 
+                // Feedback Section
+                Section("Feedback") {
+                    Toggle("Haptic Feedback", isOn: $hapticsEnabled)
+                        .onChange(of: hapticsEnabled) { _, newValue in
+                            // Haptic feedback for both enable/disable
+                            if newValue {
+                                HapticManager.shared.light()
+                            }
+                        }
+                }
+
                 // Data Management Section
                 DataManagementSection(
                     onExport: {
                         Task {
                             await viewModel?.exportWorkouts()
-                        }
-                    },
-                    onRecalculatePRs: {
-                        Task {
-                            await viewModel?.recalculatePRs()
                         }
                     }
                 )
@@ -150,8 +157,7 @@ struct SettingsView: View {
                     viewModel = SettingsViewModel(
                         userProfileRepository: appDependencies.userProfileRepository,
                         workoutRepository: appDependencies.workoutRepository,
-                        exerciseRepository: appDependencies.exerciseRepository,
-                        prDetectionService: appDependencies.prDetectionService
+                        exerciseRepository: appDependencies.exerciseRepository
                     )
                 }
             }

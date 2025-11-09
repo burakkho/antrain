@@ -167,8 +167,7 @@ struct WorkoutSummaryView: View {
                 ForEach(1...5, id: \.self) { star in
                     Button {
                         viewModel.rating = star
-                        let generator = UIImpactFeedbackGenerator(style: .light)
-                        generator.impactOccurred()
+                        HapticManager.shared.light()
                     } label: {
                         Image(systemName: (viewModel.rating ?? 0) >= star ? "star.fill" : "star")
                             .font(.title2)
@@ -202,6 +201,10 @@ struct WorkoutSummaryView: View {
 
     private func saveWorkout(viewModel: WorkoutSummaryViewModel) async {
         await onSave(viewModel.notes.isEmpty ? nil : viewModel.notes)
+
+        // Workout finished haptic feedback
+        HapticManager.shared.workoutFinished()
+
         dismiss()
     }
 

@@ -209,11 +209,9 @@ struct SetRow: View {
 
                 // Toggle completion button
                 Button {
-                    // ROADMAP: Phase 1, Day 1 - Haptic Feedback
                     // Success haptic on set completion
-                    let generator = UINotificationFeedbackGenerator()
-                    generator.notificationOccurred(.success)
-                    
+                    HapticManager.shared.setCompleted()
+
                     withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
                         onToggle()
                     }
@@ -231,13 +229,19 @@ struct SetRow: View {
             .simultaneousGesture(
                 DragGesture()
                     .onChanged { value in
-                        // Only allow left swipe (delete gesture)
+                        // Only allow left swipe (delete gesture) in keyboard mode
+                        // Disabled in swipe mode to avoid conflicts with SwipeableNumberField gestures
+                        guard isKeyboardMode else { return }
+
                         // SwipeableNumberField's highPriorityGesture takes precedence for its gestures
                         if value.translation.width < 0 {
                             offsetX = value.translation.width
                         }
                     }
                     .onEnded { value in
+                        // Only process delete swipe in keyboard mode
+                        guard isKeyboardMode else { return }
+
                         if value.translation.width < -60 {
                             // Swipe threshold reached - show delete
                             withAnimation(.spring(response: 0.3)) {
@@ -253,6 +257,15 @@ struct SetRow: View {
                         }
                     }
             )
+            .onChange(of: isKeyboardMode) { _, newValue in
+                // Reset delete reveal state when switching to swipe mode
+                if !newValue {
+                    withAnimation(.spring(response: 0.3)) {
+                        offsetX = 0
+                        showDeleteButton = false
+                    }
+                }
+            }
         }
     }
 }

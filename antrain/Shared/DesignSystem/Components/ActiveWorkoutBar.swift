@@ -162,9 +162,8 @@ struct ActiveWorkoutBar: View {
             }
             dragOffset = 0
 
-            // Haptic feedback
-            let generator = UIImpactFeedbackGenerator(style: .medium)
-            generator.impactOccurred()
+            // Haptic feedback for snap interaction
+            HapticManager.shared.medium()
         }
     }
 

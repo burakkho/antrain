@@ -242,15 +242,13 @@ final class LiftingSessionViewModel {
     /// Toggle set completion state
     func toggleSetCompletion(_ set: WorkoutSet) {
         set.toggleCompletion()
-        let generator = UIImpactFeedbackGenerator(style: .light)
-        generator.impactOccurred()
+        HapticManager.shared.light()
     }
 
     /// Complete all sets for an exercise
     func completeAllSetsForExercise(_ workoutExercise: WorkoutExercise) {
         workoutExercise.completeAllSets()
-        let generator = UINotificationFeedbackGenerator()
-        generator.notificationOccurred(.success)
+        HapticManager.shared.exerciseCompleted()
     }
 
     /// Update set values
@@ -315,6 +313,10 @@ final class LiftingSessionViewModel {
             let newPRs = try await prDetectionService.detectAndSavePRs(from: newWorkout)
             if !newPRs.isEmpty {
                 print("🏆 New PRs detected: \(newPRs.count)")
+
+                // Celebratory haptic for PR achievement! 🎉
+                HapticManager.shared.prAchieved()
+
                 for pr in newPRs {
                     print("  - \(pr.exerciseName): \(pr.estimated1RM)kg")
                 }

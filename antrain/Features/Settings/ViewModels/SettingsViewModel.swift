@@ -18,7 +18,6 @@ final class SettingsViewModel {
     private let userProfileRepository: UserProfileRepositoryProtocol
     private let workoutRepository: WorkoutRepositoryProtocol
     private let exerciseRepository: ExerciseRepositoryProtocol
-    private let prDetectionService: PRDetectionService
 
     // MARK: - State
 
@@ -38,13 +37,11 @@ final class SettingsViewModel {
     init(
         userProfileRepository: UserProfileRepositoryProtocol,
         workoutRepository: WorkoutRepositoryProtocol,
-        exerciseRepository: ExerciseRepositoryProtocol,
-        prDetectionService: PRDetectionService
+        exerciseRepository: ExerciseRepositoryProtocol
     ) {
         self.userProfileRepository = userProfileRepository
         self.workoutRepository = workoutRepository
         self.exerciseRepository = exerciseRepository
-        self.prDetectionService = prDetectionService
     }
 
     // MARK: - Actions
@@ -155,36 +152,6 @@ final class SettingsViewModel {
             showToastMessage("Exported \(workouts.count) workouts", type: .success)
         } catch {
             showToastMessage("Export failed: \(error.localizedDescription)", type: .error)
-        }
-    }
-
-    /// Recalculate all personal records
-    func recalculatePRs() async {
-        do {
-            // Show loading
-            isLoading = true
-            loadingMessage = "Fetching workouts..."
-
-            // Fetch all workouts
-            let workouts = try await workoutRepository.fetchAll()
-
-            guard !workouts.isEmpty else {
-                isLoading = false
-                showToastMessage("No workouts found", type: .info)
-                return
-            }
-
-            // Recalculate PRs
-            loadingMessage = "Recalculating PRs from \(workouts.count) workouts..."
-            try await prDetectionService.recalculateAllPRs(workouts: workouts)
-
-            // Hide loading
-            isLoading = false
-
-            showToastMessage("PRs recalculated successfully!", type: .success)
-        } catch {
-            isLoading = false
-            showToastMessage("Failed to recalculate PRs: \(error.localizedDescription)", type: .error)
         }
     }
 }

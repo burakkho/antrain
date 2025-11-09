@@ -70,7 +70,7 @@ struct WorkoutStatsHeaderView: View {
         }
 
         if volume >= 1000 {
-            return String(format: "%.1fkg", volume / 1000 * 1000)
+            return String(format: "%.0fkg", volume / 1000 * 1000)
         } else {
             return String(format: "%.0fkg", volume)
         }
