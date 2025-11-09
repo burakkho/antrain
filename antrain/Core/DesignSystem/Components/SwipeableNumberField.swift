@@ -38,6 +38,8 @@ struct SwipeableNumberField: View {
     @FocusState private var isFocused: Bool
     @AppStorage("weightUnit") private var weightUnit: String = "Kilograms"
     @State private var debounceTask: Task<Void, Never>?
+    @State private var resetSwipeTask: Task<Void, Never>?
+    @State private var feedbackTask: Task<Void, Never>?
 
     // MARK: - Constants
 
@@ -59,13 +61,14 @@ struct SwipeableNumberField: View {
             .focused($isFocused)
             .disabled(!isKeyboardMode) // Disable when in swipe mode
             .onChange(of: value) { oldValue, newValue in
-                // Debounce: Cancel previous task, wait 500ms before calling onUpdate
+                // Only debounce in keyboard mode (gesture mode updates immediately in updateValue)
+                guard isKeyboardMode else { return }
+
                 debounceTask?.cancel()
-                debounceTask = Task {
+                debounceTask = Task { @MainActor in
                     try? await Task.sleep(nanoseconds: 500_000_000) // 0.5 seconds
-                    if !Task.isCancelled {
-                        onUpdate()
-                    }
+                    guard !Task.isCancelled else { return }
+                    onUpdate()
                 }
             }
             .highPriorityGesture(
@@ -94,6 +97,24 @@ struct SwipeableNumberField: View {
                 }
             }
             .animation(.spring(response: 0.3), value: feedbackText)
+            .onChange(of: isKeyboardMode) { oldMode, newMode in
+                // Mode switch cleanup
+                if oldMode != newMode {
+                    // Cancel all pending tasks
+                    debounceTask?.cancel()
+                    resetSwipeTask?.cancel()
+                    feedbackTask?.cancel()
+
+                    // Clear focus when switching to swipe mode
+                    if !newMode {
+                        isFocused = false
+                    }
+
+                    // Clear feedback
+                    feedbackText = nil
+                    feedbackColor = nil
+                }
+            }
             .toolbar {
                 if isKeyboardMode && isFocused {
                     ToolbarItemGroup(placement: .keyboard) {
@@ -131,8 +152,8 @@ struct SwipeableNumberField: View {
                 }
             }
             .onChange(of: isFocused) { oldFocused, newFocused in
-                // When focus is lost, immediately update (don't wait for debounce)
-                if oldFocused && !newFocused {
+                // When focus is lost in keyboard mode, immediately update (don't wait for debounce)
+                if oldFocused && !newFocused && isKeyboardMode {
                     debounceTask?.cancel()
                     onUpdate()
                 }
@@ -249,8 +270,11 @@ struct SwipeableNumberField: View {
             lastSwipeTime = now
             swipeCount += 1
 
-            // Reset counter after time window
-            DispatchQueue.main.asyncAfter(deadline: .now() + multiSwipeWindow) {
+            // Reset counter after time window (cancellable task)
+            resetSwipeTask?.cancel()
+            resetSwipeTask = Task { @MainActor in
+                try? await Task.sleep(nanoseconds: UInt64(multiSwipeWindow * 1_000_000_000))
+                guard !Task.isCancelled else { return }
                 if let last = lastSwipeTime, now.timeIntervalSince(last) >= multiSwipeWindow {
                     swipeCount = 0
                 }
@@ -279,8 +303,11 @@ struct SwipeableNumberField: View {
             feedbackColor = color
         }
 
-        // Hide after delay
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+        // Hide after delay (cancellable task)
+        feedbackTask?.cancel()
+        feedbackTask = Task { @MainActor in
+            try? await Task.sleep(nanoseconds: 1_000_000_000) // 1 second
+            guard !Task.isCancelled else { return }
             withAnimation {
                 feedbackText = nil
                 feedbackColor = nil

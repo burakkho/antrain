@@ -4,14 +4,12 @@ import SwiftUI
 /// Displays 4 tabs: Home, Workouts, Nutrition, Profile
 ///
 /// Refactored for Clean Architecture:
-/// - SeedingView: Extracted loading screen
 /// - AppCoordinator: Deep link handling
 /// - MainTabViewModel: Lifecycle management
 /// - ViewModifiers: Reusable behaviors (theme, workout overlay)
 struct MainTabView: View {
     @EnvironmentObject private var appDependencies: AppDependencies
     @State private var viewModel: MainTabViewModel?
-    @State private var seedingViewModel: SeedingViewModel
     @State private var coordinator: AppCoordinator
     @State private var workoutManager: ActiveWorkoutManager
 
@@ -21,22 +19,11 @@ struct MainTabView: View {
 
         _workoutManager = State(initialValue: workoutManager)
         _coordinator = State(initialValue: coordinator)
-        _seedingViewModel = State(initialValue: SeedingViewModel())
     }
 
     var body: some View {
-        Group {
-            if seedingViewModel.isSeeding {
-                SeedingView(viewModel: seedingViewModel)
-            } else {
-                mainTabView
-            }
-        }
-        .themedColorScheme()
-        .task {
-            // Monitor seeding progress
-            await seedingViewModel.startMonitoring()
-        }
+        mainTabView
+            .themedColorScheme()
     }
 
     // MARK: - Main Tab View

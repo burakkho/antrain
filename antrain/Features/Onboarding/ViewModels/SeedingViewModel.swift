@@ -40,6 +40,8 @@ final class SeedingViewModel {
 
     init(persistenceController: PersistenceController = .shared) {
         self.persistenceController = persistenceController
+        // Check initial seeding state to handle race condition
+        self.isSeeding = persistenceController.isSeeding
     }
 
     // MARK: - Methods

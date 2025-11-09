@@ -228,10 +228,11 @@ struct SetRow: View {
             .background(DSColors.cardBackground)
             .clipShape(RoundedRectangle(cornerRadius: DSCornerRadius.md))
             .offset(x: offsetX)
-            .gesture(
+            .simultaneousGesture(
                 DragGesture()
                     .onChanged { value in
-                        // Only allow left swipe
+                        // Only allow left swipe (delete gesture)
+                        // SwipeableNumberField's highPriorityGesture takes precedence for its gestures
                         if value.translation.width < 0 {
                             offsetX = value.translation.width
                         }

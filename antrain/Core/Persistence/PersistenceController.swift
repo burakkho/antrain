@@ -66,11 +66,22 @@ final class PersistenceController {
 
             print("✅ ModelContainer initialized successfully")
 
-            // Seed libraries and create default profile if needed
-            // Run on BACKGROUND thread to avoid blocking main thread
-            Task.detached { [weak self] in
-                guard let self else { return }
-                await self.performSeeding()
+            // Check if seeding is needed before starting background task
+            let hasSeededLibraries = UserDefaults.standard.bool(forKey: "hasSeededLibraries")
+            let hasSeededTemplates = UserDefaults.standard.bool(forKey: "hasSeededTemplates")
+            let hasSeededPrograms = UserDefaults.standard.bool(forKey: "hasSeededPrograms")
+
+            let needsSeeding = !hasSeededLibraries || !hasSeededTemplates || !hasSeededPrograms
+
+            if needsSeeding {
+                // Seed libraries and create default profile if needed
+                // Run on BACKGROUND thread to avoid blocking main thread
+                Task.detached { [weak self] in
+                    guard let self else { return }
+                    await self.performSeeding()
+                }
+            } else {
+                print("✅ All data already seeded, skipping seeding task")
             }
 
         } catch {
