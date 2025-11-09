@@ -45,7 +45,6 @@ final class LiveActivityService: LiveActivityServiceProtocol {
             restTimeRemaining: 0,
             completedSets: 0,
             totalVolume: 0,
-            duration: 0,
             exerciseCount: 0
         )
         
@@ -82,7 +81,6 @@ final class LiveActivityService: LiveActivityServiceProtocol {
         restTimeRemaining: Int,
         completedSets: Int,
         totalVolume: Double,
-        duration: TimeInterval,
         exerciseCount: Int
     ) {
         guard let activity = currentActivity else {
@@ -100,7 +98,6 @@ final class LiveActivityService: LiveActivityServiceProtocol {
             restTimeRemaining: restTimeRemaining,
             completedSets: completedSets,
             totalVolume: totalVolume,
-            duration: duration,
             exerciseCount: exerciseCount
         )
         
@@ -120,7 +117,7 @@ final class LiveActivityService: LiveActivityServiceProtocol {
             // Using deprecated API - newer API has different signature that doesn't work for our use case
             await activity.end(
                 using: activity.content.state,
-                dismissalPolicy: .default
+                dismissalPolicy: .immediate  // Close immediately when workout ends
             )
             currentActivity = nil
             print("✅ Live Activity ended")

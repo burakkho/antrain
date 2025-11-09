@@ -47,6 +47,10 @@ final class ActiveWorkoutManager {
     /// Live Activity service (injected)
     private let liveActivityService: LiveActivityServiceProtocol?
 
+    /// Debounce task for Live Activity updates (Apple WWDC 2025 best practice)
+    /// Prevents excessive updates when user is rapidly toggling sets
+    private var liveActivityUpdateTask: Task<Void, Never>?
+
     // MARK: - Init
 
     init(liveActivityService: LiveActivityServiceProtocol? = nil) {
@@ -93,14 +97,11 @@ final class ActiveWorkoutManager {
         }
         
         saveState()
-        
-        // Start Live Activity
+
+        // Start Live Activity (use immediate update for critical startup)
         let workoutName = viewModel.workoutTitle ?? "Workout"
         liveActivityService?.startActivity(workoutName: workoutName)
-        updateLiveActivity()
-        
-        // Start duration timer for real-time updates
-        viewModel.startDurationTimer()
+        updateLiveActivityImmediately()
     }
 
     /// Start a new workout from a template
@@ -131,9 +132,6 @@ final class ActiveWorkoutManager {
 
     /// Finish workout and clear state
     func finishWorkout() {
-        // Stop duration timer
-        activeViewModel?.liveActivityManager.stopDurationTimer()
-
         // End Live Activity
         liveActivityService?.endActivity()
         
@@ -147,9 +145,6 @@ final class ActiveWorkoutManager {
 
     /// Cancel workout and clear state
     func cancelWorkout() {
-        // Stop duration timer
-        activeViewModel?.liveActivityManager.stopDurationTimer()
-
         // End Live Activity
         liveActivityService?.endActivity()
         
@@ -210,28 +205,54 @@ final class ActiveWorkoutManager {
         UserDefaults.standard.set(barPosition.rawValue, forKey: Self.barPositionKey)
     }
     
-    /// Update Live Activity with current workout state
+    /// Update Live Activity with debouncing (Apple WWDC 2025 best practice)
+    /// Prevents excessive updates when user rapidly toggles multiple sets
+    /// Updates are debounced by 0.3 seconds
     func updateLiveActivity() {
+        // Cancel previous pending update
+        liveActivityUpdateTask?.cancel()
+
+        // Schedule new update with debounce delay
+        liveActivityUpdateTask = Task { @MainActor in
+            // Wait 0.3 seconds - if another update comes, this task will be cancelled
+            try? await Task.sleep(for: .milliseconds(300))
+
+            // If we weren't cancelled, perform the update
+            guard !Task.isCancelled else { return }
+            _performLiveActivityUpdate()
+        }
+    }
+
+    /// Immediate Live Activity update (no debouncing)
+    /// Use this for critical updates like starting/finishing workout
+    func updateLiveActivityImmediately() {
+        liveActivityUpdateTask?.cancel()
+        _performLiveActivityUpdate()
+    }
+
+    /// Internal method that performs the actual Live Activity update
+    private func _performLiveActivityUpdate() {
         guard let viewModel = activeViewModel,
               let _ = activeWorkout else { return }
-        
+
         // Get current exercise info
         let currentExercise = viewModel.exercises.last
         let currentExerciseName = currentExercise?.exercise?.name ?? "Starting..."
         let currentSetNumber = currentExercise?.sets.filter(\.isCompleted).count ?? 0
         let totalSetsForExercise = currentExercise?.sets.count ?? 0
-        
+
         // Get last set info
         let lastSet = currentExercise?.sets.last
         let currentWeight = lastSet?.weight ?? 0
         let currentReps = lastSet?.reps ?? 0
-        
-        // Calculate stats
+
+        // Calculate stats (now using cached values from ViewModel - another optimization!)
         let completedSets = self.completedSets
         let totalVolume = viewModel.totalVolume
-        let duration = viewModel.duration
         let exerciseCount = viewModel.exercises.count
-        
+
+        // Note: Duration is no longer sent to Live Activity
+        // Widget now uses Apple's native Text(timerInterval:) for automatic duration display
         liveActivityService?.updateActivity(
             currentExerciseName: currentExerciseName,
             currentSetNumber: currentSetNumber + 1,
@@ -242,7 +263,6 @@ final class ActiveWorkoutManager {
             restTimeRemaining: 0,
             completedSets: completedSets,
             totalVolume: totalVolume,
-            duration: duration,
             exerciseCount: exerciseCount
         )
     }
@@ -316,13 +336,10 @@ final class ActiveWorkoutManager {
             self?.updateLiveActivity()
         }
         
-        // Restart Live Activity
+        // Restart Live Activity (use immediate update for critical restore)
         let workoutName = viewModel.workoutTitle ?? "Workout"
         liveActivityService?.startActivity(workoutName: workoutName)
-        updateLiveActivity()
-        
-        // Start duration timer
-        viewModel.startDurationTimer()
+        updateLiveActivityImmediately()
 
         return true
     }

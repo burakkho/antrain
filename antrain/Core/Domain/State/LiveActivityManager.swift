@@ -7,7 +7,8 @@
 
 import Foundation
 
-/// Manages Live Activity duration updates during workout sessions
+/// Manages Live Activity state change notifications
+/// Duration is now handled by Apple's native Text(timerInterval:) component
 /// Separated from ViewModel for Single Responsibility Principle
 @MainActor
 final class LiveActivityManager {
@@ -16,37 +17,10 @@ final class LiveActivityManager {
     /// Callback to notify when state should be updated (e.g., for Live Activity)
     var onStateChanged: (() -> Void)?
 
-    /// Timer for updating duration every second
-    private var durationTimer: Timer?
+    // MARK: - State Management
 
-    // MARK: - Timer Management
-
-    /// Start timer to update duration every second
-    /// Useful for Live Activity or other real-time UI updates
-    func startDurationTimer() {
-        // Stop any existing timer first
-        stopDurationTimer()
-
-        // Create timer that fires every second
-        durationTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
-            Task { @MainActor in
-                self?.onStateChanged?()
-            }
-        }
-
-        // Ensure timer runs even during UI interactions
-        if let timer = durationTimer {
-            RunLoop.main.add(timer, forMode: .common)
-        }
-    }
-
-    /// Stop duration timer
-    func stopDurationTimer() {
-        durationTimer?.invalidate()
-        durationTimer = nil
-    }
-
-    /// Notify state change (for manual updates without timer)
+    /// Notify state change (for manual updates)
+    /// Call this when meaningful workout events occur (set completion, exercise change, etc.)
     func notifyStateChanged() {
         onStateChanged?()
     }

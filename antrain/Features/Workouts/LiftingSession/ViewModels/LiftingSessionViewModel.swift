@@ -31,6 +31,21 @@ final class LiftingSessionViewModel {
     var programDay: ProgramDay?
     var programWeek: ProgramWeek?
 
+    // MARK: - Performance Cache (Apple WWDC 2025 best practice)
+
+    /// Cached total volume to avoid recalculating on every render
+    private var _cachedTotalVolume: Double?
+
+    /// Cached completed exercises count to avoid filtering on every render
+    private var _cachedCompletedExercisesCount: Int?
+
+    /// Invalidate all computed property caches
+    /// Call this whenever exercises or sets change
+    private func invalidateCache() {
+        _cachedTotalVolume = nil
+        _cachedCompletedExercisesCount = nil
+    }
+
     // MARK: - Initialization
 
     init(
@@ -148,6 +163,9 @@ final class LiftingSessionViewModel {
             // Mark template as used
             try await templateRepository.markTemplateUsed(template)
 
+            // Invalidate cache after loading template
+            invalidateCache()
+
             print("✅ Loaded \(exercises.count) exercises from template: \(template.name)")
             if currentSuggestion != nil {
                 print("💡 Applied progressive overload suggestions with week modifier: \(weekModifier)")
@@ -171,6 +189,9 @@ final class LiftingSessionViewModel {
         exercises.append(workoutExercise)
         workout.exercises = exercises
 
+        // Invalidate cache
+        invalidateCache()
+
         // Update Live Activity
         liveActivityManager.notifyStateChanged()
     }
@@ -180,6 +201,9 @@ final class LiftingSessionViewModel {
         exercises.removeAll { $0.id == workoutExercise.id }
         workout.exercises = exercises
         reorderExercises()
+
+        // Invalidate cache
+        invalidateCache()
     }
 
     /// Reorder exercises
@@ -231,6 +255,9 @@ final class LiftingSessionViewModel {
         let generator = UIImpactFeedbackGenerator(style: .light)
         generator.impactOccurred()
 
+        // Invalidate cache (completion affects volume and completed exercises count)
+        invalidateCache()
+
         // Update Live Activity
         liveActivityManager.notifyStateChanged()
     }
@@ -240,17 +267,26 @@ final class LiftingSessionViewModel {
         workoutExercise.completeAllSets()
         let generator = UINotificationFeedbackGenerator()
         generator.notificationOccurred(.success)
+
+        // Invalidate cache
+        invalidateCache()
     }
 
     /// Update set values
     func updateSet(_ set: WorkoutSet, reps: Int, weight: Double) {
         set.reps = reps
         set.weight = weight
+
+        // Invalidate cache (weight/reps affect volume if set is completed)
+        invalidateCache()
     }
 
     /// Remove set from exercise
     func removeSet(_ set: WorkoutSet, from workoutExercise: WorkoutExercise) {
         workoutExercise.sets.removeAll { $0.id == set.id }
+
+        // Invalidate cache
+        invalidateCache()
     }
 
     // MARK: - Save & Cancel
@@ -260,9 +296,6 @@ final class LiftingSessionViewModel {
     /// - Parameters:
     ///   - notes: Optional workout notes
     func saveWorkout(notes: String?) async {
-        // Stop duration timer
-        liveActivityManager.stopDurationTimer()
-
         isLoading = true
         errorMessage = nil
 
@@ -376,19 +409,35 @@ final class LiftingSessionViewModel {
     }
 
     /// Total volume (sum of all completed sets' weight × reps)
+    /// Cached for performance - Apple WWDC 2025 best practice
     var totalVolume: Double {
-        exercises.reduce(0) { total, exercise in
+        if let cached = _cachedTotalVolume {
+            return cached
+        }
+
+        let volume = exercises.reduce(0) { total, exercise in
             total + exercise.sets.filter { $0.isCompleted }.reduce(0) { setTotal, set in
                 setTotal + (set.weight * Double(set.reps))
             }
         }
+
+        _cachedTotalVolume = volume
+        return volume
     }
 
     /// Number of exercises with at least one completed set
+    /// Cached for performance - Apple WWDC 2025 best practice
     var completedExercisesCount: Int {
-        exercises.filter { exercise in
+        if let cached = _cachedCompletedExercisesCount {
+            return cached
+        }
+
+        let count = exercises.filter { exercise in
             exercise.sets.contains { $0.isCompleted }
         }.count
+
+        _cachedCompletedExercisesCount = count
+        return count
     }
 
     /// Total number of exercises in workout
@@ -397,11 +446,6 @@ final class LiftingSessionViewModel {
     }
 
     // MARK: - Live Activity Management
-
-    /// Start duration timer (delegates to LiveActivityManager)
-    func startDurationTimer() {
-        liveActivityManager.startDurationTimer()
-    }
 
     /// Access to LiveActivityManager for external state change callbacks
     var onStateChanged: (() -> Void)? {

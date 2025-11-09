@@ -94,31 +94,39 @@ struct WorkoutSummaryView: View {
         }
     }
 
-    // MARK: - Content View (Native List Style)
+    // MARK: - Content View
 
     @ViewBuilder
     private func contentView(viewModel: WorkoutSummaryViewModel) -> some View {
         List {
             // PR Detection Section
             if viewModel.hasNewPRs {
-                prSection(viewModel: viewModel)
+                PRSectionView(detectedPRs: viewModel.detectedPRs)
             }
 
             // Main Stats
-            statsSection(viewModel: viewModel)
+            WorkoutStatsGrid(
+                exerciseCount: viewModel.exerciseCount,
+                totalSets: viewModel.totalSets,
+                durationDisplay: viewModel.durationDisplay,
+                totalVolume: viewModel.totalVolume
+            )
 
             // Comparison (if available)
             if viewModel.hasPreviousWorkout {
-                comparisonSection(viewModel: viewModel)
+                ComparisonSection(
+                    volumeChange: viewModel.volumeChange,
+                    workoutComparison: viewModel.workoutComparison
+                )
             }
 
             // Muscle Groups
             if !viewModel.muscleGroupStats.isEmpty {
-                muscleGroupSection(viewModel: viewModel)
+                MuscleGroupSection(muscleGroupStats: viewModel.muscleGroupStats)
             }
 
             // Exercise Details
-            exerciseDetailsSection(viewModel: viewModel)
+            ExerciseDetailsList(exercises: exercises)
 
             // Rating
             ratingSection(viewModel: viewModel)
@@ -147,245 +155,6 @@ struct WorkoutSummaryView: View {
             }
         }
         .listStyle(.insetGrouped)
-    }
-
-    // MARK: - PR Section (Native)
-
-    @ViewBuilder
-    private func prSection(viewModel: WorkoutSummaryViewModel) -> some View {
-        Section {
-            ForEach(viewModel.detectedPRs, id: \.id) { pr in
-                HStack {
-                    Image(systemName: "trophy.fill")
-                        .foregroundStyle(.yellow)
-                        .imageScale(.small)
-
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text(pr.exerciseName)
-                            .font(.body)
-
-                        Text("\(Int(pr.actualWeight)) kg × \(pr.reps)")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
-
-                    Spacer()
-
-                    VStack(alignment: .trailing, spacing: 2) {
-                        Text("New PR")
-                            .font(.caption2)
-                            .fontWeight(.semibold)
-                            .foregroundStyle(.yellow)
-
-                        Text("\(Int(pr.estimated1RM)) kg 1RM")
-                            .font(.caption2)
-                            .foregroundStyle(.secondary)
-                    }
-                }
-            }
-        } header: {
-            Text("Personal Records")
-        }
-    }
-
-    // MARK: - Stats Section (Native Grid)
-
-    @ViewBuilder
-    private func statsSection(viewModel: WorkoutSummaryViewModel) -> some View {
-        Section {
-            VStack(spacing: 12) {
-                // Row 1
-                HStack(spacing: 12) {
-                    statBox(title: "Exercises", value: "\(viewModel.exerciseCount)", icon: "dumbbell.fill")
-                    statBox(title: "Sets", value: "\(viewModel.totalSets)", icon: "list.number")
-                }
-
-                // Row 2
-                HStack(spacing: 12) {
-                    statBox(title: "Duration", value: viewModel.durationDisplay, icon: "clock.fill")
-                    statBox(title: "Volume", value: String(format: "%.0f kg", viewModel.totalVolume), icon: "scalemass.fill")
-                }
-            }
-            .listRowInsets(EdgeInsets(top: 12, leading: 16, bottom: 12, trailing: 16))
-        } header: {
-            Text("Overview")
-        }
-    }
-
-    private func statBox(title: String, value: String, icon: String) -> some View {
-        VStack(spacing: 4) {
-            Image(systemName: icon)
-                .font(.title3)
-                .foregroundStyle(.blue)
-
-            Text(value)
-                .font(.system(.title3, design: .rounded, weight: .semibold))
-                .foregroundStyle(.primary)
-
-            Text(title)
-                .font(.caption2)
-                .foregroundStyle(.secondary)
-        }
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, 12)
-        .background {
-            RoundedRectangle(cornerRadius: 10)
-                .fill(.regularMaterial)
-                .shadow(color: .black.opacity(0.08), radius: 8, y: 4)
-        }
-    }
-
-    // MARK: - Comparison Section
-
-    @ViewBuilder
-    private func comparisonSection(viewModel: WorkoutSummaryViewModel) -> some View {
-        Section {
-            if let volumeChange = viewModel.volumeChange {
-                comparisonRow(
-                    title: "Volume",
-                    value: String(format: "%+.0f kg", volumeChange),
-                    isPositive: volumeChange > 0
-                )
-            }
-
-            if let comparison = viewModel.workoutComparison {
-                comparisonRow(
-                    title: "Sets",
-                    value: "\(comparison.setsChange > 0 ? "+" : "")\(comparison.setsChange)",
-                    isPositive: comparison.setsChange > 0
-                )
-
-                comparisonRow(
-                    title: "Duration",
-                    value: formatDurationChange(comparison.durationChange),
-                    isPositive: comparison.durationChange < 0
-                )
-            }
-        } header: {
-            Label("vs Last Workout", systemImage: "chart.line.uptrend.xyaxis")
-        }
-    }
-
-    private func comparisonRow(title: String, value: String, isPositive: Bool) -> some View {
-        HStack {
-            Text(title)
-                .foregroundStyle(.primary)
-
-            Spacer()
-
-            Label {
-                Text(value)
-                    .fontWeight(.semibold)
-            } icon: {
-                Image(systemName: isPositive ? "arrow.up" : "arrow.down")
-                    .imageScale(.small)
-            }
-            .foregroundStyle(isPositive ? .green : .red)
-        }
-    }
-
-    // MARK: - Muscle Group Section
-
-    @ViewBuilder
-    private func muscleGroupSection(viewModel: WorkoutSummaryViewModel) -> some View {
-        Section {
-            ForEach(viewModel.muscleGroupStats.prefix(5), id: \.muscleGroup) { stat in
-                HStack {
-                    Text(stat.muscleGroup.displayName)
-                        .foregroundStyle(.primary)
-
-                    Spacer()
-
-                    VStack(alignment: .trailing, spacing: 2) {
-                        Text(String(format: "%.0f kg", stat.volume))
-                            .font(.callout)
-                            .fontWeight(.medium)
-                            .foregroundStyle(.secondary)
-
-                        Text("\(stat.sets) sets")
-                            .font(.caption2)
-                            .foregroundStyle(.tertiary)
-                    }
-                }
-            }
-        } header: {
-            Text("Muscle Groups")
-        }
-    }
-
-    // MARK: - Exercise Details
-
-    @ViewBuilder
-    private func exerciseDetailsSection(viewModel: WorkoutSummaryViewModel) -> some View {
-        ForEach(exercises) { workoutExercise in
-            Section {
-                ForEach(Array(workoutExercise.sets.enumerated()), id: \.element.id) { index, set in
-                    HStack {
-                        Text("Set \(index + 1)")
-                            .font(.callout)
-                            .foregroundStyle(.secondary)
-                            .frame(width: 50, alignment: .leading)
-
-                        // SetType indicator
-                        if let setType = set.setType {
-                            let parsedType = SetType.from(string: setType)
-                            if parsedType != .normal {
-                                Text(parsedType.icon)
-                                    .font(.caption2)
-                            }
-                        }
-
-                        Text("\(set.reps)")
-                            .font(.body)
-                            .fontWeight(.medium)
-                            .frame(width: 30, alignment: .trailing)
-
-                        Text("×")
-                            .font(.body)
-                            .foregroundStyle(.secondary)
-
-                        Text("\(Int(set.weight)) kg")
-                            .font(.body)
-                            .fontWeight(.medium)
-
-                        // RPE indicator
-                        if let rpe = set.rpe, rpe > 0 {
-                            Text("@\(rpe)")
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                                .padding(.horizontal, 4)
-                                .padding(.vertical, 2)
-                                .background(.regularMaterial)
-                                .cornerRadius(4)
-                        }
-
-                        Spacer()
-
-                        if set.isCompleted {
-                            Image(systemName: "checkmark.circle.fill")
-                                .foregroundStyle(.green)
-                                .imageScale(.small)
-                        }
-                    }
-                }
-
-                // Total Volume
-                HStack {
-                    Text("Total Volume")
-                        .font(.callout)
-                        .fontWeight(.medium)
-
-                    Spacer()
-
-                    Text(String(format: "%.0f kg", workoutExercise.sets.reduce(0.0) { $0 + $1.volume }))
-                        .font(.callout)
-                        .fontWeight(.semibold)
-                        .foregroundStyle(.blue)
-                }
-            } header: {
-                Text(workoutExercise.exercise?.name ?? "Unknown")
-            }
-        }
     }
 
     // MARK: - Rating Section
@@ -432,8 +201,6 @@ struct WorkoutSummaryView: View {
     // MARK: - Actions
 
     private func saveWorkout(viewModel: WorkoutSummaryViewModel) async {
-        // Note: Don't call viewModel.saveWorkout() here!
-        // The onSave callback (from LiftingSessionView) already handles saving.
         await onSave(viewModel.notes.isEmpty ? nil : viewModel.notes)
         dismiss()
     }
@@ -446,14 +213,6 @@ struct WorkoutSummaryView: View {
         } catch {
             viewModel.errorMessage = "Failed to delete workout"
         }
-    }
-
-    // MARK: - Helpers
-
-    private func formatDurationChange(_ duration: TimeInterval) -> String {
-        let minutes = Int(abs(duration)) / 60
-        let sign = duration < 0 ? "-" : "+"
-        return "\(sign)\(minutes) min"
     }
 }
 

@@ -31,8 +31,10 @@ struct WorkoutActivityAttributes: ActivityAttributes {
         // Workout summary
         var completedSets: Int
         var totalVolume: Double // kg
-        var duration: TimeInterval // seconds
         var exerciseCount: Int
+
+        // Note: Duration removed - Widget now calculates it automatically
+        // using startTime from WorkoutActivityAttributes via Text(timerInterval:)
     }
     
     // Static attributes (don't change during activity)

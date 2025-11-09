@@ -15,6 +15,7 @@ protocol LiveActivityServiceProtocol {
     func startActivity(workoutName: String)
     
     /// Update the Live Activity with current workout state
+    /// Note: Duration is not included - widget calculates it using startTime
     func updateActivity(
         currentExerciseName: String,
         currentSetNumber: Int,
@@ -25,7 +26,6 @@ protocol LiveActivityServiceProtocol {
         restTimeRemaining: Int,
         completedSets: Int,
         totalVolume: Double,
-        duration: TimeInterval,
         exerciseCount: Int
     )
     

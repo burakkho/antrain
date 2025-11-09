@@ -17,7 +17,6 @@ struct LiftingSessionView: View {
     @State private var isKeyboardMode = true
     @State private var showModeToast = false
     @State private var modeToastMessage = ""
-    @State private var durationUpdateTrigger = 0
 
     init(
         workoutManager: ActiveWorkoutManager? = nil,
@@ -157,10 +156,6 @@ struct LiftingSessionView: View {
                     }
                 }
             }
-            .onReceive(Timer.publish(every: 1, on: .main, in: .common).autoconnect()) { _ in
-                // Update duration display every second
-                durationUpdateTrigger += 1
-            }
             .sheet(isPresented: Binding(
                 get: { viewModel?.showExerciseSelection ?? false },
                 set: { viewModel?.showExerciseSelection = $0 }
@@ -289,13 +284,12 @@ struct LiftingSessionView: View {
                 // Workout Statistics Header
                 WorkoutStatsHeaderView(
                     title: viewModel.workoutTitle,
-                    duration: viewModel.duration,
+                    startDate: viewModel.workout.date,
                     volume: viewModel.totalVolume,
                     completedExercises: viewModel.completedExercisesCount,
                     totalExercises: viewModel.totalExercisesCount
                 )
                 .padding(.horizontal, DSSpacing.md)
-                .id(durationUpdateTrigger) // Force update every second
 
                 ForEach(viewModel.exercises) { workoutExercise in
                     ExerciseCard(
@@ -314,14 +308,12 @@ struct LiftingSessionView: View {
                         },
                         onToggleSet: { set in
                             viewModel.toggleSetCompletion(set)
-                            // Update Live Activity
-                            workoutManager?.updateLiveActivity()
+                            // Note: Live Activity is updated automatically via ViewModel.onStateChanged callback
                         },
                         onCompleteAllSets: {
                             withAnimation {
                                 viewModel.completeAllSetsForExercise(workoutExercise)
-                                // Update Live Activity
-                                workoutManager?.updateLiveActivity()
+                                // Note: Live Activity is updated automatically via ViewModel.onStateChanged callback
                             }
                         },
                         onDeleteSet: { set in

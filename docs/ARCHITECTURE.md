@@ -688,6 +688,203 @@ ExerciseSelectionSheet.swift
 
 ---
 
+## View Layer Refactoring & Component Architecture
+
+### Refactoring Phase 1 (November 2025)
+
+**Goal:** Transform large, monolithic SwiftUI views into maintainable, component-based architecture following atomic design principles.
+
+**Success Metrics:**
+- ✅ 5 critical files refactored (-50% average line count)
+- ✅ 20 reusable components created
+- ✅ 2 Design System components added (cross-feature reusability)
+- ✅ Total reduction: -1,376 lines of code
+- ✅ Zero regressions (all builds successful)
+
+### Refactored Files Summary
+
+| File | Before | After | Reduction | Components Created |
+|------|--------|-------|-----------|-------------------|
+| `WorkoutsOverviewView.swift` | 679 | 345 | -49% | 3 |
+| `SettingsView.swift` | 522 | 239 | -54% | 2 + ViewModel updates |
+| `DayDetailView.swift` | 520 | 182 | -65% | 5 (2 Design System) |
+| `TemplatesListView.swift` | 501 | 320 | -36% | N/A (preview optimization) |
+| `WorkoutSummaryView.swift` | 496 | 256 | -48% | 5 |
+| **TOTAL** | **2,718** | **1,342** | **-50%** | **20 components** |
+
+### Component Creation Strategy
+
+**Two-Tier Component Organization:**
+
+1. **Design System Components** (`Shared/DesignSystem/Components/`)
+   - Cross-feature reusability
+   - Generic, configurable components
+   - Consistent UI patterns across app
+
+2. **Feature Components** (`Features/[Feature]/Views/Components/`)
+   - Feature-specific logic
+   - Business domain knowledge
+   - Composed from Design System components when possible
+
+### Design System Components Added
+
+**1. StatItemView.swift** (45 lines)
+```swift
+/// Reusable stat item view with icon, value, and label
+struct StatItemView: View {
+    let icon: String
+    let value: String
+    let label: String
+    var iconColor: Color = DSColors.primary
+}
+```
+**Usage:** Profile stats, workout stats, nutrition dashboard, program metrics
+
+**2. ModifierChipView.swift** (67 lines)
+```swift
+/// Reusable modifier chip for displaying intensity/volume adjustments
+struct ModifierChipView: View {
+    let icon: String
+    let label: String
+    let value: String
+    let color: Color
+}
+```
+**Usage:** Training program modifiers, workout intensity indicators, deload week markers
+
+### Feature Components Created
+
+#### WorkoutsOverviewView Extraction (3 components)
+
+**1. CalendarItemCardView.swift** (168 lines)
+- Calendar item rendering with swipe actions
+- Handles completed/planned/rest day states
+- Delete workout, start workout, preview program day
+
+**2. WorkoutListView.swift** (165 lines)
+- Workout list with filtering and pagination
+- Supports lifting/cardio/MetCon filters
+- Configurable item limit
+
+**3. QuickActionsCard.swift** (39 lines)
+- Quick workout start buttons
+- Lifting, Cardio, MetCon shortcuts
+
+#### SettingsView Extraction (2 components + ViewModel)
+
+**1. NotificationSettingsSection.swift** (144 lines)
+- Notification preferences UI
+- Toggle controls for workout reminders, PR celebrations
+
+**2. DataManagementSection.swift** (68 lines)
+- Import/Export UI
+- PR recalculation trigger
+- CSV file handling
+
+**ViewModel Enhancement:**
+- Moved import/export logic from view to `SettingsViewModel`
+- Added toast management for user feedback
+- Clean separation of concerns
+
+#### DayDetailView Extraction (5 components)
+
+**1. DayInfoCard.swift** (147 lines)
+- Program day header information
+- Week context, day name, notes
+
+**2. TemplateExerciseList.swift** (101 lines)
+- Exercise list for program day
+- Set/rep/weight/RPE display
+
+**3. WeekContextCard.swift** (46 lines)
+- Week-level metadata
+- Phase tags, deload indicators
+- Intensity/volume modifiers
+
+**Plus Design System components:** StatItemView, ModifierChipView (listed above)
+
+#### WorkoutSummaryView Extraction (5 components)
+
+**1. PRSectionView.swift** (43 lines)
+- Personal record detection display
+- Celebration UI for new PRs
+
+**2. WorkoutStatsGrid.swift** (64 lines)
+- Main workout statistics grid
+- Exercise count, sets, duration, volume
+
+**3. ComparisonSection.swift** (68 lines)
+- Workout vs previous workout comparison
+- Volume, sets, duration changes with trend indicators
+
+**4. MuscleGroupSection.swift** (38 lines)
+- Muscle group breakdown
+- Volume and set count per muscle group
+
+**5. ExerciseDetailsList.swift** (98 lines)
+- Exercise-by-exercise breakdown
+- Set details with type indicators (warmup, dropset, etc.)
+- Per-exercise volume calculation
+
+### Component Naming Conventions Established
+
+| Type | Pattern | Example |
+|------|---------|---------|
+| Design System | `[Purpose]View` | `StatItemView`, `ModifierChipView` |
+| Feature Component | `[Feature][Purpose]View/Card/Section/Row` | `CalendarItemCardView`, `MuscleGroupSection` |
+| List Components | `[Entity]ListView` | `WorkoutListView`, `ExerciseDetailsList` |
+| Private SubComponents | `private struct [Name]Row` | `SummarySetRow`, `SetRow` |
+
+**Naming Conflict Resolution:**
+- Use feature-specific prefixes for private components (`SummarySetRow` instead of generic `SetRow`)
+- Avoid generic names that may conflict across features
+
+### Refactoring Best Practices Learned
+
+**1. Component Extraction Triggers:**
+- File exceeds 300 lines
+- More than 3 `@ViewBuilder` helper methods
+- Preview section exceeds 100 lines
+- Complex state management in single view
+- Repeated UI patterns across features
+
+**2. Preview Optimization:**
+- Extract preview mock data to separate files for complex objects
+- Use minimal previews (25 lines max)
+- Leverage `@Previewable` macro for dynamic state
+
+**3. State Management:**
+- Keep component state minimal
+- Pass bindings for editable state
+- Use callbacks for actions (closure-based)
+- Avoid @EnvironmentObject in components (use dependency injection)
+
+**4. Component Boundaries:**
+- Each component should have a single responsibility
+- Components should be testable in isolation
+- Aim for 40-150 lines per component
+- Extract sub-components when logic branches significantly
+
+**5. Build Validation:**
+- Build after each component extraction
+- Fix naming conflicts immediately
+- Verify type names (singular vs plural)
+- Test swipe actions, navigation, and state updates
+
+### Future Refactoring Targets (Post-v1.2)
+
+Files identified for Phase 2 refactoring (200-400 lines):
+
+1. `NutritionLogView.swift` (377 lines)
+2. `NutritionDashboardView.swift` (330 lines)
+3. `LiftingSessionView.swift` (319 lines)
+4. `ProgramDetailView.swift` (309 lines)
+5. `ExerciseEditorView.swift` (275 lines)
+
+**Strategy:** Same component extraction approach, prioritize by active development frequency.
+
+---
+
 ## Testing Strategy (Minimal MVP)
 
 ### Repository Unit Tests
@@ -1186,6 +1383,7 @@ antrain/
 
 ---
 
-**Last Updated:** 2025-11-06
+**Last Updated:** 2025-11-09
+**v1.2+ View Layer Refactoring Documentation Added**
 **v2.0 Training Programs Extension Added**
 

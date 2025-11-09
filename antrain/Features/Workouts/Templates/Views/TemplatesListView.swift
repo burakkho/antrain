@@ -66,22 +66,7 @@ struct TemplatesListView: View {
                     templateToDelete = nil
                 }
                 Button("Delete", role: .destructive) {
-                    if let template = templateToDelete {
-                        Task {
-                            // Check if template is used in programs first
-                            let programNames = await viewModel?.checkTemplateUsage(template) ?? []
-
-                            if !programNames.isEmpty {
-                                // Template is used - show warning
-                                templateUsagePrograms = programNames
-                                showUsageWarning = true
-                            } else {
-                                // Safe to delete
-                                await viewModel?.deleteTemplate(template)
-                            }
-                        }
-                    }
-                    templateToDelete = nil
+                    handleTemplateDeletion()
                 }
             } message: {
                 if let template = templateToDelete {
@@ -93,27 +78,15 @@ struct TemplatesListView: View {
                     templateUsagePrograms = []
                 }
             } message: {
-                if templateUsagePrograms.count == 1 {
-                    Text("This template is used in the program '\(templateUsagePrograms[0])'. Remove it from the program first.")
-                } else {
-                    let programList = templateUsagePrograms.joined(separator: ", ")
-                    Text("This template is used in \(templateUsagePrograms.count) programs: \(programList). Remove it from these programs first.")
-                }
+                usageWarningMessage
             }
             .alert("Duplicate Template", isPresented: .constant(templateToDuplicate != nil)) {
                 TextField("Template name", text: $duplicateName)
                 Button("Cancel", role: .cancel) {
-                    templateToDuplicate = nil
-                    duplicateName = ""
+                    resetDuplicateState()
                 }
                 Button("Duplicate") {
-                    if let template = templateToDuplicate, !duplicateName.isEmpty {
-                        Task {
-                            await viewModel?.duplicateTemplate(template, newName: duplicateName)
-                        }
-                    }
-                    templateToDuplicate = nil
-                    duplicateName = ""
+                    handleTemplateDuplication()
                 }
             } message: {
                 if let template = templateToDuplicate {
@@ -269,11 +242,58 @@ struct TemplatesListView: View {
             action: { viewModel?.clearFilter() }
         )
     }
+
+    // MARK: - Alert Helpers
+
+    private var usageWarningMessage: Text {
+        if templateUsagePrograms.count == 1 {
+            return Text("This template is used in the program '\(templateUsagePrograms[0])'. Remove it from the program first.")
+        } else {
+            let programList = templateUsagePrograms.joined(separator: ", ")
+            return Text("This template is used in \(templateUsagePrograms.count) programs: \(programList). Remove it from these programs first.")
+        }
+    }
+
+    private func handleTemplateDeletion() {
+        guard let template = templateToDelete else { return }
+
+        Task {
+            // Check if template is used in programs first
+            let programNames = await viewModel?.checkTemplateUsage(template) ?? []
+
+            if !programNames.isEmpty {
+                // Template is used - show warning
+                templateUsagePrograms = programNames
+                showUsageWarning = true
+            } else {
+                // Safe to delete
+                await viewModel?.deleteTemplate(template)
+            }
+        }
+        templateToDelete = nil
+    }
+
+    private func handleTemplateDuplication() {
+        guard let template = templateToDuplicate, !duplicateName.isEmpty else {
+            resetDuplicateState()
+            return
+        }
+
+        Task {
+            await viewModel?.duplicateTemplate(template, newName: duplicateName)
+        }
+        resetDuplicateState()
+    }
+
+    private func resetDuplicateState() {
+        templateToDuplicate = nil
+        duplicateName = ""
+    }
 }
 
 // MARK: - Preview
 
-#Preview("Templates List - Full") {
+#Preview("Templates List") {
     @Previewable @State var workoutManager = ActiveWorkoutManager()
 
     NavigationStack {
@@ -283,219 +303,17 @@ struct TemplatesListView: View {
     }
 }
 
-#Preview("Templates List - Empty") {
+#Preview("Empty State") {
     @Previewable @State var workoutManager = ActiveWorkoutManager()
 
     NavigationStack {
-        TemplatesListView()
-            .environmentObject(AppDependencies.preview)
-            .environment(workoutManager)
-            .task {
-                // Simulate empty state by clearing data
-            }
-    }
-}
-
-#Preview("Template Card - Strength") {
-    List {
-        TemplateCard(
-            template: WorkoutTemplate(
-                name: "Powerlifting - Squat Day",
-                category: .strength,
-                isPreset: true,
-                exercises: [
-                    TemplateExercise(
-                        order: 0,
-                        exerciseId: UUID(),
-                        exerciseName: "Barbell Back Squat",
-                        setCount: 4,
-                        repRangeMin: 3,
-                        repRangeMax: 5
-                    ),
-                    TemplateExercise(
-                        order: 1,
-                        exerciseId: UUID(),
-                        exerciseName: "Leg Press",
-                        setCount: 3,
-                        repRangeMin: 8,
-                        repRangeMax: 12
-                    ),
-                    TemplateExercise(
-                        order: 2,
-                        exerciseId: UUID(),
-                        exerciseName: "Leg Curl",
-                        setCount: 3,
-                        repRangeMin: 10,
-                        repRangeMax: 12
-                    )
-                ]
-            ),
-            onDelete: { print("Delete") },
-            onDuplicate: { print("Duplicate") },
-            onStartWorkout: { print("Start Workout") }
+        DSEmptyState(
+            icon: "doc.text.magnifyingglass",
+            title: "No Templates Yet",
+            message: "Create your first workout template to get started",
+            actionTitle: "Create Template",
+            action: { }
         )
-    }
-    .listStyle(.plain)
-}
-
-#Preview("Template Card - Hypertrophy") {
-    List {
-        TemplateCard(
-            template: WorkoutTemplate(
-                name: "PPL - Push Day",
-                category: .hypertrophy,
-                isPreset: true,
-                exercises: [
-                    TemplateExercise(
-                        order: 0,
-                        exerciseId: UUID(),
-                        exerciseName: "Barbell Bench Press",
-                        setCount: 4,
-                        repRangeMin: 8,
-                        repRangeMax: 12
-                    ),
-                    TemplateExercise(
-                        order: 1,
-                        exerciseId: UUID(),
-                        exerciseName: "Dumbbell Incline Press",
-                        setCount: 3,
-                        repRangeMin: 10,
-                        repRangeMax: 12
-                    )
-                ]
-            ),
-            onDuplicate: { print("Duplicate") },
-            onStartWorkout: { print("Start Workout") }
-        )
-    }
-    .listStyle(.plain)
-}
-
-#Preview("Template Card - Calisthenics") {
-    List {
-        TemplateCard(
-            template: WorkoutTemplate(
-                name: "Full Body Calisthenics",
-                category: .calisthenics,
-                isPreset: false,
-                exercises: [
-                    TemplateExercise(
-                        order: 0,
-                        exerciseId: UUID(),
-                        exerciseName: "Push-Up",
-                        setCount: 4,
-                        repRangeMin: 12,
-                        repRangeMax: 15
-                    ),
-                    TemplateExercise(
-                        order: 1,
-                        exerciseId: UUID(),
-                        exerciseName: "Pull-Up",
-                        setCount: 4,
-                        repRangeMin: 8,
-                        repRangeMax: 12
-                    ),
-                    TemplateExercise(
-                        order: 2,
-                        exerciseId: UUID(),
-                        exerciseName: "Dip",
-                        setCount: 3,
-                        repRangeMin: 10,
-                        repRangeMax: 15
-                    )
-                ]
-            ),
-            onDelete: { print("Delete") },
-            onDuplicate: { print("Duplicate") },
-            onStartWorkout: { print("Start Workout") }
-        )
-    }
-    .listStyle(.plain)
-}
-
-#Preview("Template Cards - All Categories") {
-    @Previewable @State var workoutManager = ActiveWorkoutManager()
-
-    NavigationStack {
-        List {
-            Section("Strength") {
-                TemplateCard(
-                    template: WorkoutTemplate(
-                        name: "Powerlifting - Squat Day",
-                        category: .strength,
-                        isPreset: true,
-                        exercises: []
-                    ),
-                    onDuplicate: { },
-                    onStartWorkout: { }
-                )
-
-                TemplateCard(
-                    template: WorkoutTemplate(
-                        name: "5x5 Strength Program",
-                        category: .strength,
-                        isPreset: true,
-                        exercises: []
-                    ),
-                    onDuplicate: { },
-                    onStartWorkout: { }
-                )
-            }
-
-            Section("Hypertrophy") {
-                TemplateCard(
-                    template: WorkoutTemplate(
-                        name: "PPL - Push",
-                        category: .hypertrophy,
-                        isPreset: true,
-                        exercises: []
-                    ),
-                    onDuplicate: { },
-                    onStartWorkout: { }
-                )
-
-                TemplateCard(
-                    template: WorkoutTemplate(
-                        name: "Upper/Lower - Upper",
-                        category: .hypertrophy,
-                        isPreset: false,
-                        exercises: []
-                    ),
-                    onDelete: { },
-                    onDuplicate: { },
-                    onStartWorkout: { }
-                )
-            }
-
-            Section("Calisthenics") {
-                TemplateCard(
-                    template: WorkoutTemplate(
-                        name: "Full Body Calisthenics",
-                        category: .calisthenics,
-                        isPreset: false,
-                        exercises: []
-                    ),
-                    onDelete: { },
-                    onDuplicate: { },
-                    onStartWorkout: { }
-                )
-            }
-
-            Section("Weightlifting") {
-                TemplateCard(
-                    template: WorkoutTemplate(
-                        name: "Olympic Lifting",
-                        category: .weightlifting,
-                        isPreset: true,
-                        exercises: []
-                    ),
-                    onDuplicate: { },
-                    onStartWorkout: { }
-                )
-            }
-        }
-        .listStyle(.plain)
-        .navigationTitle("Templates")
     }
     .environment(workoutManager)
 }
