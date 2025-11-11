@@ -100,10 +100,22 @@ final class NutritionGoalsEditorViewModel {
             )
 
             // Check if should show onboarding wizard
+            // Only show wizard for first-time users who need profile setup
             let hasCompletedOnboarding = UserDefaults.standard.bool(forKey: "hasCompletedNutritionOnboarding")
-            if !hasCompletedOnboarding && hasMissingData {
-                showOnboarding = true
+
+            if !hasCompletedOnboarding {
+                // First-time user
+                if hasMissingData {
+                    // Missing profile data → show full wizard
+                    showOnboarding = true
+                } else {
+                    // Profile complete but flag not set (edge case)
+                    // Set flag to prevent wizard in future
+                    UserDefaults.standard.set(true, forKey: "hasCompletedNutritionOnboarding")
+                    showOnboarding = false
+                }
             }
+            // If hasCompletedOnboarding = true, NEVER show wizard again
         } catch {
             errorMessage = "Failed to load goals: \(error.localizedDescription)"
         }

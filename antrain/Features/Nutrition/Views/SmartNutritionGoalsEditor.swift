@@ -97,7 +97,15 @@ struct SmartNutritionGoalsEditor: View {
                 await viewModel.loadCurrentGoals()
             }
         }
-        .sheet(isPresented: $viewModel.showOnboarding) {
+        .sheet(isPresented: Binding(
+            get: {
+                // Double-check: Only show wizard if flag is not set
+                // This prevents wizard from appearing after onboarding
+                let hasCompletedOnboarding = UserDefaults.standard.bool(forKey: "hasCompletedNutritionOnboarding")
+                return viewModel.showOnboarding && !hasCompletedOnboarding
+            },
+            set: { viewModel.showOnboarding = $0 }
+        )) {
             NutritionGoalsOnboardingWizard(
                 userProfileRepository: appDependencies.userProfileRepository,
                 onComplete: { tdee, recommendedCalories, macros in
