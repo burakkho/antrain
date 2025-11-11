@@ -1,7 +1,7 @@
 import SwiftUI
 
 /// Main tab bar navigation
-/// Displays 4 tabs: Home, Workouts, Nutrition, Profile
+/// Displays 5 tabs: Home, Workouts, Nutrition, Profile, AI Coach
 ///
 /// Refactored for Clean Architecture:
 /// - AppCoordinator: Deep link handling
@@ -53,6 +53,12 @@ struct MainTabView: View {
                     Label("Profile", systemImage: "person.fill")
                 }
                 .tag(3)
+
+            AICoachView()
+                .tabItem {
+                    Label("AI Coach", systemImage: "brain.head.profile")
+                }
+                .tag(4)
         }
         .environment(workoutManager)
         .activeWorkoutOverlay(

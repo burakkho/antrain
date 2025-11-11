@@ -1,6 +1,6 @@
 # Privacy Policy for Antrain
 
-**Last Updated:** November 3, 2025
+**Last Updated:** January 11, 2025
 
 ## Introduction
 
@@ -8,16 +8,17 @@ Antrain ("we", "our", or "us") is committed to protecting your privacy. This Pri
 
 ## Data Collection and Storage
 
-**All data is stored locally on your device only.**
+**Most data is stored locally on your device only.**
 
-Antrain does NOT:
+Antrain generally does NOT:
 - Collect any personal information
-- Transmit data to external servers
 - Track your location
 - Access your contacts
-- Share data with third parties
 - Use analytics or tracking services
 - Require account creation or login
+
+**Exception - AI Coach Feature:**
+When you use the AI Coach feature, your workout data is sent to Google's Gemini API to provide personalized fitness guidance. See "AI Coach & Third-Party Services" section below for details.
 
 ## What Data is Stored Locally
 
@@ -45,18 +46,52 @@ The following data is stored only on your device using Apple's SwiftData framewo
 ## Data Ownership
 
 - You own 100% of your data
-- Your data never leaves your device
-- Deleting the app deletes all your data permanently
-- No cloud backup or sync (all local to your device)
+- Your data is stored locally on your device
+- Data only leaves your device when you use AI Coach (sent to Google Gemini)
+- Deleting the app deletes all your local data permanently
+- No cloud backup or sync to our servers (all local to your device)
 
-## Third-Party Services
+## AI Coach & Third-Party Services
 
-Antrain does NOT use any third-party services, including:
-- No analytics (Google Analytics, Firebase, etc.)
-- No advertising networks
-- No crash reporting services
-- No cloud storage services
-- No social media integrations
+### AI Coach Feature (Google Gemini API)
+
+Antrain's AI Coach feature uses **Google's Gemini AI API** to provide personalized fitness guidance. This is the ONLY third-party service we use.
+
+**When You Use AI Coach:**
+
+Data sent to Google Gemini includes:
+- Your last 30 days of workout data (exercises, sets, reps, weights, dates)
+- Your personal records (PRs) for exercises
+- Your nutrition data (daily macros, calorie intake)
+- Your active training program (if any)
+- Your profile information (name, bodyweight, goals, fitness level)
+- Your chat messages with the AI Coach
+
+**Important Details:**
+- ✅ Data is only sent when you actively use the AI Coach tab
+- ✅ Your data is processed by Google to generate AI responses
+- ✅ All conversations are stored locally on your device
+- ✅ You can delete conversations anytime
+- ✅ You can simply avoid the AI Coach tab if you prefer complete privacy
+- ✅ All other features remain 100% local and private
+
+**Google's Privacy Policy:**
+Google Gemini's data handling is governed by Google's Privacy Policy:
+- https://policies.google.com/privacy
+
+**Data Retention:**
+- Google may retain your data according to their privacy policy
+- We do not have control over Google's data retention
+- Chat conversations are stored locally on your device only
+
+### Other Third-Party Services
+
+Antrain does NOT use:
+- Analytics services (Google Analytics, Firebase Analytics, etc.)
+- Advertising networks
+- Crash reporting services
+- Cloud storage services (your data is not backed up to our servers)
+- Social media integrations
 
 ## Children's Privacy
 
@@ -111,4 +146,4 @@ This Privacy Policy complies with:
 
 ---
 
-**Summary:** Antrain is 100% private. All your workout and nutrition data stays on your device. We don't collect, transmit, or share anything. Ever.
+**Summary:** Antrain is privacy-focused. All your workout and nutrition data is stored locally on your device. The only exception is the AI Coach feature, which sends your fitness data to Google Gemini API to provide personalized guidance. You can choose not to use AI Coach to keep your data 100% private and local.

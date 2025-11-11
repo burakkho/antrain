@@ -29,16 +29,10 @@ struct antrainApp: App {
     // Scene phase for notification scheduling
     @Environment(\.scenePhase) private var scenePhase
 
-    // Dependency injection container
-    @MainActor
-    private var dependencies: AppDependencies {
-        AppDependencies(modelContainer: persistenceController.modelContainer)
-    }
-
     var body: some Scene {
         WindowGroup {
             MainTabView()
-                .environmentObject(dependencies)
+                .environmentObject(AppDependencies.shared)
                 .environment(\.locale, .init(identifier: appLanguage))
                 .onOpenURL { url in
                     handleURLOpen(url)

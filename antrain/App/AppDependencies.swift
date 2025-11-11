@@ -12,7 +12,19 @@ import Combine
 
 /// Central dependency injection container
 /// Manages all repositories and libraries for the app
+///
+/// ✅ Singleton pattern for app-wide shared instance
+/// Prevents creating multiple repository instances
 final class AppDependencies: ObservableObject {
+
+    // MARK: - Singleton
+
+    /// Shared instance for the main app
+    /// Initialized lazily on first access
+    @MainActor
+    static let shared: AppDependencies = {
+        AppDependencies(modelContainer: PersistenceController.shared.modelContainer)
+    }()
     // MARK: - Repositories
     let workoutRepository: WorkoutRepositoryProtocol
     let exerciseRepository: ExerciseRepositoryProtocol
@@ -21,6 +33,7 @@ final class AppDependencies: ObservableObject {
     let personalRecordRepository: PersonalRecordRepositoryProtocol
     let workoutTemplateRepository: WorkoutTemplateRepositoryProtocol
     let trainingProgramRepository: TrainingProgramRepositoryProtocol
+    let chatRepository: ChatRepositoryProtocol
 
     // MARK: - Libraries
     let exerciseLibrary: ExerciseLibraryProtocol
@@ -29,6 +42,8 @@ final class AppDependencies: ObservableObject {
     let prDetectionService: PRDetectionService
     let progressiveOverloadService: ProgressiveOverloadService
     let widgetUpdateService: WidgetUpdateService
+    let geminiAPIService: GeminiAPIServiceProtocol
+    let workoutContextBuilder: WorkoutContextBuilder
 
     // MARK: - Initialization
     init(modelContainer: ModelContainer) {
@@ -41,6 +56,7 @@ final class AppDependencies: ObservableObject {
         self.personalRecordRepository = PersonalRecordRepository(modelContainer: modelContainer)
         self.workoutTemplateRepository = WorkoutTemplateRepository(modelContainer: modelContainer)
         self.trainingProgramRepository = TrainingProgramRepository(modelContainer: modelContainer)
+        self.chatRepository = ChatRepository(modelContainer: modelContainer)
 
         // Initialize libraries (stateless)
         self.exerciseLibrary = ExerciseLibrary()
@@ -55,6 +71,15 @@ final class AppDependencies: ObservableObject {
         self.widgetUpdateService = WidgetUpdateService(
             workoutRepository: workoutRepository,
             userProfileRepository: userProfileRepository
+        )
+
+        // AI Coach services
+        self.geminiAPIService = GeminiAPIService()
+        self.workoutContextBuilder = WorkoutContextBuilder(
+            workoutRepository: workoutRepository,
+            personalRecordRepository: personalRecordRepository,
+            userProfileRepository: userProfileRepository,
+            nutritionRepository: nutritionRepository
         )
     }
 

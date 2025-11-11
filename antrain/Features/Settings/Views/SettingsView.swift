@@ -101,12 +101,18 @@ struct SettingsView: View {
                 )
 
                 // About Section
-                Section {
+                Section("About") {
                     HStack {
                         Text("Version")
                         Spacer()
-                        Text("1.2.0")
+                        Text("1.3.0")
                             .foregroundStyle(DSColors.textSecondary)
+                    }
+
+                    NavigationLink {
+                        PrivacyPolicyView()
+                    } label: {
+                        Label("Privacy Policy", systemImage: "hand.raised.fill")
                     }
                 }
             }

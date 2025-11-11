@@ -50,7 +50,9 @@ final class PersistenceController {
                 TemplateExercise.self,
                 TrainingProgram.self,
                 ProgramWeek.self,
-                ProgramDay.self
+                ProgramDay.self,
+                ChatMessage.self,
+                ChatConversation.self
             ])
 
             let modelConfiguration = ModelConfiguration(
@@ -347,6 +349,8 @@ final class PersistenceController {
         try context.delete(model: TrainingProgram.self)
         try context.delete(model: ProgramWeek.self)
         try context.delete(model: ProgramDay.self)
+        try context.delete(model: ChatMessage.self)
+        try context.delete(model: ChatConversation.self)
 
         try context.save()
 
@@ -449,7 +453,9 @@ extension PersistenceController {
                 TemplateExercise.self,
                 TrainingProgram.self,
                 ProgramWeek.self,
-                ProgramDay.self
+                ProgramDay.self,
+                ChatMessage.self,
+                ChatConversation.self
             ])
 
             let modelConfiguration = ModelConfiguration(

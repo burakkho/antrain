@@ -37,7 +37,9 @@ final class MainTabViewModel {
     // MARK: - Lifecycle
 
     /// Called when MainTabView appears
-    /// Performs one-time initialization: workout restore + widget update
+    /// Performs one-time initialization: workout restore only
+    /// ✅ OPTIMIZED: Widget update removed from startup (Apple best practice)
+    /// Widget will be updated after workout completion or on app become active
     func onAppear() async {
         guard !hasInitialized else { return }
         hasInitialized = true
@@ -45,8 +47,8 @@ final class MainTabViewModel {
         // Restore workout session (if exists)
         await restoreWorkoutSession()
 
-        // Update widget data
-        await updateWidgetData()
+        // ✅ Widget update moved to background trigger
+        // See updateWidgetIfNeeded() - called after workout completion
     }
 
     // MARK: - Workout Restoration
@@ -69,40 +71,7 @@ final class MainTabViewModel {
     }
 
     // MARK: - Widget Update
-
-    /// Update widget with current week's workout stats
-    /// Called on app launch to keep widget data fresh
-    private func updateWidgetData() async {
-        do {
-            // Fetch this week's workouts
-            let calendar = Calendar.current
-            let now = Date()
-            guard let startOfWeek = calendar.date(
-                from: calendar.dateComponents([.yearForWeekOfYear, .weekOfYear], from: now)
-            ) else {
-                return
-            }
-
-            let workoutRepo = appDependencies.workoutRepository
-            let allWorkouts = try await workoutRepo.fetchAll()
-            let thisWeekWorkouts = allWorkouts.filter { workout in
-                workout.date >= startOfWeek && workout.date <= now
-            }
-
-            // Get active program name
-            let profile = try await appDependencies.userProfileRepository.fetchOrCreateProfile()
-            let programName = profile.activeProgram?.name
-
-            // Update widget
-            WidgetDataHelper.shared.updateWidgetData(
-                workoutCount: thisWeekWorkouts.count,
-                lastWorkoutDate: thisWeekWorkouts.first?.date,
-                activeProgram: programName
-            )
-
-            print("✅ Widget data updated: \(thisWeekWorkouts.count) workouts this week")
-        } catch {
-            print("⚠️ Failed to update widget data: \(error)")
-        }
-    }
+    // ✅ REMOVED: Widget update logic moved to WidgetUpdateService
+    // Widget is now updated after workout completion via widgetUpdateService.updateWidgetData()
+    // See: WidgetUpdateService.swift (optimized with fetchByDateRange)
 }
