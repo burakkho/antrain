@@ -28,7 +28,6 @@ final class LiftingSessionViewModel {
 
     // Program context (if starting from program)
     var programDay: ProgramDay?
-    var programWeek: ProgramWeek?
 
     // MARK: - Initialization
 
@@ -67,7 +66,14 @@ final class LiftingSessionViewModel {
 
         // Store program context
         self.programDay = programDay
-        self.programWeek = programDay?.week
+
+        // Set program tracking fields on workout if starting from program
+        if let programDay = programDay,
+           let program = programDay.program {
+            workout.programDayId = programDay.id
+            workout.programDayNumber = programDay.dayNumber
+            workout.programId = program.id
+        }
 
         do {
             // Save template name as workout title
@@ -77,23 +83,9 @@ final class LiftingSessionViewModel {
             exercises.removeAll()
             workout.exercises = []
 
-            // Parallel fetch: user profile and recent workouts (optimization to prevent sequential blocking)
-            async let userProfileTask = userProfileRepository.fetchOrCreateProfile()
-            async let recentWorkoutsTask = workoutRepository.fetchRecent(limit: 5)
-
-            let (userProfile, recentWorkouts) = try await (userProfileTask, recentWorkoutsTask)
-
-            var weekModifier = 1.0
+            // Fetch recent workouts for progressive overload
+            let recentWorkouts = try await workoutRepository.fetchRecent(limit: 5)
             var previousWorkouts: [Workout] = []
-
-            // Priority: Use programWeek if provided, otherwise fall back to active program
-            if let week = programWeek {
-                weekModifier = week.intensityModifier
-            } else if let activeProgram = userProfile.activeProgram,
-                      let currentWeek = userProfile.currentWeekNumber,
-                      let week = activeProgram.weeks.first(where: { $0.weekNumber == currentWeek }) {
-                weekModifier = week.intensityModifier
-            }
 
             // Filter workouts for this template
             previousWorkouts = recentWorkouts.filter { workout in
@@ -108,7 +100,7 @@ final class LiftingSessionViewModel {
             // Get workout suggestions
             currentSuggestion = await progressiveOverloadService.suggestWorkout(
                 for: template,
-                weekModifier: weekModifier,
+                weekModifier: 1.0, // No week-based intensity modifiers in simplified day-based system
                 previousWorkouts: previousWorkouts
             )
 
@@ -167,7 +159,7 @@ final class LiftingSessionViewModel {
 
             print("✅ Loaded \(exercises.count) exercises from template: \(template.name)")
             if currentSuggestion != nil {
-                print("💡 Applied progressive overload suggestions with week modifier: \(weekModifier)")
+                print("💡 Applied progressive overload suggestions")
             }
         } catch {
             errorMessage = "Failed to load template: \(error.localizedDescription)"
@@ -278,7 +270,10 @@ final class LiftingSessionViewModel {
                 date: workout.date,
                 type: .lifting,
                 duration: Date().timeIntervalSince(workout.date),
-                notes: notes
+                notes: notes,
+                programDayId: workout.programDayId,
+                programDayNumber: workout.programDayNumber,
+                programId: workout.programId
             )
 
             // Rebuild exercise hierarchy properly
@@ -322,38 +317,8 @@ final class LiftingSessionViewModel {
                 }
             }
 
-            // Update program progress if workout was from a program
-            if let programDay = programDay {
-                let userProfile = try await userProfileRepository.fetchOrCreateProfile()
-
-                // Check if this is the last day of the current week
-                if let programWeek = programWeek,
-                   let _ = userProfile.activeProgram,
-                   let currentWeekNumber = userProfile.currentWeekNumber,
-                   programWeek.weekNumber == currentWeekNumber {
-
-                    // Count completed days in this week
-                    let completedDaysThisWeek = programWeek.days.filter { day in
-                        // Check if there's a workout for this day
-                        // (This is a simplified check - in production you might want more robust tracking)
-                        day.dayOfWeek <= programDay.dayOfWeek
-                    }.count
-
-                    // If this was the last scheduled day of the week, advance to next week
-                    if completedDaysThisWeek == programWeek.days.count {
-                        userProfile.progressToNextWeek()
-                        // Save the updated profile
-                        _ = try await userProfileRepository.updateProfile(
-                            name: userProfile.name,
-                            dailyCalorieGoal: userProfile.dailyCalorieGoal,
-                            dailyProteinGoal: userProfile.dailyProteinGoal,
-                            dailyCarbsGoal: userProfile.dailyCarbsGoal,
-                            dailyFatsGoal: userProfile.dailyFatsGoal
-                        )
-                        print("📅 Advanced to week \(userProfile.currentWeekNumber ?? 0)")
-                    }
-                }
-            }
+            // NOTE: Program progression is now handled automatically in WorkoutSummaryViewModel
+            // when the user saves the workout from the summary screen
 
             // Success - notify views to refresh
             NotificationCenter.default.post(name: NSNotification.Name("WorkoutSaved"), object: nil)

@@ -54,13 +54,11 @@ struct ProgramProgressTimelineView: View {
                     )
                 }
 
-                // Week Overview Card
-                WeekOverviewCard(
-                    currentWeek: viewModel.currentWeekNumber,
-                    totalWeeks: viewModel.totalWeeks,
-                    workoutsThisWeek: viewModel.workoutsCompletedThisWeek,
-                    totalWorkoutsThisWeek: viewModel.totalWorkoutsThisWeek,
-                    totalVolumeThisWeek: viewModel.totalVolumeThisWeek
+                // Day Progress Card
+                DayProgressCard(
+                    currentDay: viewModel.currentDayNumber,
+                    totalDays: viewModel.totalDays,
+                    completedWorkouts: viewModel.completedWorkouts
                 )
 
                 // Timeline
@@ -127,39 +125,37 @@ struct WorkoutStreakCard: View {
     }
 }
 
-// MARK: - Week Overview Card
+// MARK: - Day Progress Card
 
-struct WeekOverviewCard: View {
-    let currentWeek: Int
-    let totalWeeks: Int
-    let workoutsThisWeek: Int
-    let totalWorkoutsThisWeek: Int
-    let totalVolumeThisWeek: Double
+struct DayProgressCard: View {
+    let currentDay: Int
+    let totalDays: Int
+    let completedWorkouts: Int
 
     var body: some View {
         DSCard {
             VStack(alignment: .leading, spacing: DSSpacing.md) {
                 HStack {
-                    Text("Week \(currentWeek)/\(totalWeeks)", comment: "Current week indicator")
+                    Text("Day \(currentDay) of \(totalDays)", comment: "Current day indicator")
                         .font(DSTypography.title3)
                         .fontWeight(.semibold)
 
                     Spacer()
 
-                    Text("\(workoutsThisWeek)/\(totalWorkoutsThisWeek) workouts", comment: "Workouts completed this week")
+                    Text("\(completedWorkouts) workouts", comment: "Total workouts completed")
                         .font(DSTypography.caption)
                         .foregroundStyle(DSColors.textSecondary)
                 }
 
-                ProgressView(value: Double(workoutsThisWeek), total: Double(totalWorkoutsThisWeek))
+                ProgressView(value: Double(currentDay), total: Double(totalDays))
                     .tint(DSColors.primary)
 
                 HStack(spacing: DSSpacing.lg) {
                     VStack(alignment: .leading, spacing: 2) {
-                        Text("Volume", comment: "Total volume label")
+                        Text("Progress", comment: "Progress percentage label")
                             .font(DSTypography.caption)
                             .foregroundStyle(DSColors.textSecondary)
-                        Text("\(Int(totalVolumeThisWeek)) kg")
+                        Text("\(Int((Double(currentDay) / Double(totalDays)) * 100))%")
                             .font(DSTypography.body)
                             .fontWeight(.semibold)
                     }
@@ -167,10 +163,10 @@ struct WeekOverviewCard: View {
                     Spacer()
 
                     VStack(alignment: .trailing, spacing: 2) {
-                        Text("Remaining", comment: "Remaining workouts label")
+                        Text("Remaining", comment: "Remaining days label")
                             .font(DSTypography.caption)
                             .foregroundStyle(DSColors.textSecondary)
-                        Text("\(totalWorkoutsThisWeek - workoutsThisWeek) workouts")
+                        Text("\(totalDays - currentDay) days")
                             .font(DSTypography.body)
                             .fontWeight(.semibold)
                     }
@@ -193,131 +189,71 @@ struct TimelineItemCard: View {
                     .fill(item.status.color)
                     .frame(width: 12, height: 12)
 
-                if item.status != .future {
-                    Rectangle()
-                        .fill(item.status.color.opacity(0.3))
-                        .frame(width: 2)
-                }
+                Rectangle()
+                    .fill(item.status == .future ? item.status.color.opacity(0.1) : item.status.color.opacity(0.3)) // Lighter for future
+                    .frame(width: 2)
             }
 
             // Content
-            VStack(alignment: .leading, spacing: 0) {
-                DSCard {
-                    VStack(alignment: .leading, spacing: DSSpacing.sm) {
-                        // Date & Status
-                        HStack {
-                            Text(item.dateDisplay)
+            VStack(alignment: .leading, spacing: DSSpacing.sm) { // This is the content VStack
+                // Date & Status
+                HStack {
+                    Text(item.dateDisplay)
+                        .font(DSTypography.caption)
+                        .foregroundStyle(DSColors.textSecondary)
+
+                    Spacer()
+
+                    item.status.badge
+                }
+
+                // Workout info
+                if let programDay = item.programDay {
+                    if programDay.template != nil {
+                        Text(programDay.displayName)
+                            .font(DSTypography.headline)
+                            .foregroundStyle(DSColors.textPrimary)
+
+                        if let template = programDay.template {
+                            Text("\(template.exerciseCount) exercises")
                                 .font(DSTypography.caption)
                                 .foregroundStyle(DSColors.textSecondary)
-
-                            Spacer()
-
-                            item.status.badge
+                        }
+                    } else {
+                        // Rest Day
+                        HStack {
+                            Image(systemName: "moon.zzz.fill")
+                                .foregroundStyle(.blue)
+                            Text("Rest Day", comment: "Rest day label")
+                                .font(DSTypography.headline)
+                                .foregroundStyle(DSColors.textPrimary)
                         }
 
-                        // Workout info
-                        if let programDay = item.programDay {
-                            if programDay.template != nil {
-                                Text(programDay.displayName)
-                                    .font(DSTypography.headline)
-                                    .foregroundStyle(DSColors.textPrimary)
-
-                                if let template = programDay.template {
-                                    Text("\(template.exerciseCount) exercises")
-                                        .font(DSTypography.caption)
-                                        .foregroundStyle(DSColors.textSecondary)
-                                }
-                            } else {
-                                // Rest Day
-                                HStack {
-                                    Image(systemName: "moon.zzz.fill")
-                                        .foregroundStyle(.blue)
-                                    Text("Rest Day", comment: "Rest day label")
-                                        .font(DSTypography.headline)
-                                        .foregroundStyle(DSColors.textPrimary)
-                                }
-
-                                Text("Recovery is important", comment: "Rest day message")
-                                    .font(DSTypography.caption)
-                                    .foregroundStyle(DSColors.textSecondary)
-                            }
-                        }
-
-                        // Completed workout stats
-                        if let workout = item.completedWorkout {
-                            HStack(spacing: DSSpacing.sm) {
-                                Label("\(workout.totalSets) sets", systemImage: "list.bullet")
-                                Text("•")
-                                Label("\(Int(workout.totalVolume)) kg", systemImage: "scalemass")
-                            }
+                        Text("Recovery is important", comment: "Rest day message")
                             .font(DSTypography.caption)
                             .foregroundStyle(DSColors.textSecondary)
-                        }
                     }
                 }
 
-                Spacer().frame(height: DSSpacing.sm)
+                // Completed workout stats
+                if let workout = item.completedWorkout {
+                    HStack(spacing: DSSpacing.sm) {
+                        Label("\(workout.totalSets) sets", systemImage: "list.bullet")
+                        Text("•")
+                        Label("\(Int(workout.totalVolume)) kg", systemImage: "scalemass")
+                    }
+                    .font(DSTypography.caption)
+                    .foregroundStyle(DSColors.textSecondary)
+                }
+            }
+            .padding(DSSpacing.md) // Apply padding directly
+            .background {
+                RoundedRectangle(cornerRadius: DSCornerRadius.lg)
+                    .fill(.regularMaterial)
+                    .shadow(color: .black.opacity(0.08), radius: 8, y: 4)
             }
         }
         .padding(.horizontal, DSSpacing.md)
-    }
-}
-
-// MARK: - Supporting Types
-
-enum TimelineItemStatus {
-    case completed
-    case today
-    case upcoming
-    case future
-    case rest
-
-    var color: Color {
-        switch self {
-        case .completed: return .green
-        case .today: return .blue
-        case .upcoming: return .orange
-        case .future: return .gray
-        case .rest: return .blue
-        }
-    }
-
-    @ViewBuilder
-    var badge: some View {
-        switch self {
-        case .completed:
-            Image(systemName: "checkmark.circle.fill")
-                .foregroundStyle(.green)
-        case .today:
-            Text("Today", comment: "Today badge")
-                .font(.caption)
-                .fontWeight(.semibold)
-                .foregroundStyle(.white)
-                .padding(.horizontal, 8)
-                .padding(.vertical, 2)
-                .background(Color.blue)
-                .clipShape(Capsule())
-        case .upcoming:
-            Text("Upcoming", comment: "Upcoming badge")
-                .font(.caption)
-                .foregroundStyle(.orange)
-        case .future, .rest:
-            EmptyView()
-        }
-    }
-}
-
-struct TimelineItem: Identifiable {
-    let id = UUID()
-    let date: Date
-    let programDay: ProgramDay?
-    let completedWorkout: Workout?
-    let status: TimelineItemStatus
-
-    var dateDisplay: String {
-        let formatter = DateFormatter()
-        formatter.dateStyle = .medium
-        return formatter.string(from: date)
     }
 }
 
