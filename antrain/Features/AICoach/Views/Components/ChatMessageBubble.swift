@@ -9,7 +9,9 @@ import SwiftUI
 
 struct ChatMessageBubble: View {
     let message: ChatMessage
+    let isNew: Bool
     @Environment(\.colorScheme) private var colorScheme
+    @State private var opacity: Double = 0
 
     var body: some View {
         HStack(alignment: .bottom, spacing: 8) {
@@ -26,6 +28,16 @@ struct ChatMessageBubble: View {
         }
         .padding(.horizontal, DSSpacing.md)
         .padding(.vertical, DSSpacing.sm)
+        .opacity(isNew && message.isFromAI ? opacity : 1)
+        .onAppear {
+            if isNew && message.isFromAI {
+                withAnimation(.easeIn(duration: 0.25)) {
+                    opacity = 1
+                }
+            } else {
+                opacity = 1
+            }
+        }
     }
 
     // MARK: - Gemini Logo
@@ -42,18 +54,10 @@ struct ChatMessageBubble: View {
     private var messageBubble: some View {
         VStack(alignment: message.isFromAI ? .leading : .trailing, spacing: 4) {
             // Message content with Markdown support
-            Group {
-                if message.isFromAI {
-                    // AI messages: Use typewriter effect
-                    TypewriterTextView(fullText: message.content, textColor: textColor)
-                } else {
-                    // User messages: Instant display
-                    Text(markdownText)
-                        .font(DSTypography.body)
-                        .foregroundColor(textColor)
-                        .textSelection(.enabled)
-                }
-            }
+            Text(markdownText)
+                .font(DSTypography.body)
+                .foregroundColor(textColor)
+                .textSelection(.enabled)
             .padding(.horizontal, DSSpacing.md)
             .padding(.vertical, DSSpacing.sm)
             .background(bubbleBackground)
@@ -62,7 +66,7 @@ struct ChatMessageBubble: View {
             .contextMenu {
                 // Copy option on long press
                 Button(action: copyMessage) {
-                    Label("Copy", systemImage: "doc.on.doc")
+                    Label(String(localized: "Copy"), systemImage: "doc.on.doc")
                 }
             }
 
@@ -169,7 +173,8 @@ struct ChatMessageBubble: View {
             message: ChatMessage(
                 content: "Merhaba! Son **30 günde** 15 antrenman görüyorum. Size nasıl yardımcı olabilirim?\n\n- Volume trend: +8.2%\n- Training frequency: 5.2 days/week",
                 isFromUser: false
-            )
+            ),
+            isNew: false
         )
 
         // User message
@@ -177,7 +182,8 @@ struct ChatMessageBubble: View {
             message: ChatMessage(
                 content: "Bu haftaki programım ne?",
                 isFromUser: true
-            )
+            ),
+            isNew: false
         )
     }
     .padding()

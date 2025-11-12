@@ -13,6 +13,11 @@ protocol PersonalRecordRepositoryProtocol: Actor {
     /// Fetch all PRs
     func fetchAll() async throws -> [PersonalRecord]
 
+    /// Fetch PRs since a specific date (database-level filtering)
+    /// - Parameter startDate: Start date (inclusive)
+    /// - Returns: Personal records since startDate, sorted by date (most recent first)
+    func fetchRecent(since startDate: Date) async throws -> [PersonalRecord]
+
     /// Get top N PRs (highest 1RM)
     func getTopPRs(limit: Int) async throws -> [PersonalRecord]
 
@@ -40,6 +45,20 @@ actor PersonalRecordRepository: PersonalRecordRepositoryProtocol {
     /// Fetch all PRs, sorted by date (newest first)
     func fetchAll() async throws -> [PersonalRecord] {
         let descriptor = FetchDescriptor<PersonalRecord>(
+            sortBy: [SortDescriptor(\.date, order: .reverse)]
+        )
+        return try modelContext.fetch(descriptor)
+    }
+
+    /// Fetch PRs since a specific date (database-level filtering)
+    /// - Parameter startDate: Start date (inclusive)
+    /// - Returns: Personal records since startDate, sorted by date (most recent first)
+    func fetchRecent(since startDate: Date) async throws -> [PersonalRecord] {
+        let predicate = #Predicate<PersonalRecord> { pr in
+            pr.date >= startDate
+        }
+        let descriptor = FetchDescriptor<PersonalRecord>(
+            predicate: predicate,
             sortBy: [SortDescriptor(\.date, order: .reverse)]
         )
         return try modelContext.fetch(descriptor)

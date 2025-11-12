@@ -100,7 +100,7 @@ struct TemplateCard: View {
                 Button {
                     onStartWorkout()
                 } label: {
-                    Label("Start", systemImage: "play.fill")
+                    Label(String(localized: "Start"), systemImage: "play.fill")
                 }
                 .tint(.green)
             }
@@ -108,22 +108,11 @@ struct TemplateCard: View {
         // Trailing swipe actions: Delete & Duplicate
         .swipeActions(edge: .trailing, allowsFullSwipe: false) {
             // Delete action (only for non-preset templates)
-            if !template.isPreset, let onDelete {
-                Button(role: .destructive) {
-                    onDelete()
-                } label: {
-                    Label("Delete", systemImage: "trash")
-                }
-            }
+Label(String(localized: "Delete"), systemImage: "trash")
 
             // Duplicate action
             if let onDuplicate {
-                Button {
-                    onDuplicate()
-                } label: {
-                    Label("Duplicate", systemImage: "doc.on.doc")
-                }
-                .tint(.blue)
+                    Label(String(localized: "Duplicate"), systemImage: "doc.on.doc")
             }
         }
         // Context menu (long press)
@@ -133,7 +122,7 @@ struct TemplateCard: View {
                 Button {
                     onStartWorkout()
                 } label: {
-                    Label("Start Workout", systemImage: "play.fill")
+                    Label(String(localized: "Start Workout"), systemImage: "play.fill")
                 }
             }
 
@@ -144,7 +133,7 @@ struct TemplateCard: View {
                 Button {
                     onDuplicate()
                 } label: {
-                    Label("Duplicate", systemImage: "doc.on.doc")
+                    Label(String(localized: "Duplicate"), systemImage: "doc.on.doc")
                 }
             }
 
@@ -155,7 +144,7 @@ struct TemplateCard: View {
                 Button(role: .destructive) {
                     onDelete()
                 } label: {
-                    Label("Delete", systemImage: "trash")
+                    Label(String(localized: "Delete"), systemImage: "trash")
                 }
             }
         }

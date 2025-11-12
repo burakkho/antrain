@@ -16,6 +16,7 @@ struct AICoachView: View {
     @State private var showDeleteConfirmation = false
     @State private var messageToDelete: ChatMessage?
     @State private var isLoadingContext = false
+    @State private var newMessageId: UUID?
 
     var body: some View {
         NavigationStack {
@@ -86,7 +87,7 @@ struct AICoachView: View {
                 .opacity(isLoadingContext ? 0 : 1)
                 }
             }
-            .navigationTitle("AI Coach")
+            .navigationTitle(Text("AI Coach"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
@@ -127,16 +128,19 @@ struct AICoachView: View {
                 LazyVStack(spacing: DSSpacing.xs) {
                     if let messages = viewModel?.messages, !messages.isEmpty {
                         ForEach(messages, id: \.id) { message in
-                            ChatMessageBubble(message: message)
-                                .id(message.id)
-                                .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-                                    Button(role: .destructive) {
-                                        messageToDelete = message
-                                        showDeleteConfirmation = true
-                                    } label: {
-                                        Label("Delete", systemImage: "trash")
-                                    }
+                            ChatMessageBubble(
+                                message: message,
+                                isNew: message.id == newMessageId
+                            )
+                            .id(message.id)
+                            .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                                Button(role: .destructive) {
+                                    messageToDelete = message
+                                    showDeleteConfirmation = true
+                                } label: {
+                                    Label(String(localized: "Delete"), systemImage: "trash")
                                 }
+                            }
                         }
                     } else {
                         emptyState
@@ -154,9 +158,20 @@ struct AICoachView: View {
             .onTapGesture {
                 hideKeyboard()
             }
-            .onChange(of: viewModel?.messages.count ?? 0) { _, _ in
+            .onChange(of: viewModel?.messages.count ?? 0) { oldCount, newCount in
                 // Auto-scroll to bottom when new message arrives
                 scrollToBottom(proxy: proxy)
+
+                // Track new AI messages for fade-in animation
+                if newCount > oldCount, let lastMessage = viewModel?.messages.last, lastMessage.isFromAI {
+                    newMessageId = lastMessage.id
+
+                    // Clear the flag after animation completes
+                    Task {
+                        try? await Task.sleep(nanoseconds: 300_000_000) // 300ms
+                        newMessageId = nil
+                    }
+                }
             }
             .onChange(of: viewModel?.isLoading ?? false) { _, isLoading in
                 // Scroll to typing indicator when loading
@@ -201,7 +216,7 @@ struct AICoachView: View {
                 .foregroundColor(.red)
         }
         .disabled(viewModel?.messages.isEmpty == true)
-        .alert("Clear Chat", isPresented: $showClearConfirmation) {
+        .alert(Text("Clear Chat"), isPresented: $showClearConfirmation) {
             Button("Cancel", role: .cancel) {}
             Button("Delete", role: .destructive) {
                 Task {
@@ -211,7 +226,7 @@ struct AICoachView: View {
         } message: {
             Text("Are you sure you want to delete all messages?")
         }
-        .alert("Delete Message", isPresented: $showDeleteConfirmation) {
+        .alert(Text("Delete Message"), isPresented: $showDeleteConfirmation) {
             Button("Cancel", role: .cancel) {
                 messageToDelete = nil
             }

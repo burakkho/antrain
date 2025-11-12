@@ -4,6 +4,8 @@ import SwiftUI
 struct MuscleGroupSection: View {
     let muscleGroupStats: [MuscleGroupStats]
 
+    @AppStorage("weightUnit") private var weightUnit: String = "Kilograms"
+
     var body: some View {
         Section {
             ForEach(Array(muscleGroupStats.prefix(5)), id: \.muscleGroup) { stat in
@@ -14,7 +16,7 @@ struct MuscleGroupSection: View {
                     Spacer()
 
                     VStack(alignment: .trailing, spacing: 2) {
-                        Text(String(format: "%.0f kg", stat.volume))
+                        Text(stat.volume.formattedWeight(unit: weightUnit))
                             .font(.callout)
                             .fontWeight(.medium)
                             .foregroundStyle(.secondary)

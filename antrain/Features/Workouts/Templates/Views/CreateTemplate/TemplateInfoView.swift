@@ -146,7 +146,7 @@ private struct CategoryCard: View {
                 exerciseRepository: AppDependencies.preview.exerciseRepository
             )
         )
-        .navigationTitle("Template Info")
+        .navigationTitle(Text("Template Info"))
         .navigationBarTitleDisplayMode(.inline)
     }
 }

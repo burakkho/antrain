@@ -10,10 +10,10 @@ import SwiftUI
 /// Card displaying active training program on Home screen
 struct ActiveProgramCard: View {
     let program: TrainingProgram
-    let currentWeekNumber: Int
+    let currentDayNumber: Int
     let todayWorkout: ProgramDay?
     let onStartWorkout: (() -> Void)?
-    let onNextWeek: (() -> Void)?  // Callback for advancing to next week
+    let onNextDay: (() -> Void)?  // Callback for advancing to next day
 
     var body: some View {
         DSCard {
@@ -37,7 +37,7 @@ struct ActiveProgramCard: View {
                     HStack(spacing: 4) {
                         Image(systemName: "calendar")
                             .font(.caption)
-                        Text("Week \(currentWeekNumber)/\(program.durationWeeks)", comment: "Program week progress: current/total")
+                        Text("Day \(currentDayNumber)/\(program.totalDays)", comment: "Program day progress: current/total")
                             .font(DSTypography.caption)
                             .fontWeight(.medium)
                     }
@@ -49,7 +49,7 @@ struct ActiveProgramCard: View {
                 }
 
                 // Progress Bar
-                ProgressView(value: Double(currentWeekNumber), total: Double(program.durationWeeks))
+                ProgressView(value: Double(currentDayNumber), total: Double(program.totalDays))
                     .tint(DSColors.primary)
 
                 // Today's Workout
@@ -116,12 +116,13 @@ struct ActiveProgramCard: View {
                         .background(Color.blue.opacity(0.1))
                         .clipShape(RoundedRectangle(cornerRadius: DSCornerRadius.sm))
 
-                        // Next Week Button (show if not on last week)
-                        if currentWeekNumber < program.durationWeeks, let onNextWeek = onNextWeek {
-                            Button(action: onNextWeek) {
+                        // Next Day Button (show if not on last day)
+                        // Note: Auto-progression happens in WorkoutSummaryViewModel, this is just for manual override
+                        if currentDayNumber < program.totalDays, let onNextDay = onNextDay {
+                            Button(action: onNextDay) {
                                 HStack {
                                     Image(systemName: "arrow.right.circle.fill")
-                                    Text("Start Week \(currentWeekNumber + 1)", comment: "Button to advance to next week")
+                                    Text("Skip to Day \(currentDayNumber + 1)", comment: "Button to advance to next day")
                                         .fontWeight(.semibold)
                                 }
                                 .frame(maxWidth: .infinity)
@@ -147,15 +148,15 @@ struct ActiveProgramCard: View {
                 name: "Push Pull Legs",
                 category: .bodybuilding,
                 difficulty: .intermediate,
-                durationWeeks: 12
+                totalDays: 84  // 12 weeks
             ),
-            currentWeekNumber: 3,
+            currentDayNumber: 20,
             todayWorkout: ProgramDay(
-                dayOfWeek: 2,
+                dayNumber: 20,
                 name: "Push Day"
             ),
             onStartWorkout: { print("Start workout") },
-            onNextWeek: { print("Next week") }
+            onNextDay: { print("Next day") }
         )
 
         // Rest day
@@ -164,12 +165,12 @@ struct ActiveProgramCard: View {
                 name: "Starting Strength",
                 category: .strengthTraining,
                 difficulty: .beginner,
-                durationWeeks: 8
+                totalDays: 56  // 8 weeks
             ),
-            currentWeekNumber: 2,
+            currentDayNumber: 14,
             todayWorkout: nil,
             onStartWorkout: nil,
-            onNextWeek: { print("Next week") }
+            onNextDay: { print("Next day") }
         )
     }
     .padding()

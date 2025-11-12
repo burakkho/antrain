@@ -16,6 +16,7 @@ final class WorkoutSummaryViewModel {
     private let workoutRepository: WorkoutRepositoryProtocol
     private let prRepository: PersonalRecordRepositoryProtocol
     private let prDetectionService: PRDetectionService
+    private let userProfileRepository: UserProfileRepositoryProtocol
 
     // MARK: - Input Data
 
@@ -47,6 +48,9 @@ final class WorkoutSummaryViewModel {
     var notes: String = ""
     var rating: Int? = nil // 1-5 stars
 
+    // Program Progression
+    var didCompleteProgram = false
+
     // MARK: - Initialization
 
     init(
@@ -54,13 +58,15 @@ final class WorkoutSummaryViewModel {
         exercises: [WorkoutExercise],
         workoutRepository: WorkoutRepositoryProtocol,
         prRepository: PersonalRecordRepositoryProtocol,
-        prDetectionService: PRDetectionService
+        prDetectionService: PRDetectionService,
+        userProfileRepository: UserProfileRepositoryProtocol
     ) {
         self.workout = workout
         self.exercises = exercises
         self.workoutRepository = workoutRepository
         self.prRepository = prRepository
         self.prDetectionService = prDetectionService
+        self.userProfileRepository = userProfileRepository
 
         // Calculate duration once on init (performance optimization)
         if workout.duration > 0 {
@@ -152,6 +158,7 @@ final class WorkoutSummaryViewModel {
     func saveWorkout() async {
         isSaving = true
         errorMessage = nil
+        didCompleteProgram = false
 
         do {
             // Update workout with notes
@@ -168,6 +175,19 @@ final class WorkoutSummaryViewModel {
             try await workoutRepository.save(workout)
 
             // PRs are already saved by prDetectionService during loadPRs()
+
+            // Auto-progress program if this workout is from a program
+            if workout.isFromProgram {
+                let progressed = try await userProfileRepository.advanceToNextDay()
+
+                // If couldn't progress, program is complete
+                if !progressed {
+                    didCompleteProgram = true
+                    print("🎉 Program completed!")
+                } else {
+                    print("✅ Progressed to next program day")
+                }
+            }
         } catch {
             errorMessage = "Failed to save workout: \(error.localizedDescription)"
             print("Save error: \(error)")

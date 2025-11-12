@@ -28,7 +28,7 @@ struct WorkoutHistoryFullView: View {
                 DSLoadingView(message: "Loading workouts...")
             }
         }
-        .navigationTitle("Workout History")
+        .navigationTitle(String(localized: "Workout History"))
         .navigationBarTitleDisplayMode(.inline)
         .onAppear {
             if viewModel == nil {

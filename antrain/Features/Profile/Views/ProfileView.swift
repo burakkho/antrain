@@ -127,18 +127,18 @@ struct ProfileView: View {
                                 .foregroundStyle(DSColors.textSecondary)
                         }
 
-                        Button("Add Weight Entry") {
+                        Button(String(localized: "Add Weight Entry")) {
                             showBodyweightEntry = true
                         }
 
                         if viewModel.userProfile?.bodyweightEntries.isEmpty == false {
-                            Button("View Weight History") {
+                            Button(String(localized: "View Weight History")) {
                                 showBodyweightHistory = true
                             }
                         }
                     }
                 }
-                .navigationTitle("Profile")
+                .navigationTitle(Text("Profile"))
                 .navigationBarTitleDisplayMode(.large)
                 .toolbar {
                     ToolbarItem(placement: .topBarTrailing) {

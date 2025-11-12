@@ -39,17 +39,19 @@ struct CardioLogView: View {
         @Bindable var viewModel = viewModel
         Form {
                     // Cardio Type
-                    Section("Cardio Type") {
+                    Section {
                         Picker("Type", selection: $viewModel.cardioType) {
                             ForEach(CardioType.allCases, id: \.self) { type in
                                 Text(type.rawValue).tag(type)
                             }
                         }
                         .pickerStyle(.menu)
+                    } header: {
+                        Text("Cardio Type")
                     }
 
                     // Distance
-                    Section("Distance (Optional)") {
+                    Section {
                         HStack {
                             TextField("Distance", value: $viewModel.distance, format: .number.precision(.fractionLength(0...2)))
                                 .keyboardType(.decimalPad)
@@ -64,33 +66,19 @@ struct CardioLogView: View {
                             Text(Double.distanceUnitSymbol(weightUnit))
                                 .foregroundStyle(DSColors.textSecondary)
                         }
+                    } header: {
+                        Text("Distance (Optional)")
                     }
 
                     // Duration
-                    Section("Duration") {
-                        HStack {
-                            TextField("Minutes", value: $viewModel.durationMinutes, format: .number.precision(.fractionLength(0)))
-                                .keyboardType(.numberPad)
-                                .onChange(of: viewModel.durationMinutes) { _, _ in
-                                    viewModel.updateDuration()
-                                }
-                            Text(String(localized: "min"))
-                                .foregroundStyle(DSColors.textSecondary)
-                        }
-
-                        HStack {
-                            TextField("Seconds", value: $viewModel.durationSeconds, format: .number.precision(.fractionLength(0)))
-                                .keyboardType(.numberPad)
-                                .onChange(of: viewModel.durationSeconds) { _, _ in
-                                    viewModel.updateDuration()
-                                }
-                            Text(String(localized: "sec"))
-                                .foregroundStyle(DSColors.textSecondary)
-                        }
+                    Section {
+                        DSTimeField(title: "", duration: $viewModel.duration)
+                    } header: {
+                        Text("Duration")
                     }
 
                     // Pace (optional manual or auto-calculated)
-                    Section("Pace (Optional)") {
+                    Section {
                         if let calculatedPace = viewModel.calculatedPace {
                             HStack {
                                 Text("Auto-calculated")
@@ -107,12 +95,16 @@ struct CardioLogView: View {
                             Text(paceUnitText)
                                 .foregroundStyle(DSColors.textSecondary)
                         }
+                    } header: {
+                        Text("Pace (Optional)")
                     }
 
                     // Notes
-                    Section("Notes (Optional)") {
+                    Section {
                         TextField("How did it feel?", text: $viewModel.notes, axis: .vertical)
                             .lineLimit(3...6)
+                    } header: {
+                        Text("Notes (Optional)")
                     }
 
                     // Save Button
@@ -142,11 +134,12 @@ struct CardioLogView: View {
                         }
                     }
         }
-        .navigationTitle("Log Cardio")
+        .scrollDismissesKeyboard(.interactively)
+        .navigationTitle(Text("Log Cardio"))
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .cancellationAction) {
-                Button("Cancel") {
+                Button(String(localized: "Cancel")) {
                     dismiss()
                 }
             }

@@ -8,11 +8,11 @@ struct DayInfoCard: View {
     var body: some View {
         DSCard {
             VStack(alignment: .leading, spacing: DSSpacing.md) {
-                // Day of week header
+                // Day header
                 HStack {
                     Image(systemName: "calendar")
                         .foregroundStyle(DSColors.primary)
-                    Text(day.dayOfWeekName)
+                    Text(day.displayName)
                         .font(DSTypography.title3)
                         .fontWeight(.semibold)
                 }
@@ -55,41 +55,6 @@ struct DayInfoCard: View {
                     )
                 }
             }
-
-            // Modifiers
-            if viewModel.hasModifiers {
-                Divider()
-
-                VStack(alignment: .leading, spacing: DSSpacing.sm) {
-                    Text("Adjustments")
-                        .font(DSTypography.caption)
-                        .foregroundStyle(DSColors.textSecondary)
-
-                    HStack(spacing: DSSpacing.md) {
-                        if let intensityText = viewModel.intensityModifierText {
-                            ModifierChipView(
-                                icon: "bolt.fill",
-                                label: "Intensity",
-                                value: intensityText,
-                                color: day.effectiveIntensityModifier > 1.0 ? .orange : .green
-                            )
-                        }
-
-                        if let volumeText = viewModel.volumeModifierText {
-                            ModifierChipView(
-                                icon: "chart.bar.fill",
-                                label: "Volume",
-                                value: volumeText,
-                                color: day.effectiveVolumeModifier > 1.0 ? .orange : .green
-                            )
-                        }
-
-                        if day.week?.isDeload == true {
-                            deloadChip
-                        }
-                    }
-                }
-            }
         }
     }
 
@@ -108,24 +73,6 @@ struct DayInfoCard: View {
                     .font(DSTypography.caption)
                     .foregroundStyle(DSColors.textTertiary)
             }
-        }
-    }
-
-    // MARK: - Deload Chip
-
-    private var deloadChip: some View {
-        HStack(spacing: 4) {
-            Image(systemName: "arrow.down.circle.fill")
-                .foregroundStyle(.green)
-            Text("Deload")
-                .font(DSTypography.caption)
-                .foregroundStyle(DSColors.textSecondary)
-        }
-        .padding(.horizontal, DSSpacing.sm)
-        .padding(.vertical, DSSpacing.xs)
-        .background {
-            RoundedRectangle(cornerRadius: DSSpacing.xs)
-                .fill(Color.green.opacity(0.1))
         }
     }
 }

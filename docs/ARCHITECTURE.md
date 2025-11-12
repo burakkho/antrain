@@ -117,6 +117,19 @@ Features/
 │   └── ViewModels/
 │       └── ProfileViewModel.swift
 │
+├── AICoach/                                 # v1.3: AI Fitness Coach
+│   ├── Views/
+│   │   ├── AICoachView.swift                # Main AI Coach tab
+│   │   └── Components/
+│   │       ├── ChatMessageBubble.swift       # Message bubble UI
+│   │       ├── ChatInputField.swift          # Chat input with send button
+│   │       ├── QuickActionChips.swift        # Quick suggestion chips
+│   │       ├── TypewriterTextView.swift      # Typewriter animation for AI
+│   │       ├── TypingIndicator.swift         # "AI is typing..." indicator
+│   │       └── ErrorBanner.swift             # Error message banner
+│   └── ViewModels/
+│       └── AICoachViewModel.swift           # Chat state + API orchestration
+│
 ├── Settings/                                # v1.2: Simplified (app preferences only)
 │   └── Views/
 │       └── SettingsView.swift               # fullScreenCover from Home/Profile
@@ -192,13 +205,18 @@ Core/Domain/
 │   │   └── WorkoutExercise.swift
 │   ├── Exercise/
 │   │   └── Exercise.swift
-│   └── Nutrition/
-│       ├── NutritionLog.swift
-│       └── Meal.swift
+│   ├── Nutrition/
+│   │   ├── NutritionLog.swift
+│   │   └── Meal.swift
+│   └── AICoach/                            # v1.3: AI Coach models
+│       ├── ChatMessage.swift                # SwiftData @Model for messages
+│       ├── ChatConversation.swift           # SwiftData @Model for conversation
+│       └── WorkoutContext.swift             # DTO for AI context building
 └── Protocols/
     ├── Repositories/
     │   ├── WorkoutRepositoryProtocol.swift
-    │   └── NutritionRepositoryProtocol.swift
+    │   ├── NutritionRepositoryProtocol.swift
+    │   └── ChatRepositoryProtocol.swift     # v1.3: Chat persistence
     └── Libraries/
         ├── ExerciseLibraryProtocol.swift
         └── FoodLibraryProtocol.swift
@@ -267,7 +285,8 @@ Core/Data/
 ├── Repositories/
 │   ├── WorkoutRepository.swift
 │   ├── NutritionRepository.swift
-│   └── ExerciseRepository.swift
+│   ├── ExerciseRepository.swift
+│   └── ChatRepository.swift                # v1.3: Chat message persistence
 ├── Libraries/
 │   ├── ExerciseLibrary/
 │   │   ├── ExerciseLibrary.swift
@@ -276,6 +295,12 @@ Core/Data/
 │   └── FoodLibrary/
 │       ├── FoodLibrary.swift
 │       └── ProteinFoods.swift
+├── Services/                                # v1.3: External API services
+│   ├── GeminiAPIService.swift               # Gemini 2.5 Flash-Lite API
+│   ├── GeminiConfig.swift                   # API config + prompts
+│   ├── Protocols/
+│   │   └── GeminiAPIServiceProtocol.swift
+│   └── WorkoutContextBuilder.swift          # Builds AI context from user data
 └── Persistence/
     └── PersistenceController.swift
 ```
@@ -1383,7 +1408,333 @@ antrain/
 
 ---
 
-**Last Updated:** 2025-11-09
+## AI Fitness Coach Feature (v1.3)
+
+### Overview
+
+AI Coach feature integrates Google Gemini 2.5 Flash-Lite API to provide personalized fitness coaching based on user's workout history, nutrition data, active programs, and personal records.
+
+**Key Features:**
+- Real-time chat with AI fitness coach
+- Context-aware coaching (workout history, PRs, nutrition, active programs)
+- Typewriter animation for AI responses
+- Quick action chips for common questions
+- Persistent chat history (SwiftData)
+- Language auto-detection (Turkish/English)
+
+### Architecture Components
+
+```
+┌─────────────────────────────────────────────┐
+│         PRESENTATION LAYER                   │
+│   AICoachView + AICoachViewModel            │
+│   • Chat UI                                  │
+│   • User input handling                      │
+│   • Message display                          │
+└─────────────────────────────────────────────┘
+                    ↓ ↑
+         (Dependencies via AppDependencies)
+                    ↓ ↑
+┌─────────────────────────────────────────────┐
+│         DOMAIN LAYER                         │
+│   Models: ChatMessage, WorkoutContext        │
+│   Protocols: ChatRepositoryProtocol,         │
+│              GeminiAPIServiceProtocol        │
+└─────────────────────────────────────────────┘
+                    ↓ ↑
+         (Implementation)
+                    ↓ ↑
+┌─────────────────────────────────────────────┐
+│         DATA LAYER                           │
+│   • ChatRepository (SwiftData persistence)   │
+│   • GeminiAPIService (API calls)            │
+│   • WorkoutContextBuilder (context builder)  │
+└─────────────────────────────────────────────┘
+```
+
+### Data Flow
+
+**User Sends Message:**
+```
+1. User types message in ChatInputField
+2. AICoachViewModel.sendMessage() called
+3. ViewModel adds user message to messages array
+4. ChatRepository.saveMessage() persists user message
+5. WorkoutContextBuilder builds context from:
+   - Recent workouts (30 days)
+   - Detailed workout data (last 5 workouts)
+   - Personal records
+   - Active training program (current + next week)
+   - Nutrition summary (7 days)
+   - User profile data
+6. GeminiAPIService.sendMessage() sends:
+   - User message
+   - WorkoutContext
+   - Chat history (last 10 messages)
+   - isNewUser flag
+7. Gemini API returns response
+8. ViewModel displays AI message with typewriter effect
+9. ChatRepository.saveMessage() persists AI message
+```
+
+### Models
+
+**ChatMessage (SwiftData):**
+```swift
+@Model
+final class ChatMessage {
+    var id: UUID
+    var content: String
+    var isFromUser: Bool
+    var timestamp: Date
+    var conversation: ChatConversation?
+
+    @Transient var isSending: Bool // UI state only
+}
+```
+
+**ChatConversation (SwiftData):**
+```swift
+@Model
+final class ChatConversation {
+    var id: UUID
+    var createdAt: Date
+    var lastMessageAt: Date?
+
+    @Relationship(deleteRule: .cascade)
+    var messages: [ChatMessage] = []
+}
+```
+
+**WorkoutContext (DTO):**
+- Aggregates user data for AI context
+- Converts to formatted string for prompt
+- See `MODELS.md` for detailed structure
+
+### Services
+
+**GeminiAPIService:**
+```swift
+@MainActor
+final class GeminiAPIService: GeminiAPIServiceProtocol {
+    func sendMessage(
+        _ message: String,
+        context: WorkoutContext,
+        chatHistory: [ChatHistoryItem],
+        isNewUser: Bool
+    ) async throws -> String
+}
+```
+
+**Key Features:**
+- Language auto-detection (NaturalLanguage framework)
+- API key obfuscation (Base64)
+- Error handling (rate limits, network errors, API errors)
+- Timeout handling (30s)
+- Chat history management (last 10 messages)
+
+**WorkoutContextBuilder:**
+```swift
+@MainActor
+final class WorkoutContextBuilder {
+    func buildContext() async throws -> WorkoutContext
+}
+```
+
+**Context Building:**
+- Fetches last 30 days of workouts
+- Fetches last 5 detailed workouts
+- Fetches all personal records
+- Fetches active training program (current + next week)
+- Calculates volume trends, training frequency
+- Fetches 7-day nutrition summary
+- Includes user profile data
+
+### Repository
+
+**ChatRepository (@ModelActor):**
+```swift
+@ModelActor
+actor ChatRepository: ChatRepositoryProtocol {
+    func fetchOrCreateConversation() async throws -> ChatConversation
+    func saveMessage(content: String, isFromUser: Bool) async throws -> ChatMessage
+    func fetchAllMessages() async throws -> [ChatMessage]
+    func clearHistory() async throws
+}
+```
+
+**Design Decisions:**
+- `@ModelActor` for thread-safe SwiftData access
+- Single conversation per user (app-wide chat history)
+- Cascade delete for messages (conversation deletion)
+
+### ViewModel
+
+**AICoachViewModel:**
+```swift
+@Observable @MainActor
+final class AICoachViewModel {
+    // Dependencies
+    private let chatRepository: ChatRepositoryProtocol
+    private let geminiAPIService: GeminiAPIServiceProtocol
+    private let workoutContextBuilder: WorkoutContextBuilder
+
+    // State
+    var messages: [ChatMessage] = []
+    var userInput: String = ""
+    var isLoading: Bool = false
+    var errorMessage: String?
+    var currentAIMessage: String = "" // For typewriter effect
+    var showTypewriter: Bool = false
+
+    // Business Logic
+    func sendMessage() async
+    func loadChatHistory() async
+    func clearChat() async
+}
+```
+
+**State Management:**
+- `@Observable` for SwiftUI reactivity
+- `@MainActor` for UI thread safety
+- Error handling with user-friendly messages
+- Loading states for async operations
+
+### UI Components
+
+**AICoachView:**
+- ScrollView with chat messages
+- ChatInputField at bottom
+- QuickActionChips for suggestions
+- ErrorBanner for API errors
+
+**ChatMessageBubble:**
+- User messages: right-aligned, blue
+- AI messages: left-aligned, gray
+- Timestamp display
+- TypewriterTextView for AI messages
+
+**TypewriterTextView:**
+- Animates AI response character-by-character
+- Configurable speed (0.02s per char)
+- Smooth animation for better UX
+
+**TypingIndicator:**
+- "AI is typing..." animated dots
+- Shows while API request in progress
+
+### Gemini API Configuration
+
+**Model:** `gemini-2.5-flash-lite`
+- Fast inference (< 3s typically)
+- 1M token context window
+- 64K token output limit
+- Multimodal support (not used in MVP)
+
+**System Prompt:**
+- Single comprehensive prompt (no onboarding variant)
+- Persona: Balanced Expert (scientific yet supportive)
+- Language-agnostic (responds in user's language)
+- Context-aware (deload weeks, program phases, nutrition)
+- Data-driven advice (references actual user metrics)
+
+**API Configuration:**
+```swift
+temperature: 0.7     // Balanced creativity
+topK: 40
+topP: 0.95
+maxOutputTokens: 2048
+```
+
+### Error Handling
+
+**Error Types:**
+```swift
+enum GeminiAPIError: LocalizedError {
+    case messageEmpty
+    case messageTooLong(limit: Int)
+    case invalidAPIKey
+    case rateLimitExceeded(retryAfter: Int)
+    case serverError(statusCode: Int)
+    case timeout
+    case noInternetConnection
+    case invalidResponse
+    case unknown(Error)
+}
+```
+
+**User-Facing Messages:**
+- Network errors: "Check your internet connection"
+- Rate limits: "Too many requests, wait X seconds"
+- API errors: "Temporary error occurred, try again"
+- Validation: "Message too long (max 1000 chars)"
+
+### Security
+
+**API Key Storage:**
+- Base64 obfuscation (not encryption)
+- Decoded at runtime
+- Validated on app launch (checks "AIza" prefix)
+- Future: Move to Keychain for production
+
+**Data Privacy:**
+- Chat history stored locally (SwiftData)
+- No cloud backup of messages
+- User data sent to Gemini API (see Terms of Service)
+
+### Performance Optimizations
+
+**Context Building:**
+- Parallel async fetches where possible
+- Minimal data queries (last 30 days only)
+- Cached user profile data
+
+**Chat History:**
+- Only last 10 messages sent to API (token efficiency)
+- Full history stored locally
+- Efficient SwiftData queries
+
+**UI Performance:**
+- Typewriter effect skippable (tap to complete)
+- ScrollView auto-scroll to bottom
+- Lazy loading for long chat histories
+
+### Testing Strategy
+
+**Unit Tests:**
+- WorkoutContextBuilder (context building logic)
+- GeminiAPIService (API request/response parsing)
+- ChatRepository (SwiftData operations)
+
+**Integration Tests:**
+- ViewModel + Repository interaction
+- API service with mock responses
+
+**UI Tests:**
+- Chat flow (send/receive messages)
+- Error handling display
+- Quick action chips
+
+### Future Enhancements (Post-v1.3)
+
+**Planned Features:**
+- Voice input/output
+- Image-based form analysis (Gemini multimodal)
+- Workout plan generation
+- Nutrition meal suggestions
+- Chat conversation branching
+- Export chat history
+
+**Technical Debt:**
+- Move API key to Keychain
+- Implement proper error retry logic
+- Add offline queueing for messages
+- Optimize context building (caching)
+
+---
+
+**Last Updated:** 2025-11-10
 **v1.2+ View Layer Refactoring Documentation Added**
 **v2.0 Training Programs Extension Added**
+**v1.3 AI Fitness Coach Feature Added**
 

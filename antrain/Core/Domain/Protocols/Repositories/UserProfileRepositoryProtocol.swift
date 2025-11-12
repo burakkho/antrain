@@ -22,6 +22,9 @@ protocol UserProfileRepositoryProtocol: Actor {
         dailyFatsGoal: Double?
     ) async throws -> UserProfile
 
+    /// Save the current profile changes to persistence
+    func saveProfile() async throws
+
     /// Add a bodyweight entry to the profile
     func addBodyweightEntry(weight: Double, date: Date, notes: String?) async throws -> BodyweightEntry
 
@@ -37,6 +40,8 @@ protocol UserProfileRepositoryProtocol: Actor {
     /// Deactivate the current training program
     func deactivateProgram() async throws
 
-    /// Advance active program to next week
-    func advanceToNextWeek() async throws
+    /// Advance active program to next day
+    /// - Returns: True if progressed, false if program completed
+    @discardableResult
+    func advanceToNextDay() async throws -> Bool
 }

@@ -15,10 +15,13 @@ struct DayCard: View {
         HStack(spacing: 12) {
             // Day indicator
             VStack(spacing: 2) {
-                Text(day.shortDayOfWeekName)
-                    .font(.caption)
+                Text("Day")
+                    .font(.caption2)
+                    .foregroundStyle(.tertiary)
+                Text("\(day.dayNumber)")
+                    .font(.headline)
                     .fontWeight(.semibold)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(.primary)
             }
             .frame(width: 50)
 
@@ -56,29 +59,6 @@ struct DayCard: View {
                         }
                         .foregroundStyle(.secondary)
                     }
-
-                    // Modifiers
-                    if day.intensityOverride != nil || day.volumeOverride != nil {
-                        HStack(spacing: 8) {
-                            if let intensity = day.intensityOverride {
-                                Label {
-                                    Text(String(format: "%.0f%%", intensity * 100))
-                                        .font(.caption2)
-                                } icon: {
-                                    Image(systemName: "bolt.fill")
-                                }
-                            }
-                            if let volume = day.volumeOverride {
-                                Label {
-                                    Text(String(format: "%.0f%%", volume * 100))
-                                        .font(.caption2)
-                                } icon: {
-                                    Image(systemName: "chart.bar.fill")
-                                }
-                            }
-                        }
-                        .foregroundStyle(.orange)
-                    }
                 }
 
                 Spacer()
@@ -101,16 +81,15 @@ struct DayCard: View {
     VStack(spacing: 8) {
         DayCard(
             day: ProgramDay(
-                dayOfWeek: 2, // Monday
+                dayNumber: 1,
                 name: "Upper Body Power"
             )
         )
 
         DayCard(
             day: ProgramDay(
-                dayOfWeek: 3, // Tuesday
-                name: "Lower Body Strength",
-                intensityOverride: 1.1
+                dayNumber: 2,
+                name: "Lower Body Strength"
             )
         )
     }
@@ -120,7 +99,7 @@ struct DayCard: View {
 #Preview("Rest Day") {
     DayCard(
         day: ProgramDay(
-            dayOfWeek: 1 // Sunday
+            dayNumber: 7
         )
     )
     .padding()

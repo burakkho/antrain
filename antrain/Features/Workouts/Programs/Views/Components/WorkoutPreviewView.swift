@@ -28,7 +28,7 @@ struct WorkoutPreviewView: View {
 
                 // Intensity modifier
                 HStack {
-                    Label("Intensity", systemImage: "speedometer")
+                    Label(String(localized: "Intensity"), systemImage: "speedometer")
                         .foregroundStyle(.secondary)
 
                     Spacer()
@@ -44,7 +44,7 @@ struct WorkoutPreviewView: View {
             // Template info
             Section {
                 HStack {
-                    Label("Template", systemImage: "doc.text")
+                    Label(String(localized: "Template"), systemImage: "doc.text")
                         .foregroundStyle(.secondary)
 
                     Spacer()
@@ -54,7 +54,7 @@ struct WorkoutPreviewView: View {
                 }
 
                 HStack {
-                    Label("Exercises", systemImage: "list.bullet")
+                    Label(String(localized: "Exercises"), systemImage: "list.bullet")
                         .foregroundStyle(.secondary)
 
                     Spacer()
@@ -64,7 +64,7 @@ struct WorkoutPreviewView: View {
                 }
 
                 HStack {
-                    Label("Total Sets", systemImage: "number")
+                    Label(String(localized: "Total Sets"), systemImage: "number")
                         .foregroundStyle(.secondary)
 
                     Spacer()
@@ -134,7 +134,7 @@ struct WorkoutPreviewView: View {
     )
 
     let programDay = ProgramDay(
-        dayOfWeek: 1,
+        dayNumber: 1,
         name: "Push",
         notes: "Focus on progressive overload"
     )
@@ -146,6 +146,6 @@ struct WorkoutPreviewView: View {
             template: template,
             weekModifier: 1.0
         )
-        .navigationTitle("Preview")
+        .navigationTitle(Text("Preview"))
     }
 }

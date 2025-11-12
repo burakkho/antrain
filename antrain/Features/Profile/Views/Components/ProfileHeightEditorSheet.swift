@@ -72,17 +72,17 @@ struct ProfileHeightEditorSheet: View {
                     }
                 }
             }
-            .navigationTitle("Edit Height")
+            .navigationTitle(Text("Edit Height"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") {
+                    Button(String(localized: "Cancel")) {
                         dismiss()
                     }
                 }
 
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Save") {
+                    Button(String(localized: "Save")) {
                         Task {
                             await saveHeight()
                         }

@@ -29,11 +29,11 @@ struct ProgramProgressStatsView: View {
                     ProgressView()
                 }
             }
-            .navigationTitle("Progress & Stats")
+            .navigationTitle(Text("Progress & Stats"))
             .navigationBarTitleDisplayMode(.large)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button("Done") {
+                    Button(String(localized: "Done")) {
                         dismiss()
                     }
                 }
@@ -65,15 +65,6 @@ struct ProgramProgressStatsView: View {
 
                 // Overall stats cards
                 overallStatsSection(viewModel: viewModel)
-
-                // Adherence chart
-                adherenceChartSection(viewModel: viewModel)
-
-                // Volume progression chart
-                volumeProgressionSection(viewModel: viewModel)
-
-                // Weekly comparison
-                weeklyComparisonSection(viewModel: viewModel)
             }
             .padding(DSSpacing.md)
         }
@@ -107,7 +98,7 @@ struct ProgramProgressStatsView: View {
                 // Progress bar
                 VStack(alignment: .leading, spacing: DSSpacing.xs) {
                     HStack {
-                        Text("Week \(viewModel.currentWeek) of \(viewModel.totalWeeks)")
+                        Text("Day \(viewModel.currentDay) of \(viewModel.totalDays)")
                             .font(DSTypography.subheadline)
                             .fontWeight(.medium)
 
@@ -119,7 +110,7 @@ struct ProgramProgressStatsView: View {
                             .foregroundStyle(DSColors.primary)
                     }
 
-                    ProgressView(value: Double(viewModel.currentWeek), total: Double(viewModel.totalWeeks))
+                    ProgressView(value: Double(viewModel.currentDay), total: Double(viewModel.totalDays))
                         .tint(DSColors.primary)
                 }
             }
@@ -204,197 +195,6 @@ struct ProgramProgressStatsView: View {
         }
     }
 
-    // MARK: - Adherence Chart
-
-    @ViewBuilder
-    private func adherenceChartSection(viewModel: ProgramProgressStatsViewModel) -> some View {
-        VStack(alignment: .leading, spacing: DSSpacing.sm) {
-            Text("Weekly Adherence")
-                .font(DSTypography.title3)
-                .fontWeight(.semibold)
-
-            DSCard {
-                VStack(alignment: .leading, spacing: DSSpacing.md) {
-                    if !viewModel.volumeByWeek.isEmpty {
-                        Chart(viewModel.volumeByWeek) { data in
-                            BarMark(
-                                x: .value("Week", "W\(data.weekNumber)"),
-                                y: .value("Adherence", data.adherence)
-                            )
-                            .foregroundStyle(adherenceColor(data.adherence))
-                            .cornerRadius(DSCornerRadius.sm)
-                        }
-                        .chartYScale(domain: 0...100)
-                        .chartYAxis {
-                            AxisMarks(position: .leading) { value in
-                                AxisValueLabel {
-                                    if let percentage = value.as(Double.self) {
-                                        Text("\(Int(percentage))%")
-                                    }
-                                }
-                            }
-                        }
-                        .frame(height: 200)
-
-                        // Legend
-                        HStack(spacing: DSSpacing.md) {
-                            legendItem(color: .green, label: "≥80%")
-                            legendItem(color: .orange, label: "60-79%")
-                            legendItem(color: .red, label: "<60%")
-                        }
-                        .font(DSTypography.caption)
-                    } else {
-                        Text("No data available")
-                            .font(DSTypography.body)
-                            .foregroundStyle(DSColors.textSecondary)
-                            .frame(maxWidth: .infinity, alignment: .center)
-                            .padding()
-                    }
-                }
-            }
-        }
-    }
-
-    // MARK: - Volume Progression
-
-    @ViewBuilder
-    private func volumeProgressionSection(viewModel: ProgramProgressStatsViewModel) -> some View {
-        VStack(alignment: .leading, spacing: DSSpacing.sm) {
-            Text("Volume Progression")
-                .font(DSTypography.title3)
-                .fontWeight(.semibold)
-
-            DSCard {
-                VStack(alignment: .leading, spacing: DSSpacing.md) {
-                    if !viewModel.volumeByWeek.isEmpty {
-                        Chart(viewModel.volumeByWeek) { data in
-                            LineMark(
-                                x: .value("Week", data.weekNumber),
-                                y: .value("Volume", data.volume)
-                            )
-                            .foregroundStyle(DSColors.primary)
-                            .lineStyle(StrokeStyle(lineWidth: 3))
-
-                            PointMark(
-                                x: .value("Week", data.weekNumber),
-                                y: .value("Volume", data.volume)
-                            )
-                            .foregroundStyle(DSColors.primary)
-                        }
-                        .chartXAxis {
-                            AxisMarks { value in
-                                AxisValueLabel {
-                                    if let week = value.as(Int.self) {
-                                        Text("W\(week)")
-                                    }
-                                }
-                            }
-                        }
-                        .chartYAxis {
-                            AxisMarks(position: .leading) { value in
-                                AxisValueLabel {
-                                    if let volume = value.as(Double.self) {
-                                        Text(formatWeight(volume))
-                                    }
-                                }
-                            }
-                        }
-                        .frame(height: 200)
-                    } else {
-                        Text("No data available")
-                            .font(DSTypography.body)
-                            .foregroundStyle(DSColors.textSecondary)
-                            .frame(maxWidth: .infinity, alignment: .center)
-                            .padding()
-                    }
-                }
-            }
-        }
-    }
-
-    // MARK: - Weekly Comparison
-
-    @ViewBuilder
-    private func weeklyComparisonSection(viewModel: ProgramProgressStatsViewModel) -> some View {
-        VStack(alignment: .leading, spacing: DSSpacing.sm) {
-            Text("Week-by-Week Breakdown")
-                .font(DSTypography.title3)
-                .fontWeight(.semibold)
-
-            ForEach(viewModel.weeklyComparison) { week in
-                weekComparisonCard(week: week)
-            }
-        }
-    }
-
-    @ViewBuilder
-    private func weekComparisonCard(week: WeekComparisonData) -> some View {
-        DSCard {
-            VStack(alignment: .leading, spacing: DSSpacing.sm) {
-                // Header
-                HStack {
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("Week \(week.weekNumber)")
-                            .font(DSTypography.headline)
-                            .fontWeight(.semibold)
-
-                        Text(week.weekName)
-                            .font(DSTypography.caption)
-                            .foregroundStyle(DSColors.textSecondary)
-                    }
-
-                    Spacer()
-
-                    if let phase = week.phase {
-                        PhaseIndicator(phase: phase, style: .compact)
-                    }
-                }
-
-                Divider()
-
-                // Stats
-                HStack(spacing: DSSpacing.lg) {
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("Workouts")
-                            .font(DSTypography.caption)
-                            .foregroundStyle(DSColors.textSecondary)
-                        Text("\(week.workoutsCompleted)/\(week.workoutsPlanned)")
-                            .font(DSTypography.body)
-                            .fontWeight(.semibold)
-                    }
-
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("Adherence")
-                            .font(DSTypography.caption)
-                            .foregroundStyle(DSColors.textSecondary)
-                        Text("\(Int(week.adherence))%")
-                            .font(DSTypography.body)
-                            .fontWeight(.semibold)
-                            .foregroundStyle(adherenceColor(week.adherence))
-                    }
-
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("Volume")
-                            .font(DSTypography.caption)
-                            .foregroundStyle(DSColors.textSecondary)
-                        Text(formatWeight(week.totalVolume))
-                            .font(DSTypography.body)
-                            .fontWeight(.semibold)
-                    }
-
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("Sets")
-                            .font(DSTypography.caption)
-                            .foregroundStyle(DSColors.textSecondary)
-                        Text("\(week.totalSets)")
-                            .font(DSTypography.body)
-                            .fontWeight(.semibold)
-                    }
-                }
-            }
-        }
-    }
-
     // MARK: - Error View
 
     @ViewBuilder
@@ -414,7 +214,7 @@ struct ProgramProgressStatsView: View {
                 .multilineTextAlignment(.center)
                 .padding(.horizontal)
 
-            Button("Try Again") {
+            Button(String(localized: "Try Again")) {
                 Task {
                     await viewModel?.loadData()
                 }

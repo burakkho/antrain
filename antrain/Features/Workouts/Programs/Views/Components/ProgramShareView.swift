@@ -32,7 +32,7 @@ struct ProgramShareView: View {
                             .font(.subheadline)
                             .foregroundStyle(.secondary)
 
-                        Text("\(program.durationWeeks) weeks • \(String(format: "%.0f", program.trainingDaysPerWeek)) days/week")
+                        Text("\(program.totalDays) days • \(program.trainingDaysCount) training days")
                             .font(.subheadline)
                             .foregroundStyle(.secondary)
                     }
@@ -53,7 +53,7 @@ struct ProgramShareView: View {
                         subject: Text("Training Program: \(program.name)"),
                         message: Text("Check out this training program!")
                     ) {
-                        Label("Share as Text", systemImage: "text.quote")
+                        Label(String(localized: "Share as Text"), systemImage: "text.quote")
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .padding()
                             .background(Color(.systemGray6))
@@ -67,7 +67,7 @@ struct ProgramShareView: View {
                         UIPasteboard.general.string = programAsText
                         dismiss()
                     } label: {
-                        Label("Copy to Clipboard", systemImage: "doc.on.doc")
+                        Label(String(localized: "Copy to Clipboard"), systemImage: "doc.on.doc")
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .padding()
                             .background(Color(.systemGray6))
@@ -79,11 +79,11 @@ struct ProgramShareView: View {
 
                 Spacer()
             }
-            .navigationTitle("Share Program")
+            .navigationTitle(Text("Share Program"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button("Done") {
+                    Button(String(localized: "Done")) {
                         dismiss()
                     }
                 }
@@ -99,9 +99,8 @@ struct ProgramShareView: View {
 
         Category: \(program.category.displayName)
         Difficulty: \(program.difficulty.displayName)
-        Duration: \(program.durationWeeks) weeks
-        Training Days: \(String(format: "%.0f", program.trainingDaysPerWeek)) days/week
-        Progression: \(program.progressionPattern.displayName)
+        Duration: \(program.totalDays) days
+        Training Days: \(program.trainingDaysCount) workouts
 
         """
 
@@ -114,28 +113,18 @@ struct ProgramShareView: View {
         }
 
         text += """
-        Weekly Schedule:
+        Daily Schedule:
 
         """
 
-        // Add weeks
-        for week in program.weeks.sorted() {
-            text += """
-            Week \(week.weekNumber)\(week.isDeload ? " (Deload)" : "")
-            Intensity: \(Int(week.intensityModifier * 100))%
-
-            """
-
-            // Add days
-            for day in week.days.sorted(by: { $0.dayOfWeek < $1.dayOfWeek }) {
-                let dayName = Calendar.current.weekdaySymbols[day.dayOfWeek - 1]
-                if let template = day.template {
-                    text += "  \(dayName): \(template.name)\n"
-                } else {
-                    text += "  \(dayName): Rest\n"
-                }
+        // Add days
+        for day in program.sortedDays() {
+            if let template = day.template {
+                text += "Day \(day.dayNumber): \(day.displayName) - \(template.name)\n"
+                text += "  Exercises: \(template.exerciseCount)\n"
+            } else {
+                text += "Day \(day.dayNumber): Rest\n"
             }
-            text += "\n"
         }
 
         text += """
@@ -155,8 +144,8 @@ struct ProgramShareView: View {
         name: "Push Pull Legs",
         category: .bodybuilding,
         difficulty: .intermediate,
-        durationWeeks: 12
+        totalDays: 84
     )
 
-    return ProgramShareView(program: program)
+    ProgramShareView(program: program)
 }

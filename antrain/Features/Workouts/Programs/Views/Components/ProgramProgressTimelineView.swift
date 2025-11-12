@@ -81,7 +81,7 @@ struct ProgramProgressTimelineView: View {
 
     private var noProgramState: some View {
         ContentUnavailableView {
-            Label("No Active Program", systemImage: "calendar.badge.exclamationmark")
+            Label(String(localized: "No Active Program"), systemImage: "calendar.badge.exclamationmark")
         } description: {
             Text("Activate a training program to see your schedule and track progress")
         } actions: {
@@ -238,9 +238,9 @@ struct TimelineItemCard: View {
                 // Completed workout stats
                 if let workout = item.completedWorkout {
                     HStack(spacing: DSSpacing.sm) {
-                        Label("\(workout.totalSets) sets", systemImage: "list.bullet")
+                        Label(String(localized: "\(workout.totalSets) sets"), systemImage: "list.bullet")
                         Text("•")
-                        Label("\(Int(workout.totalVolume)) kg", systemImage: "scalemass")
+                        Label(String(localized: "\(Int(workout.totalVolume)) kg"), systemImage: "scalemass")
                     }
                     .font(DSTypography.caption)
                     .foregroundStyle(DSColors.textSecondary)
@@ -249,7 +249,7 @@ struct TimelineItemCard: View {
             .padding(DSSpacing.md) // Apply padding directly
             .background {
                 RoundedRectangle(cornerRadius: DSCornerRadius.lg)
-                    .fill(.regularMaterial)
+                    .fill(DSColors.backgroundSecondary)
                     .shadow(color: .black.opacity(0.08), radius: 8, y: 4)
             }
         }

@@ -62,18 +62,10 @@ struct ProgramCard: View {
             HStack(spacing: 16) {
                 // Duration
                 Label {
-                    Text("\(program.durationWeeks) weeks")
+                    Text("\(program.totalDays) days")
                         .font(.caption)
                 } icon: {
                     Image(systemName: "calendar")
-                }
-
-                // Training days
-                Label {
-                    Text(String(format: "%.0f days/week", program.trainingDaysPerWeek))
-                        .font(.caption)
-                } icon: {
-                    Image(systemName: "figure.strengthtraining.traditional")
                 }
             }
             .foregroundStyle(.secondary)
@@ -105,7 +97,7 @@ struct ProgramCard: View {
             programDescription: "Push/Pull/Legs split designed for hypertrophy",
             category: .bodybuilding,
             difficulty: .intermediate,
-            durationWeeks: 12,
+            totalDays: 84,
             isCustom: true
         )
     )
@@ -119,7 +111,7 @@ struct ProgramCard: View {
             programDescription: "Classic linear progression program for beginners",
             category: .strengthTraining,
             difficulty: .beginner,
-            durationWeeks: 12,
+            totalDays: 84,
             isCustom: false
         ),
         isActive: true

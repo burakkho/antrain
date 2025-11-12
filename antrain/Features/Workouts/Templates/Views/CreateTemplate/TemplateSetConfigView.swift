@@ -307,7 +307,7 @@ private struct ExerciseConfigCard: View {
 
     return NavigationStack {
         TemplateSetConfigView(viewModel: viewModel)
-            .navigationTitle("Configure Sets")
+            .navigationTitle(Text("Configure Sets"))
             .navigationBarTitleDisplayMode(.inline)
             .task {
                 // Trigger config preparation

@@ -21,9 +21,10 @@ protocol ChatRepositoryProtocol: Actor {
     @discardableResult
     func saveMessage(content: String, isFromUser: Bool) async throws -> ChatMessage
 
-    /// Fetches all messages in chronological order
-    /// - Returns: Array of messages sorted by timestamp
-    func fetchAllMessages() async throws -> [ChatMessage]
+    /// Fetches messages in chronological order with optional limit for pagination
+    /// - Parameter limit: Maximum number of messages to fetch (default: 50 for performance)
+    /// - Returns: Array of messages sorted by timestamp, limited to most recent N messages
+    func fetchAllMessages(limit: Int) async throws -> [ChatMessage]
 
     /// Fetches the last N messages in chronological order
     /// - Parameter limit: Number of messages to fetch

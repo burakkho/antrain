@@ -1,7 +1,7 @@
 import SwiftUI
 
 /// Main tab bar navigation
-/// Displays 5 tabs: Home, Workouts, Nutrition, Profile, AI Coach
+/// Displays 4 tabs: Home, AI Coach, Nutrition, Workouts
 ///
 /// Refactored for Clean Architecture:
 /// - AppCoordinator: Deep link handling
@@ -12,6 +12,8 @@ struct MainTabView: View {
     @State private var viewModel: MainTabViewModel?
     @State private var coordinator: AppCoordinator
     @State private var workoutManager: ActiveWorkoutManager
+    @State private var showOnboarding = false
+    @State private var isCheckingOnboarding = true
 
     init() {
         let workoutManager = ActiveWorkoutManager()
@@ -24,6 +26,16 @@ struct MainTabView: View {
     var body: some View {
         mainTabView
             .themedColorScheme()
+            .fullScreenCover(isPresented: $showOnboarding) {
+                OnboardingWizardView(
+                    userProfileRepository: appDependencies.userProfileRepository,
+                    onComplete: {
+                        showOnboarding = false
+                        // Navigate to Home tab after onboarding
+                        coordinator.selectedTab = 0
+                    }
+                )
+            }
     }
 
     // MARK: - Main Tab View
@@ -36,9 +48,9 @@ struct MainTabView: View {
                 }
                 .tag(0)
 
-            WorkoutsView()
+            AICoachView()
                 .tabItem {
-                    Label("Workouts", systemImage: "dumbbell.fill")
+                    Label("AI Coach", systemImage: "brain.head.profile")
                 }
                 .tag(1)
 
@@ -48,17 +60,11 @@ struct MainTabView: View {
                 }
                 .tag(2)
 
-            ProfileView()
+            WorkoutsView()
                 .tabItem {
-                    Label("Profile", systemImage: "person.fill")
+                    Label("Workouts", systemImage: "dumbbell.fill")
                 }
                 .tag(3)
-
-            AICoachView()
-                .tabItem {
-                    Label("AI Coach", systemImage: "brain.head.profile")
-                }
-                .tag(4)
         }
         .environment(workoutManager)
         .activeWorkoutOverlay(
@@ -76,11 +82,31 @@ struct MainTabView: View {
                 )
             }
 
+            // Check onboarding status
+            await checkOnboardingStatus()
+
             // Perform one-time initialization
             await viewModel?.onAppear()
         }
     }
 
+    // MARK: - Onboarding Check
+
+    private func checkOnboardingStatus() async {
+        do {
+            let profile = try await appDependencies.userProfileRepository.fetchOrCreateProfile()
+
+            // Show onboarding if user hasn't completed it
+            if !profile.hasCompletedInitialOnboarding {
+                showOnboarding = true
+            }
+
+            isCheckingOnboarding = false
+        } catch {
+            print("❌ [MainTabView] Error checking onboarding status: \(error)")
+            isCheckingOnboarding = false
+        }
+    }
 }
 
 // MARK: - Preview

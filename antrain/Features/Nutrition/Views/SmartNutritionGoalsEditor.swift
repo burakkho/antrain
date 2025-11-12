@@ -68,17 +68,17 @@ struct SmartNutritionGoalsEditor: View {
                 }
                 .padding(DSSpacing.md)
             }
-            .navigationTitle("Edit Goals")
+            .navigationTitle(Text("Edit Goals"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") {
+                    Button(String(localized: "Cancel")) {
                         dismiss()
                     }
                 }
 
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Save") {
+                    Button(String(localized: "Save")) {
                         Task {
                             do {
                                 try await viewModel.saveGoals()
@@ -125,7 +125,7 @@ struct SmartNutritionGoalsEditor: View {
     private func inlineProfileSetupSection(viewModel: NutritionGoalsEditorViewModel) -> some View {
         DSCard {
             VStack(alignment: .leading, spacing: DSSpacing.md) {
-                Label("Complete Your Profile", systemImage: "person.circle")
+                Label(String(localized: "Complete Your Profile"), systemImage: "person.circle")
                     .font(DSTypography.headline)
                     .foregroundStyle(DSColors.primary)
 
@@ -321,7 +321,7 @@ struct SmartNutritionGoalsEditor: View {
                                 .foregroundStyle(DSColors.textSecondary)
                         }
                         Spacer()
-                        Button("Apply") {
+                        Button(String(localized: "Apply")) {
                             viewModel.applyTDEERecommendation(
                                 calories: recommendedCals,
                                 macros: recommendedMacros

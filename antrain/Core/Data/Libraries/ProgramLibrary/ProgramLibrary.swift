@@ -4,31 +4,53 @@
 //
 //  Created by Claude Code on 2025-11-05.
 //
+//  Refactored by Gemini on 2025-11-12 to be a modular aggregator.
+//
 
 import Foundation
 
-/// Library of preset training programs
-struct ProgramLibrary {
-    /// All preset programs available in the library
-    static let allPrograms: [ProgramDTO] = [
-        // Beginner programs
-        startingStrengthProgram(),
-        strongLifts5x5Program(),
+/// Central library for all preset training programs.
+/// Combines programs from all modular program files into a single, extensible collection.
+final class ProgramLibrary: Sendable {
 
-        // Hypertrophy programs
-        ppl6DayProgram(),
+    // MARK: - Properties
 
-        // Powerlifting programs
-        fiveThreeOneBBBProgram()
-    ]
+    private let presetPrograms: [ProgramDTO]
 
-    /// Get program DTOs by category
-    static func programs(for category: ProgramCategory) -> [ProgramDTO] {
-        allPrograms.filter { $0.category == category }
+    // MARK: - Initialization
+
+    init() {
+        // Combine all programs from modular files
+        self.presetPrograms =
+            BeginnerCalisthenicsProgram.all +
+            StartingStrengthProgram.all +
+            StrongLiftsProgram.all +
+            PPLSplitProgram.all +
+            UpperLowerSplitProgram.all +
+            PowerliftingFocusProgram.all +
+            FiveThreeOneProgram.all
     }
 
-    /// Get program DTOs by difficulty
-    static func programs(for difficulty: DifficultyLevel) -> [ProgramDTO] {
-        allPrograms.filter { $0.difficulty == difficulty }
+    // MARK: - Public Methods
+
+    /// Returns all preset programs as DTOs.
+    func getAllPresetPrograms() -> [ProgramDTO] {
+        return presetPrograms
+    }
+
+    /// Returns programs filtered by category.
+    func getPrograms(byCategory category: ProgramCategory) -> [ProgramDTO] {
+        return presetPrograms.filter { $0.category == category }
+    }
+
+    /// Returns programs filtered by difficulty.
+    func getPrograms(byDifficulty difficulty: DifficultyLevel) -> [ProgramDTO] {
+        return presetPrograms.filter { $0.difficulty == difficulty }
+    }
+    
+    /// Returns the total number of preset programs.
+    func getProgramCount() -> Int {
+        return presetPrograms.count
     }
 }
+

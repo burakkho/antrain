@@ -18,6 +18,11 @@ final class Workout: @unchecked Sendable {
     var notes: String?
     var rating: Int?  // 1-5 stars, optional
 
+    // Program tracking (optional - nil if not from program)
+    var programDayId: UUID?  // Which ProgramDay this workout was started from
+    var programDayNumber: Int?  // Day number in program (1-totalDays)
+    var programId: UUID?  // Which TrainingProgram
+
     // Relationships
     @Relationship(deleteRule: .cascade)
     var exercises: [WorkoutExercise] = []
@@ -35,13 +40,19 @@ final class Workout: @unchecked Sendable {
         date: Date = Date(),
         type: WorkoutType,
         duration: TimeInterval = 0,
-        notes: String? = nil
+        notes: String? = nil,
+        programDayId: UUID? = nil,
+        programDayNumber: Int? = nil,
+        programId: UUID? = nil
     ) {
         self.id = UUID()
         self.date = date
         self.type = type
         self.duration = duration
         self.notes = notes
+        self.programDayId = programDayId
+        self.programDayNumber = programDayNumber
+        self.programId = programId
     }
 }
 
@@ -72,6 +83,11 @@ extension Workout {
         case .metcon:
             return metconType != nil && duration > 0
         }
+    }
+
+    /// Was this workout started from a training program?
+    var isFromProgram: Bool {
+        programDayId != nil
     }
 
     /// Duration display (formatted)

@@ -50,6 +50,7 @@ struct ChatInputField: View {
                     .font(.system(size: 32))
                     .foregroundStyle(
                         canSend ? Color.accentColor : Color.gray.opacity(0.3)
+      
                     )
             }
             .disabled(!canSend)

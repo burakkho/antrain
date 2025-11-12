@@ -70,12 +70,12 @@ final class WorkoutContextBuilder {
         let recentPRCount = recentRecords.count  // Already filtered by database
 
         // Extract active program info
-        let (programName, programCategory, currentWeek, totalWeeks, difficulty) = extractProgramInfo(from: profile)
+        let (programName, programCategory, currentDay, totalDays, difficulty) = extractProgramInfo(from: profile)
 
-        // Extract program week details (current + next week)
-        let (currentWeekProgram, nextWeekProgram) = extractProgramWeekDetails(from: profile)
+        // Extract program day details (current + next 7 days)
+        let (currentPeriodProgram, nextPeriodProgram) = extractProgramWeekDetails(from: profile)
 
-        // Extract program phase details
+        // Extract program phase details (not available in day-based system)
         let (isDeload, intensityMod, volumeMod, phaseTag) = extractProgramPhaseDetails(from: profile)
 
         // ✅ OPTIMIZED NUTRITION CALCULATIONS (single fetch, reused data)
@@ -106,11 +106,11 @@ final class WorkoutContextBuilder {
             recentPRCount: recentPRCount,
             activeProgramName: programName,
             programCategory: programCategory,
-            currentWeekNumber: currentWeek,
-            totalProgramWeeks: totalWeeks,
+            currentWeekNumber: currentDay,
+            totalProgramWeeks: totalDays,
             programDifficulty: difficulty,
-            currentWeekProgram: currentWeekProgram,
-            nextWeekProgram: nextWeekProgram,
+            currentWeekProgram: currentPeriodProgram,
+            nextWeekProgram: nextPeriodProgram,
             currentWeekIsDeload: isDeload,
             currentWeekIntensityModifier: intensityMod,
             currentWeekVolumeModifier: volumeMod,
@@ -368,40 +368,39 @@ final class WorkoutContextBuilder {
 
         let programName = program.name
         let programCategory = program.category.displayName
-        let currentWeek = profile.currentWeekNumber
-        let totalWeeks = program.durationWeeks
+        let currentDay = profile.currentDayNumber
+        let totalDays = program.totalDays
         let difficulty = program.difficulty.displayName
 
-        return (programName, programCategory, currentWeek, totalWeeks, difficulty)
+        return (programName, programCategory, currentDay, totalDays, difficulty)
     }
 
     private func extractProgramWeekDetails(from profile: UserProfile?) -> ([WorkoutContext.ProgramDaySummary]?, [WorkoutContext.ProgramDaySummary]?) {
         guard let profile = profile,
               let program = profile.activeProgram,
-              let currentWeekNumber = profile.currentWeekNumber else {
+              let currentDayNumber = profile.currentDayNumber else {
             return (nil, nil)
         }
 
-        // Get current week details
-        let currentWeekDays = extractWeekDays(from: program, weekNumber: currentWeekNumber)
+        // Get upcoming 7 days from current position (simulate "current week")
+        let currentRangeDays = extractUpcomingDays(from: program, startDay: currentDayNumber, count: 7)
 
-        // Get next week details (if exists)
-        let nextWeekNumber = currentWeekNumber + 1
-        let nextWeekDays = nextWeekNumber <= program.durationWeeks
-            ? extractWeekDays(from: program, weekNumber: nextWeekNumber)
+        // Get next 7 days (simulate "next week")
+        let nextStartDay = currentDayNumber + 7
+        let nextRangeDays = nextStartDay <= program.totalDays
+            ? extractUpcomingDays(from: program, startDay: nextStartDay, count: 7)
             : nil
 
-        return (currentWeekDays, nextWeekDays)
+        return (currentRangeDays, nextRangeDays)
     }
 
-    private func extractWeekDays(from program: TrainingProgram, weekNumber: Int) -> [WorkoutContext.ProgramDaySummary]? {
-        // Find the week
-        guard let week = program.weeks.first(where: { $0.weekNumber == weekNumber }) else {
-            return nil
-        }
+    private func extractUpcomingDays(from program: TrainingProgram, startDay: Int, count: Int) -> [WorkoutContext.ProgramDaySummary]? {
+        // Get days in range
+        let endDay = min(startDay + count - 1, program.totalDays)
+        let daysInRange = program.days.filter { $0.dayNumber >= startDay && $0.dayNumber <= endDay }
 
         // Extract days with exercises
-        let daySummaries = week.days.compactMap { day -> WorkoutContext.ProgramDaySummary? in
+        let daySummaries = daysInRange.compactMap { day -> WorkoutContext.ProgramDaySummary? in
             guard let template = day.template, !template.exercises.isEmpty else {
                 return nil // Skip rest days
             }
@@ -425,19 +424,9 @@ final class WorkoutContextBuilder {
     }
 
     private func extractProgramPhaseDetails(from profile: UserProfile?) -> (Bool?, Double?, Double?, String?) {
-        guard let profile = profile,
-              let program = profile.activeProgram,
-              let currentWeekNumber = profile.currentWeekNumber,
-              let currentWeek = program.weeks.first(where: { $0.weekNumber == currentWeekNumber }) else {
-            return (nil, nil, nil, nil)
-        }
-
-        let isDeload = currentWeek.isDeload
-        let intensityModifier = currentWeek.intensityModifier
-        let volumeModifier = currentWeek.volumeModifier
-        let phaseTag = currentWeek.phaseTag?.rawValue
-
-        return (isDeload, intensityModifier, volumeModifier, phaseTag)
+        // Phase details are no longer tracked at the week level in the day-based system
+        // Return nil for all values to indicate this information is not available
+        return (nil, nil, nil, nil)
     }
 
     private func calculateBodyweightTrend(from profile: UserProfile?) -> String? {

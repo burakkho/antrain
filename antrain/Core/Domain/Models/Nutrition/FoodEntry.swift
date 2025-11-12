@@ -13,6 +13,7 @@ import SwiftData
 final class FoodEntry {
     @Attribute(.unique) var id: UUID
     var amount: Double  // Amount in selected unit
+    var orderIndex: Int = 0  // Order within meal (for reordering)
 
     // Relationships
     var foodItem: FoodItem?  // FoodItem silinirse nil olur
@@ -21,11 +22,13 @@ final class FoodEntry {
     init(
         foodItem: FoodItem,
         amount: Double,
-        selectedUnit: ServingUnit
+        selectedUnit: ServingUnit,
+        orderIndex: Int = 0
     ) {
         self.id = UUID()
         self.foodItem = foodItem
         self.amount = amount
+        self.orderIndex = orderIndex
         // Auto-select unit if not provided: gram unit or first available
         self.selectedUnit = selectedUnit
     }

@@ -505,6 +505,40 @@ struct WorkoutContext {
         return contextParts.joined(separator: "\n")
     }
 
+    /// Returns a minimal context string for follow-up messages (after first message)
+    /// This saves tokens by not repeating detailed information already sent
+    func toMinimalPromptString() -> String {
+        // New user case
+        if isNewUser {
+            return "USER STATUS: New user"
+        }
+
+        var parts: [String] = []
+
+        // Basic identification
+        if let name = userName, !name.isEmpty {
+            parts.append("User: \(name)")
+        }
+
+        parts.append("Experience: \(experienceLevel)")
+
+        // Active program (important for context)
+        if let programName = activeProgramName {
+            var programInfo = "Active Program: \(programName)"
+            if let week = currentWeekNumber, let total = totalProgramWeeks {
+                programInfo += " (Week \(week)/\(total))"
+            }
+            parts.append(programInfo)
+        }
+
+        // Primary goal (if set)
+        if !fitnessGoals.isEmpty {
+            parts.append("Goal: \(fitnessGoals[0])")
+        }
+
+        return parts.joined(separator: " | ")
+    }
+
     // MARK: - Factory Methods
 
     /// Creates an empty context for new users

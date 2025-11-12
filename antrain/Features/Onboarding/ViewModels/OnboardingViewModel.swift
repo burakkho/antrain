@@ -44,8 +44,9 @@ final class OnboardingViewModel {
     // Fitness Goals (Step 3)
     var selectedGoals: Set<UserProfile.FitnessGoal> = []
 
-    // Frequency + Equipment (Step 4)
+    // Frequency + Equipment + Activity (Step 4)
     var weeklyWorkoutFrequency: Int = 3  // Default 3 days/week
+    var activityLevel: UserProfile.ActivityLevel? = .moderatelyActive  // Default moderately active
     var equipment: UserProfile.Equipment? = .gym  // Default gym
 
     // MARK: - UI State
@@ -161,10 +162,17 @@ final class OnboardingViewModel {
                 dateOfBirth: dateOfBirth
             )
 
+            // Add bodyweight entry if weight is provided
+            if weightInKg > 0 {
+                let bodyweightEntry = BodyweightEntry(date: Date(), weight: weightInKg)
+                profile.bodyweightEntries.append(bodyweightEntry)
+            }
+
             // Update fitness info
             profile.fitnessLevel = fitnessLevel
             profile.fitnessGoals = Array(selectedGoals)
             profile.weeklyWorkoutFrequency = weeklyWorkoutFrequency
+            profile.activityLevel = activityLevel
             profile.availableEquipment = equipment
 
             // Mark onboarding as completed

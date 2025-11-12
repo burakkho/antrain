@@ -72,6 +72,39 @@ actor WorkoutRepository: WorkoutRepositoryProtocol {
         return try modelContext.fetch(descriptor)
     }
 
+    /// Fetch workouts within a date range (database-level filtering)
+    /// - Parameters:
+    ///   - startDate: Start of date range (inclusive)
+    ///   - endDate: End of date range (exclusive)
+    /// - Returns: Workouts in date range, sorted by date (most recent first)
+    func fetchByDateRange(startDate: Date, endDate: Date) async throws -> [Workout] {
+        let predicate = #Predicate<Workout> { workout in
+            workout.date >= startDate && workout.date < endDate
+        }
+        let descriptor = FetchDescriptor<Workout>(
+            predicate: predicate,
+            sortBy: [SortDescriptor(\.date, order: .reverse)]
+        )
+        return try modelContext.fetch(descriptor)
+    }
+
+    /// Fetch recent workouts with date range and limit (database-level filtering)
+    /// - Parameters:
+    ///   - startDate: Start of date range (inclusive)
+    ///   - limit: Maximum number of workouts to return
+    /// - Returns: Recent workouts in range, sorted by date (most recent first)
+    func fetchRecent(since startDate: Date, limit: Int) async throws -> [Workout] {
+        let predicate = #Predicate<Workout> { workout in
+            workout.date >= startDate
+        }
+        var descriptor = FetchDescriptor<Workout>(
+            predicate: predicate,
+            sortBy: [SortDescriptor(\.date, order: .reverse)]
+        )
+        descriptor.fetchLimit = limit
+        return try modelContext.fetch(descriptor)
+    }
+
     /// Save (insert or update) a workout
     func save(_ workout: Workout) async throws {
         // Validate before saving

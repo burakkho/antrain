@@ -57,17 +57,17 @@ struct ProfileFitnessGoalsEditorSheet: View {
                     }
                 }
             }
-            .navigationTitle("Edit Fitness Goals")
+            .navigationTitle(Text("Edit Fitness Goals"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") {
+                    Button(String(localized: "Cancel")) {
                         dismiss()
                     }
                 }
 
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Save") {
+                    Button(String(localized: "Save")) {
                         Task {
                             await saveFitnessGoals()
                         }

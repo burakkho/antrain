@@ -4,11 +4,13 @@ import SwiftUI
 struct ExerciseDetailsList: View {
     let exercises: [WorkoutExercise]
 
+    @AppStorage("weightUnit") private var weightUnit: String = "Kilograms"
+
     var body: some View {
         ForEach(exercises) { workoutExercise in
             Section {
                 ForEach(Array(workoutExercise.sets.enumerated()), id: \.element.id) { index, set in
-                    SummarySetRow(set: set, index: index)
+                    SummarySetRow(set: set, index: index, weightUnit: weightUnit)
                 }
 
                 // Total Volume
@@ -19,7 +21,7 @@ struct ExerciseDetailsList: View {
 
                     Spacer()
 
-                    Text(String(format: "%.0f kg", workoutExercise.sets.reduce(0.0) { $0 + $1.volume }))
+                    Text(workoutExercise.sets.reduce(0.0) { $0 + $1.volume }.formattedWeight(unit: weightUnit))
                         .font(.callout)
                         .fontWeight(.semibold)
                         .foregroundStyle(.blue)
@@ -36,6 +38,7 @@ struct ExerciseDetailsList: View {
 private struct SummarySetRow: View {
     let set: WorkoutSet
     let index: Int
+    let weightUnit: String
 
     var body: some View {
         HStack {
@@ -53,7 +56,7 @@ private struct SummarySetRow: View {
                 .font(.body)
                 .foregroundStyle(.secondary)
 
-            Text("\(Int(set.weight)) kg")
+            Text(set.weight.formattedWeight(unit: weightUnit))
                 .font(.body)
                 .fontWeight(.medium)
 

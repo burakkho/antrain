@@ -16,13 +16,11 @@ final class ProgramProgressTimelineViewModel {
     private(set) var hasActiveProgram = false
     private(set) var activeProgram: TrainingProgram?
     private(set) var todayWorkout: ProgramDay?
-    private(set) var currentWeekNumber = 0
-    private(set) var totalWeeks = 0
+    private(set) var currentDayNumber = 0
+    private(set) var totalDays = 0
     private(set) var streakDays = 0
     private(set) var adherencePercentage = 0.0
-    private(set) var workoutsCompletedThisWeek = 0
-    private(set) var totalWorkoutsThisWeek = 0
-    private(set) var totalVolumeThisWeek = 0.0
+    private(set) var completedWorkouts = 0
     private(set) var timelineItems: [TimelineItem] = []
     private(set) var isLoading = false
 
@@ -52,7 +50,7 @@ final class ProgramProgressTimelineViewModel {
 
             guard let activeProgram = userProfile.activeProgram,
                   let startDate = userProfile.activeProgramStartDate,
-                  let currentWeek = userProfile.currentWeekNumber else {
+                  let currentDay = userProfile.currentDayNumber else {
                 hasActiveProgram = false
                 self.activeProgram = nil
                 self.todayWorkout = nil
@@ -61,40 +59,27 @@ final class ProgramProgressTimelineViewModel {
 
             hasActiveProgram = true
             self.activeProgram = activeProgram
-            currentWeekNumber = currentWeek
-            totalWeeks = activeProgram.durationWeeks
+            currentDayNumber = currentDay
+            totalDays = activeProgram.totalDays
 
             // Preload all relationships to avoid lazy loading issues
-            // Access weeks, days, and templates to force SwiftData to load them
-            for week in activeProgram.weeks {
-                _ = week.days.compactMap { day in
-                    _ = day.template // Touch template to force load
-                    _ = day.template?.exercises // Touch exercises too
-                    return day
-                }
+            // Access days and templates to force SwiftData to load them
+            for day in activeProgram.days {
+                _ = day.template // Touch template to force load
+                _ = day.template?.exercises // Touch exercises too
             }
 
-            // Get today's workout
-            let calendar = Calendar.current
-            let today = Date()
-            let dayOfWeek = calendar.component(.weekday, from: today)
-
-            self.todayWorkout = activeProgram.weeks
-                .first(where: { $0.weekNumber == currentWeek })?
-                .days
-                .first(where: { $0.dayOfWeek == dayOfWeek })
+            // Get today's workout (current day in program)
+            self.todayWorkout = activeProgram.day(number: currentDay)
 
             // Fetch all workouts
             let allWorkouts = try await workoutRepository.fetchAll()
 
             // Calculate streak and adherence
-            calculateStreakAndAdherence(allWorkouts: allWorkouts, startDate: startDate, activeProgram: activeProgram)
-
-            // Calculate this week's stats
-            calculateWeekStats(allWorkouts: allWorkouts, currentWeek: currentWeek, activeProgram: activeProgram)
+            calculateStreakAndAdherence(allWorkouts: allWorkouts, startDate: startDate, activeProgram: activeProgram, userProfile: userProfile)
 
             // Build timeline (14 days: 7 past + today + 6 future)
-            buildTimeline(allWorkouts: allWorkouts, activeProgram: activeProgram, startDate: startDate, currentWeek: currentWeek)
+            buildTimeline(allWorkouts: allWorkouts, activeProgram: activeProgram, startDate: startDate, currentDay: currentDay)
 
         } catch {
             print("❌ Failed to load timeline data: \(error)")
@@ -104,30 +89,17 @@ final class ProgramProgressTimelineViewModel {
 
     // MARK: - Calculations
 
-    private func calculateStreakAndAdherence(allWorkouts: [Workout], startDate: Date, activeProgram: TrainingProgram) {
+    private func calculateStreakAndAdherence(allWorkouts: [Workout], startDate: Date, activeProgram: TrainingProgram, userProfile: UserProfile) {
         let calendar = Calendar.current
         let today = calendar.startOfDay(for: Date())
 
-        // Calculate total expected workouts since start
-        let daysSinceStart = calendar.dateComponents([.day], from: calendar.startOfDay(for: startDate), to: today).day ?? 0
-        let weeksSinceStart = daysSinceStart / 7
-
-        var expectedWorkouts = 0
-        for weekNum in 1...min(weeksSinceStart + 1, activeProgram.weeks.count) {
-            if let week = activeProgram.weeks.first(where: { $0.weekNumber == weekNum }) {
-                expectedWorkouts += week.days.filter { $0.template != nil }.count
-            }
+        // Count program workouts (workouts that were started from the program)
+        let programWorkouts = allWorkouts.filter { workout in
+            workout.isFromProgram && workout.programId == activeProgram.id
         }
 
-        // Count completed workouts
-        let completedWorkouts = allWorkouts.filter { workout in
-            workout.date >= startDate && workout.date <= Date()
-        }.count
-
-        // Calculate adherence
-        if expectedWorkouts > 0 {
-            adherencePercentage = (Double(completedWorkouts) / Double(expectedWorkouts)) * 100
-        }
+        completedWorkouts = programWorkouts.count
+        adherencePercentage = userProfile.programProgress * 100
 
         // Calculate streak (consecutive days with workouts)
         var currentStreak = 0
@@ -149,66 +121,39 @@ final class ProgramProgressTimelineViewModel {
         streakDays = currentStreak
     }
 
-    private func calculateWeekStats(allWorkouts: [Workout], currentWeek: Int, activeProgram: TrainingProgram) {
-        guard let week = activeProgram.weeks.first(where: { $0.weekNumber == currentWeek }) else {
-            return
-        }
-
-        // Total workouts scheduled this week
-        totalWorkoutsThisWeek = week.days.filter { $0.template != nil }.count
-
-        // Get start of current week
-        let calendar = Calendar.current
-        let today = Date()
-        let weekStart = calendar.date(from: calendar.dateComponents([.yearForWeekOfYear, .weekOfYear], from: today)) ?? today
-        let weekEnd = calendar.date(byAdding: .day, value: 7, to: weekStart) ?? today
-
-        // Count completed workouts this week
-        let thisWeekWorkouts = allWorkouts.filter { workout in
-            workout.date >= weekStart && workout.date < weekEnd
-        }
-
-        workoutsCompletedThisWeek = thisWeekWorkouts.count
-
-        // Calculate total volume this week
-        totalVolumeThisWeek = thisWeekWorkouts.reduce(0.0) { $0 + $1.totalVolume }
-    }
-
-    private func buildTimeline(allWorkouts: [Workout], activeProgram: TrainingProgram, startDate: Date, currentWeek: Int) {
+    private func buildTimeline(allWorkouts: [Workout], activeProgram: TrainingProgram, startDate: Date, currentDay: Int) {
         let calendar = Calendar.current
         let today = calendar.startOfDay(for: Date())
 
         var items: [TimelineItem] = []
 
-        // Show 14 days: 7 past + today + 6 future
-        for dayOffset in -7...6 {
-            guard let date = calendar.date(byAdding: .day, value: dayOffset, to: today) else {
+        // Show program days around current day: currentDay-7 to currentDay+6
+        let startDayNumber = max(1, currentDay - 7)
+        let endDayNumber = min(activeProgram.totalDays, currentDay + 6)
+
+        for dayNumber in startDayNumber...endDayNumber {
+            // Get the program day
+            let programDay = activeProgram.day(number: dayNumber)
+
+            // Calculate expected date for this program day
+            // Day 1 starts at startDate, Day 2 is startDate + 1 day, etc.
+            let daysSinceStart = dayNumber - 1
+            guard let expectedDate = calendar.date(byAdding: .day, value: daysSinceStart, to: calendar.startOfDay(for: startDate)) else {
                 continue
             }
 
-            // Calculate which week and day of week this date corresponds to
-            let daysSinceStart = calendar.dateComponents([.day], from: calendar.startOfDay(for: startDate), to: date).day ?? 0
-            let weekNumber = (daysSinceStart / 7) + 1
-            let dayOfWeek = calendar.component(.weekday, from: date)
-
-            // Get the program day for this date
-            let programDay = activeProgram.weeks
-                .first(where: { $0.weekNumber == weekNumber })?
-                .days
-                .first(where: { $0.dayOfWeek == dayOfWeek })
-
-            // Check if there's a completed workout on this date
+            // Check if there's a completed workout for this program day
             let completedWorkout = allWorkouts.first { workout in
-                calendar.isDate(workout.date, inSameDayAs: date)
+                workout.programDayNumber == dayNumber && workout.programId == activeProgram.id
             }
 
             // Determine status
             let status: TimelineItemStatus
-            if calendar.isDateInToday(date) {
+            if dayNumber == currentDay {
                 status = .today
             } else if completedWorkout != nil {
                 status = .completed
-            } else if date < today {
+            } else if dayNumber < currentDay {
                 status = .upcoming // Missed workout
             } else if programDay?.template == nil {
                 status = .rest
@@ -217,7 +162,7 @@ final class ProgramProgressTimelineViewModel {
             }
 
             let item = TimelineItem(
-                date: date,
+                date: expectedDate,
                 programDay: programDay,
                 completedWorkout: completedWorkout,
                 status: status
@@ -231,19 +176,20 @@ final class ProgramProgressTimelineViewModel {
 
     // MARK: - Actions
 
-    func advanceToNextWeek() async {
+    /// Manual progression to next day (auto progression happens in WorkoutSummaryViewModel)
+    func advanceToNextDay() async {
         guard let activeProgram = activeProgram,
-              currentWeekNumber < activeProgram.durationWeeks else {
+              currentDayNumber < activeProgram.totalDays else {
             return
         }
 
         do {
-            try await userProfileRepository.advanceToNextWeek()
+            try await userProfileRepository.advanceToNextDay()
 
             // Reload data to reflect changes
             await loadData()
         } catch {
-            print("❌ Failed to advance to next week: \(error)")
+            print("❌ Failed to advance to next day: \(error)")
         }
     }
 }

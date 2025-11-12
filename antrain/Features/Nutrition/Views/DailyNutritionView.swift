@@ -19,15 +19,31 @@ struct DailyNutritionView: View {
     var body: some View {
         NavigationStack {
             content
-                .navigationTitle("Nutrition")
+                .navigationTitle(Text("Nutrition"))
                 .navigationBarTitleDisplayMode(.large)
                 .sheet(item: $selectedMealType) { mealType in
-                    if let foodVM = foodSearchViewModel {
-                        FoodSearchView(viewModel: foodVM) { food, amount, unit in
-                            Task {
-                                await viewModel?.addFood(to: mealType, food: food, amount: amount, unit: unit)
-                            }
-                        }
+                    if let foodVM = foodSearchViewModel, let vm = viewModel {
+                        FoodSearchView(
+                            viewModel: foodVM,
+                            onSelect: { food, amount, unit in
+                                Task {
+                                    if vm.isEditingFood, let editingEntry = vm.editingFoodEntry, let editingMealType = vm.editingMealType {
+                                        // Edit mode - update existing entry
+                                        await vm.editFood(
+                                            foodEntryId: editingEntry.id,
+                                            mealType: editingMealType,
+                                            newAmount: amount,
+                                            newUnit: unit
+                                        )
+                                    } else {
+                                        // Add mode - add new entry
+                                        await vm.addFood(to: mealType, food: food, amount: amount, unit: unit)
+                                    }
+                                }
+                            },
+                            isEditMode: vm.isEditingFood,
+                            editingEntry: vm.editingFoodEntry
+                        )
                     } else {
                         DSLoadingView()
                     }
@@ -223,12 +239,35 @@ struct DailyNutritionView: View {
             ForEach([Meal.MealType.breakfast, .lunch, .dinner, .snack], id: \.self) { mealType in
                 MealCard(
                     meal: viewModel.getMeal(for: mealType),
+                    mealType: mealType,
                     onAddFood: {
+                        selectedMealType = mealType
+                    },
+                    onEditFood: { entry in
+                        viewModel.startEditingFood(foodEntry: entry, mealType: mealType)
                         selectedMealType = mealType
                     },
                     onRemoveFood: { entry in
                         Task {
                             await viewModel.removeFood(from: mealType, foodEntryId: entry.id)
+                        }
+                    },
+                    onMoveFoodToMeal: { entryId, fromMeal, toMeal in
+                        Task {
+                            await viewModel.moveFoodToMeal(
+                                foodEntryId: entryId,
+                                fromMealType: fromMeal,
+                                toMealType: toMeal
+                            )
+                        }
+                    },
+                    onReorderFoods: { fromIndex, toIndex in
+                        Task {
+                            await viewModel.reorderFoods(
+                                in: mealType,
+                                fromIndex: fromIndex,
+                                toIndex: toIndex
+                            )
                         }
                     }
                 )

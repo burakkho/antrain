@@ -53,10 +53,12 @@ actor ChatRepository: ChatRepositoryProtocol {
 
     // MARK: - Fetch Messages
 
-    func fetchAllMessages() async throws -> [ChatMessage] {
+    func fetchAllMessages(limit: Int = 50) async throws -> [ChatMessage] {
         let conversation = try await fetchOrCreateConversation()
         // Sort messages within actor context to avoid cross-actor sync access
-        return conversation.messages.sorted { $0.timestamp < $1.timestamp }
+        let sorted = conversation.messages.sorted { $0.timestamp < $1.timestamp }
+        // Return most recent N messages for performance (pagination)
+        return Array(sorted.suffix(limit))
     }
 
     func fetchRecentMessages(limit: Int) async throws -> [ChatMessage] {

@@ -572,14 +572,14 @@ Settings is now accessed via **fullScreenCover** from:
 
 ## Navigation Patterns
 
-### Tab Bar Structure (v1.2)
+### Tab Bar Structure (v1.3)
 
 ```
-┌────────────────────────────────────────┐
-│          [Tab Bar - 4 Tabs]            │
-├────────────────────────────────────────┤
-│  Home  │  Workouts  │  Nutrition  │  Profile  │
-└────────────────────────────────────────┘
+┌─────────────────────────────────────────────────┐
+│          [Tab Bar - 5 Tabs]                     │
+├─────────────────────────────────────────────────┤
+│  Home  │  Workouts  │  Nutrition  │  AI Coach  │  Profile  │
+└─────────────────────────────────────────────────┘
 ```
 
 **1. Home Tab** (Icon: house.fill)
@@ -598,7 +598,15 @@ Settings is now accessed via **fullScreenCover** from:
 - Add food → FoodSearchView (sheet modal)
 - Settings icon → NutritionSettingsView (sheet)
 
-**4. Profile Tab** (Icon: person.fill) - NEW in v1.2
+**4. AI Coach Tab** (Icon: brain / sparkles) - NEW in v1.3
+- Root: AICoachView
+- Chat interface with AI fitness coach
+- Context-aware coaching (workout data, nutrition, programs)
+- Quick action chips for common questions
+- Persistent chat history
+- Toolbar: Clear chat button (trash icon)
+
+**5. Profile Tab** (Icon: person.fill) - NEW in v1.2
 - Root: ProfileView
 - Shows: Personal info (name, height, gender, DOB, activity level)
 - Shows: Bodyweight tracking with history
@@ -1208,7 +1216,366 @@ WorkoutSummaryView
 
 ---
 
-**Son Güncelleme:** 2025-11-03
-**Eklenen:** Template flows (v1.1 feature)
-**Dosya Boyutu:** ~220 satır
+## AI Coach Flow (v1.3)
+
+### Overview
+
+AI Coach tab provides real-time chat with an AI fitness coach powered by Google Gemini 2.5 Flash-Lite. The AI has full context of user's workout history, nutrition data, active training programs, and personal records.
+
+### Layout Structure
+
+```
+┌─────────────────────────────────────────┐
+│ AI Coach                  [🗑️ Clear]   │  ← Toolbar
+├─────────────────────────────────────────┤
+│                                          │
+│ [Scroll Area - Chat Messages]           │
+│                                          │
+│  AI: Hi! How can I help you today?      │  ← AI message (gray, left)
+│                                          │
+│          User: How's my progress?       │  ← User message (blue, right)
+│                                          │
+│  AI: You've made great progress!...     │  ← AI response with typewriter
+│                                          │
+│  [Quick Action Chips]                    │  ← Suggestion chips
+│  • How's my progress?                   │
+│  • Suggest a workout                    │
+│  • Nutrition advice                     │
+│                                          │
+├─────────────────────────────────────────┤
+│ [Text Input Field]            [Send]    │  ← Input bar (bottom)
+└─────────────────────────────────────────┘
+```
+
+### High-Level Flow
+
+```
+[AI Coach Tab]
+    │
+    ├─ Empty State (No messages)
+    │   • Welcome message from AI
+    │   • Quick action chips visible
+    │
+    ├─ User types message
+    │   ▼
+    │  [Message input field active]
+    │   ▼
+    │  User taps "Send"
+    │   ▼
+    │  [User message appears]
+    │   ▼
+    │  [API call in progress]
+    │   • "AI is typing..." indicator
+    │   • User message saved to SwiftData
+    │   ▼
+    │  [AI response received]
+    │   • Typewriter animation shows response
+    │   • AI message saved to SwiftData
+    │   ▼
+    │  [Chat updated, scroll to bottom]
+    │
+    └─ User taps "Clear Chat"
+        ▼
+       [Confirmation alert]
+        ▼
+       All messages cleared from SwiftData
+```
+
+### State Diagram
+
+```
+┌─────────────────────────────────────────────────┐
+│              AI COACH CHAT STATES                │
+└─────────────────────────────────────────────────┘
+
+[Initial Load]
+  │
+  │ Load chat history from SwiftData
+  │
+  ▼
+[Empty State]
+  │
+  │ No messages → Show welcome message
+  │
+  ▼
+[Chat Idle]
+  │
+  │ User types message
+  │
+  ▼
+[Message Input - Has Text]
+  │
+  │ User taps "Send"
+  │
+  ▼
+[Sending Message]
+  │
+  ├─ User message added to UI
+  ├─ User message saved to SwiftData
+  ├─ Build WorkoutContext (async)
+  ├─ Send API request to Gemini
+  │
+  ▼
+[Waiting for Response]
+  │
+  │ Show "AI is typing..." indicator
+  │
+  ├─ Success → [Displaying AI Response]
+  │    │
+  │    ├─ Typewriter animation starts
+  │    ├─ User can tap to skip animation
+  │    ├─ AI message saved to SwiftData
+  │    │
+  │    ▼
+  │   [Chat Idle] (ready for next message)
+  │
+  └─ Error → [Error State]
+       │
+       ├─ Show error banner
+       ├─ User can retry
+       │
+       ▼
+      [Chat Idle]
+```
+
+### Detailed User Actions
+
+**1. Open AI Coach Tab**
+- **Entry:** Tap AI Coach tab in TabBar
+- **Action:** Load chat history from SwiftData
+- **UI:**
+  - If no messages: Show welcome message + quick action chips
+  - If has messages: Show full chat history, scroll to bottom
+- **Loading:** Skeleton view while loading (< 1s typically)
+
+**2. Send Message**
+- **Trigger:** User types message and taps "Send" or presses Return
+- **Validation:**
+  - Message not empty (trimmed)
+  - Message ≤ 1000 characters
+- **Flow:**
+  1. Disable input field
+  2. Add user message to chat (timestamp: "Just now")
+  3. Save user message to SwiftData
+  4. Show "AI is typing..." indicator
+  5. Build WorkoutContext (30-day workouts, PRs, nutrition, program)
+  6. Send API request with:
+     - User message
+     - WorkoutContext
+     - Last 10 messages (chat history)
+     - isNewUser flag
+  7. Wait for API response (typically < 3s)
+  8. Receive AI response
+  9. Start typewriter animation (0.02s per character)
+  10. Save AI message to SwiftData
+  11. Scroll to bottom
+  12. Re-enable input field
+
+**3. Tap Quick Action Chip**
+- **Trigger:** User taps a suggestion chip
+- **Action:** Populate input field with chip text
+- **Behavior:**
+  - Input field gains focus
+  - User can edit before sending
+  - Keyboard appears
+
+**Quick Action Examples:**
+- "How's my progress this month?"
+- "Suggest a workout for today"
+- "What should I eat for muscle gain?"
+- "Analyze my last workout"
+- "Should I take a deload week?"
+
+**4. Skip Typewriter Animation**
+- **Trigger:** User taps anywhere on AI message during animation
+- **Action:** Complete animation instantly, show full message
+- **Rationale:** User control, faster reading for long responses
+
+**5. Clear Chat**
+- **Trigger:** Tap trash icon in toolbar
+- **Confirmation:** Alert "Clear all chat history? This cannot be undone."
+- **If confirmed:**
+  - Delete all ChatMessage records from SwiftData
+  - Delete ChatConversation record
+  - Reset chat to empty state
+  - Show welcome message
+
+**6. View Message Timestamp**
+- **Hover/Long Press:** Show full timestamp
+- **Display:** Relative time ("2h ago", "Yesterday", "Nov 3")
+
+### Edge Cases & Handling
+
+| Scenario | Behavior | Rationale |
+|----------|----------|-----------|
+| API request fails | Show error banner, keep user message, allow retry | Preserve user input |
+| Network offline | Error: "No internet connection" | Clear messaging |
+| Rate limit exceeded | Error: "Too many requests, wait X seconds" | Show retry timer |
+| Message too long (>1000 chars) | Validation error, disable send | Prevent API rejection |
+| App backgrounded during API call | Continue request, show response on return | Background URLSession |
+| Empty user message | Send button disabled | Prevent empty messages |
+| AI response empty | Error: "Invalid response from AI" | Fallback message |
+| WorkoutContext build fails | Send message with empty context | Graceful degradation |
+
+### Error States
+
+**Error Banner Display:**
+```
+┌─────────────────────────────────────────┐
+│ ⚠️ Error: No internet connection       │  ← Red banner
+│                                   [Retry]│
+└─────────────────────────────────────────┘
+```
+
+**Error Types:**
+- **Network Errors:**
+  - "No internet connection"
+  - "Request timed out, try again"
+- **API Errors:**
+  - "API rate limit exceeded, wait X seconds"
+  - "Invalid API key, contact support"
+  - "Server error, try again later"
+- **Validation Errors:**
+  - "Message too long (max 1000 characters)"
+  - "Message cannot be empty"
+
+**Retry Behavior:**
+- Network errors: Retry button re-sends last message
+- Rate limits: Show countdown timer
+- Server errors: Retry with exponential backoff
+
+### Loading States
+
+**1. Chat History Loading:**
+- Skeleton placeholders for messages
+- Duration: < 1s (SwiftData query)
+
+**2. API Request Loading:**
+- "AI is typing..." with animated dots
+- Duration: 2-5s typically
+- User can scroll, read previous messages
+
+**3. Context Building:**
+- Happens in background (async)
+- No loading indicator (seamless)
+- Duration: < 1s
+
+### Empty State
+
+**No Messages:**
+```
+┌─────────────────────────────────────────┐
+│                                          │
+│         🤖                               │
+│                                          │
+│  Hi! I'm your AI fitness coach.         │
+│  Ask me about your workouts,            │
+│  nutrition, or training advice.         │
+│                                          │
+│  [Quick Action Chips]                   │
+│  • How's my progress?                   │
+│  • Suggest a workout                    │
+│  • Nutrition advice                     │
+│                                          │
+└─────────────────────────────────────────┘
+```
+
+### Typewriter Animation
+
+**Behavior:**
+- Characters appear one-by-one
+- Speed: 0.02s per character
+- Smooth, natural reading pace
+- Can be skipped by tapping
+
+**Why Typewriter?**
+- Feels more conversational
+- Gives impression of "thinking"
+- Better UX for long responses
+- Industry standard (ChatGPT, Claude)
+
+### Context Awareness
+
+AI Coach has access to:
+
+**Workout Data (30 days):**
+- Workout count, frequency, duration
+- Volume trends (total kg lifted)
+- Exercise breakdown by muscle group
+- Detailed last 5 workouts (sets, reps, weights)
+
+**Active Training Program:**
+- Program name, difficulty, progress (Week X/Y)
+- Current week workouts (exercises, sets, reps)
+- Next week preview
+- Deload indicators, intensity/volume modifiers
+
+**Personal Records:**
+- All PRs with 1RM calculations
+- Recent PRs (last 30 days)
+- Progress trends
+
+**Nutrition (7 days):**
+- Daily calorie/macro goals
+- Adherence percentage
+- Average intake vs goals
+- Bodyweight trend correlation
+
+**User Profile:**
+- Name, age, gender
+- Height, weight, BMI
+- Activity level
+- Fitness goals (muscle gain, fat loss, etc.)
+
+**Example Context-Aware Response:**
+> "Burak, you've trained 4 times this week—great consistency! Your volume is up 12% from last month. However, I noticed you're in a deload week (Week 8 of PPL program) with 70% volume modifier. Focus on recovery, don't push for PRs this week."
+
+### Accessibility
+
+**VoiceOver Labels:**
+- Messages: "User message: [content], sent [timestamp]"
+- Input field: "Type your message to AI coach"
+- Send button: "Send message to AI coach"
+- Quick chips: "[Chip text], suggestion button"
+
+**Dynamic Type:**
+- All text respects user font size
+- Chat bubbles expand to fit text
+- Minimum touch target: 44x44pt
+
+**Haptic Feedback:**
+- Message sent: Light impact
+- AI response received: Success notification
+- Error: Error notification
+
+### Performance
+
+**Optimizations:**
+- Only last 10 messages sent to API (token limit)
+- Chat history lazy loaded (pagination if >100 messages)
+- SwiftData background context for saves
+- Cancel API request if user leaves tab
+
+**Metrics:**
+- Chat history load: < 1s
+- API response time: 2-5s (average)
+- Typewriter animation: 0.02s/char (skippable)
+
+### Future Enhancements (Post-v1.3)
+
+**Planned Features:**
+- Voice input (speech-to-text)
+- Voice output (text-to-speech)
+- Message search
+- Export chat history
+- Conversation branching
+- Image upload (form check)
+- Workout plan generation
+- Meal photo analysis
+
+---
+
+**Son Güncelleme:** 2025-11-10
+**Eklenen:** Template flows (v1.1 feature), AI Coach flows (v1.3 feature)
+**Dosya Boyutu:** ~350 satır
 **Token Efficiency:** ASCII diagrams, comprehensive UX documentation

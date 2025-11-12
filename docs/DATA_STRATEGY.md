@@ -504,6 +504,359 @@ Same pattern as exercises, filter by name and category
 
 ---
 
-**Son Güncelleme:** 2025-02-11
-**Dosya Boyutu:** ~180 satır
+## AI Coach Data Strategy (v1.3)
+
+### Chat Persistence Strategy
+
+**Storage:** SwiftData (local only)
+
+**Models:**
+- `ChatMessage` (@Model)
+- `ChatConversation` (@Model)
+
+**Why SwiftData?**
+- Local-first (no cloud sync needed)
+- Persistent chat history
+- Efficient queries for recent messages
+- Cascade delete (conversation → messages)
+
+**Design Decisions:**
+- Single conversation per user (singleton pattern)
+- No message pagination (load all on app launch)
+- Messages sorted by timestamp (ascending)
+- No message editing/deletion (append-only for MVP)
+
+**Repository Pattern:**
+```swift
+@ModelActor
+actor ChatRepository: ChatRepositoryProtocol {
+    func fetchOrCreateConversation() async throws -> ChatConversation
+    func saveMessage(content: String, isFromUser: Bool) async throws -> ChatMessage
+    func fetchAllMessages() async throws -> [ChatMessage]
+    func fetchRecentMessages(limit: Int) async throws -> [ChatMessage]
+    func clearHistory() async throws
+}
+```
+
+**Query Optimization:**
+- Fetch all messages once on app launch
+- Cache in ViewModel (no repeated queries)
+- Only save new messages incrementally
+
+**Data Migration:**
+- MVP: No migration needed (new feature)
+- Future: Add message search, conversation branching
+
+---
+
+### API Key Management
+
+**Storage Strategy:** Base64 Obfuscation
+
+**Why Not Keychain (MVP)?**
+- Simpler implementation
+- No entitlements needed
+- API key rotation easy (app update)
+- Good enough for free tier API
+
+**Implementation:**
+```swift
+// GeminiConfig.swift
+private static let encodedKey = "QUl6YVN5Q0c5eGFnOU9qQTRWODJBdWE5b29waFFVS2l4TFJYdTlF"
+
+static var apiKey: String {
+    guard let data = Data(base64Encoded: encodedKey),
+          let decodedString = String(data: data, encoding: .utf8) else {
+        fatalError("Failed to decode API key")
+    }
+
+    // Validate API key format (Google API keys start with "AIza")
+    guard decodedString.hasPrefix("AIza") else {
+        fatalError("Invalid API key format")
+    }
+
+    return decodedString
+}
+```
+
+**Security Considerations:**
+- Base64 is **not encryption** (easily reversible)
+- Acceptable for MVP / free tier
+- API key has rate limits (mitigates abuse)
+- Future: Move to Keychain for production
+
+**Key Rotation:**
+1. Generate new API key in Google Cloud Console
+2. Base64 encode new key
+3. Replace `encodedKey` constant
+4. Deploy app update
+
+---
+
+### Workout Context Building Strategy
+
+**Service:** `WorkoutContextBuilder`
+
+**Amaç:** Aggregate user data for AI prompt
+
+**Data Sources:**
+1. **Workouts:** Last 30 days (summary) + Last 5 (detailed)
+2. **Personal Records:** All PRs
+3. **Active Program:** Current + next week
+4. **Nutrition:** 7-day summary + last 3 days detail
+5. **User Profile:** Name, stats, goals
+
+**Context Building Flow:**
+```swift
+@MainActor
+final class WorkoutContextBuilder {
+    private let workoutRepository: WorkoutRepositoryProtocol
+    private let prRepository: PersonalRecordRepositoryProtocol
+    private let programRepository: TrainingProgramRepositoryProtocol
+    private let nutritionRepository: NutritionRepositoryProtocol
+    private let userProfileRepository: UserProfileRepositoryProtocol
+
+    func buildContext() async throws -> WorkoutContext {
+        // 1. Fetch workouts (parallel)
+        async let recentWorkouts = fetchRecentWorkouts()
+        async let detailedWorkouts = fetchDetailedWorkouts()
+
+        // 2. Fetch PRs
+        async let prs = fetchPersonalRecords()
+
+        // 3. Fetch active program
+        async let program = fetchActiveProgram()
+
+        // 4. Fetch nutrition
+        async let nutrition = fetchNutritionSummary()
+
+        // 5. Fetch user profile
+        async let profile = fetchUserProfile()
+
+        // 6. Await all and aggregate
+        let (w, dw, p, pg, n, u) = try await (
+            recentWorkouts, detailedWorkouts, prs, program, nutrition, profile
+        )
+
+        return WorkoutContext(
+            recentWorkouts: w,
+            recentDetailedWorkouts: dw,
+            personalRecords: p,
+            activeProgramName: pg?.name,
+            // ... other fields
+        )
+    }
+}
+```
+
+**Performance Optimizations:**
+- Parallel async fetches (reduce latency)
+- Query only last 30 days (minimize data)
+- Cache user profile (rarely changes)
+- Lazy fetch program details (only if active)
+
+**Error Handling:**
+- Graceful degradation (empty context if fetch fails)
+- Continue with partial data (missing PRs → no PRs section)
+- Log errors but don't fail entire context build
+
+---
+
+### API Request Strategy
+
+**Service:** `GeminiAPIService`
+
+**Request Structure:**
+```json
+{
+  "systemInstruction": {
+    "parts": [{"text": "You are an expert fitness coach..."}]
+  },
+  "contents": [
+    {"role": "user", "parts": [{"text": "Previous message"}]},
+    {"role": "model", "parts": [{"text": "Previous AI response"}]},
+    {"role": "user", "parts": [{"text": "Current user message"}]}
+  ],
+  "generationConfig": {
+    "temperature": 0.7,
+    "topK": 40,
+    "topP": 0.95,
+    "maxOutputTokens": 2048
+  }
+}
+```
+
+**Chat History Management:**
+- Only last 10 messages sent (token efficiency)
+- Full history stored locally (SwiftData)
+- API request includes:
+  - System instruction (with WorkoutContext)
+  - Last 10 messages
+  - Current user message
+
+**Token Budget:**
+- System instruction: ~2000-4000 tokens (context-dependent)
+- Chat history (10 messages): ~500-1000 tokens
+- User message: ~50-200 tokens
+- Total input: ~3000-5000 tokens (well under 1M limit)
+- Output: max 2048 tokens
+
+**Rate Limiting:**
+- Gemini 2.5 Flash-Lite: 1500 requests/day (free tier)
+- Strategy: No client-side rate limiting (rely on API)
+- Error handling: Show retry-after timer on 429 response
+
+---
+
+### Error Handling Strategy
+
+**Error Types:**
+```swift
+enum GeminiAPIError: LocalizedError {
+    case messageEmpty
+    case messageTooLong(limit: Int)
+    case invalidAPIKey
+    case rateLimitExceeded(retryAfter: Int)
+    case serverError(statusCode: Int)
+    case timeout
+    case noInternetConnection
+    case invalidResponse
+    case unknown(Error)
+}
+```
+
+**Error Recovery:**
+| Error | Recovery Strategy | User Action |
+|-------|------------------|-------------|
+| Network error | Preserve user message, allow retry | "Retry" button |
+| Rate limit | Show countdown timer | Wait X seconds |
+| Timeout | Retry with backoff | "Retry" button |
+| Invalid response | Log error, show generic message | "Retry" button |
+| Message too long | Validation error, disable send | Edit message |
+
+**Retry Logic:**
+- Network errors: Immediate retry allowed
+- Rate limits: Retry after server-specified time
+- Timeouts: Exponential backoff (3s, 6s, 12s)
+- Max retries: 3 attempts
+
+**User Feedback:**
+- Error banner (red, dismissible)
+- Clear error message (user-friendly)
+- Retry button (where applicable)
+- Loading state during retry
+
+---
+
+### Language Detection Strategy
+
+**Implementation:** NaturalLanguage framework
+
+```swift
+private func detectLanguage(from text: String) -> String {
+    let recognizer = NLLanguageRecognizer()
+    recognizer.processString(text)
+
+    guard let languageCode = recognizer.dominantLanguage?.rawValue else {
+        return "English" // Default fallback
+    }
+
+    switch languageCode {
+    case "tr": return "Turkish"
+    case "en": return "English"
+    case "es": return "Spanish"
+    default: return "English"
+    }
+}
+```
+
+**Why Auto-Detect?**
+- User convenience (no language selector needed)
+- AI responds in same language
+- Seamless bilingual support (TR/EN)
+
+**Supported Languages:**
+- Turkish (primary)
+- English (secondary)
+- Spanish (future)
+
+**Fallback:**
+- Unknown language → Default to English
+- AI prompt includes detected language
+
+---
+
+### Data Privacy Considerations
+
+**Local Data:**
+- Chat messages stored locally (SwiftData)
+- No cloud sync
+- No analytics on chat content
+- User can clear history anytime
+
+**Sent to Gemini API:**
+- User messages
+- Workout data (30 days)
+- Nutrition data (7 days)
+- Personal records
+- User profile data
+- Active training program
+
+**Not Sent:**
+- Exercise library (preset exercises)
+- Food library (preset foods)
+- Historical data (>30 days)
+- Deleted workouts
+
+**User Control:**
+- Clear chat history (toolbar button)
+- No automatic cloud backup
+- Data deletion via Settings
+
+**Terms of Service:**
+- User data processed by Google Gemini API
+- Subject to Google's Privacy Policy
+- No training on user data (Gemini API policy)
+
+---
+
+### Future Data Strategy (Post-v1.3)
+
+**Planned Improvements:**
+
+**1. Keychain Migration:**
+- Move API key from Base64 to Keychain
+- Secure enclave on supported devices
+- FaceID/TouchID protection
+
+**2. Offline Queueing:**
+- Queue messages when offline
+- Auto-send when connection restored
+- Persist queue in SwiftData
+
+**3. Context Caching:**
+- Cache WorkoutContext for 1 hour
+- Invalidate on new workout/PR
+- Reduce query overhead
+
+**4. Message Pagination:**
+- Lazy load old messages (>100)
+- Infinite scroll in chat
+- Performance for long conversations
+
+**5. Conversation Branching:**
+- Multiple conversations
+- Conversation titles
+- Search across conversations
+
+**6. Export/Import:**
+- Export chat history (JSON/CSV)
+- Import from backup
+- Share conversation
+
+---
+
+**Son Güncelleme:** 2025-11-10
+**Dosya Boyutu:** ~240 satır
 **Token Efficiency:** Code examples, clear structure
+**v1.3 AI Coach Data Strategy Added**

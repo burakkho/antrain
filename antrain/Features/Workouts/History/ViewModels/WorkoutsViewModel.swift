@@ -46,7 +46,7 @@ final class WorkoutsViewModel {
                 workouts: workouts,
                 activeProgram: userProfile.activeProgram,
                 programStartDate: userProfile.activeProgramStartDate,
-                currentWeekNumber: userProfile.currentWeekNumber
+                currentDayNumber: userProfile.currentDayNumber
             )
         } catch {
             errorMessage = String(localized: "Failed to load workouts. Please try again.")
@@ -60,7 +60,7 @@ final class WorkoutsViewModel {
         workouts: [Workout],
         activeProgram: TrainingProgram?,
         programStartDate: Date?,
-        currentWeekNumber: Int?
+        currentDayNumber: Int?
     ) async {
         let calendar = Calendar.current
         var items: [CalendarItem] = []
@@ -76,16 +76,13 @@ final class WorkoutsViewModel {
         // Add program schedule (if active program exists)
         if let program = activeProgram,
            let startDate = programStartDate,
-           let _ = currentWeekNumber {
+           let _ = currentDayNumber {
 
             // Preload all relationships to avoid lazy loading issues
-            // Access weeks, days, and templates to force SwiftData to load them
-            for week in program.weeks {
-                _ = week.days.compactMap { day in
-                    _ = day.template // Touch template to force load
-                    _ = day.template?.exercises // Touch exercises too
-                    return day
-                }
+            // Access days and templates to force SwiftData to load them
+            for day in program.days {
+                _ = day.template // Touch template to force load
+                _ = day.template?.exercises // Touch exercises too
             }
 
             // Calculate dates for next 30 days
@@ -105,14 +102,13 @@ final class WorkoutsViewModel {
                     continue
                 }
 
-                // Calculate which week and day this date corresponds to
+                // Calculate which program day this date corresponds to
                 let daysSinceStart = calendar.dateComponents([.day], from: calendar.startOfDay(for: startDate), to: date).day ?? 0
-                let weekNumber = (daysSinceStart / 7) + 1
-                let dayOfWeek = calendar.component(.weekday, from: date)
+                let programDayNumber = daysSinceStart + 1 // Day 1 is the start date
 
                 // Get program day
-                guard let week = program.weeks.first(where: { $0.weekNumber == weekNumber }),
-                      let programDay = week.days.first(where: { $0.dayOfWeek == dayOfWeek }) else {
+                guard programDayNumber <= program.totalDays,
+                      let programDay = program.day(number: programDayNumber) else {
                     continue
                 }
 
@@ -120,7 +116,7 @@ final class WorkoutsViewModel {
                 if programDay.template != nil {
                     items.append(CalendarItem(
                         date: date,
-                        type: .planned(programDay, weekModifier: week.intensityModifier)
+                        type: .planned(programDay, weekModifier: 1.0) // No week-based modifiers in day-based system
                     ))
                 } else {
                     items.append(CalendarItem(

@@ -66,7 +66,7 @@
 			);
 			target = 412234F02EBDEAB5008E9C41 /* AntrainWidgetExtension */;
 		};
-		412E59032EBCDBFC00DBB67E /* Exceptions for "antrain" folder in "antrain" target */ = {
+		417487E12EC3E04300A342FD /* Exceptions for "antrain" folder in "antrain" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
@@ -79,7 +79,7 @@
 		411E81F62EB754DB00693155 /* antrain */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				412E59032EBCDBFC00DBB67E /* Exceptions for "antrain" folder in "antrain" target */,
+				417487E12EC3E04300A342FD /* Exceptions for "antrain" folder in "antrain" target */,
 				412238E02EBE695D008E9C41 /* Exceptions for "antrain" folder in "AntrainWidgetExtension" target */,
 			);
 			path = antrain;

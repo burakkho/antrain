@@ -23,9 +23,10 @@ struct WorkoutDetailView: View {
                     metconSection
                 }
 
-                // Notes
+                // Notes / Workout Description
                 if let notes = workout.notes, !notes.isEmpty {
-                    notesSection(notes: notes)
+                    let title = workout.type == .metcon ? "Workout Description" : "Notes"
+                    notesSection(notes: notes, title: title)
                 }
             }
             .padding(DSSpacing.md)
@@ -242,9 +243,9 @@ struct WorkoutDetailView: View {
 
     // MARK: - Notes Section
 
-    private func notesSection(notes: String) -> some View {
+    private func notesSection(notes: String, title: String = "Notes") -> some View {
         VStack(alignment: .leading, spacing: DSSpacing.sm) {
-            Text("Notes")
+            Text(title)
                 .font(DSTypography.title3)
 
             DSCard {

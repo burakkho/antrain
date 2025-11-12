@@ -18,6 +18,11 @@ protocol NutritionRepositoryProtocol: Actor {
     /// Fetch all nutrition logs
     func fetchAllLogs() async throws -> [NutritionLog]
 
+    /// Fetch nutrition logs since a specific date (database-level filtering)
+    /// - Parameter startDate: Start date (inclusive)
+    /// - Returns: Nutrition logs since startDate, sorted by date (most recent first)
+    func fetchLogs(since startDate: Date) async throws -> [NutritionLog]
+
     /// Save nutrition log
     func saveLog(_ log: NutritionLog) async throws
 
@@ -34,6 +39,18 @@ protocol NutritionRepositoryProtocol: Actor {
 
     /// Remove food from a meal
     func removeFood(from log: NutritionLog, mealType: Meal.MealType, foodEntryId: UUID) async throws
+
+    /// Edit food entry (amount and unit)
+    func editFoodEntry(in log: NutritionLog, mealType: Meal.MealType, foodEntryId: UUID, newAmount: Double, newUnit: ServingUnit) async throws
+
+    /// Edit food entry by IDs (avoids Sendable warnings)
+    func editFoodEntryById(logId: UUID, mealType: Meal.MealType, foodEntryId: UUID, newAmount: Double, unitId: UUID) async throws
+
+    /// Move food entry to a different meal
+    func moveFoodEntryToMeal(in log: NutritionLog, foodEntryId: UUID, fromMealType: Meal.MealType, toMealType: Meal.MealType) async throws
+
+    /// Reorder food entries within a meal
+    func reorderFoodEntries(in log: NutritionLog, mealType: Meal.MealType, fromIndex: Int, toIndex: Int) async throws
 
     // MARK: - Food Items
 

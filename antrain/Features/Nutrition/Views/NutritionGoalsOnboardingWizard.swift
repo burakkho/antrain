@@ -57,11 +57,11 @@ struct NutritionGoalsOnboardingWizard: View {
                 // Navigation buttons
                 navigationButtons(viewModel: viewModel)
             }
-            .navigationTitle("Personalize Your Goals")
+            .navigationTitle(Text("Personalize Your Goals"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Skip") {
+                    Button(String(localized: "Skip")) {
                         dismiss()
                     }
                 }

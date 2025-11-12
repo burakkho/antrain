@@ -6,12 +6,17 @@
 //
 
 import SwiftUI
+import UniformTypeIdentifiers
 
 /// Card displaying a meal with food entries
 struct MealCard: View {
     let meal: Meal
+    let mealType: Meal.MealType
     let onAddFood: () -> Void
+    let onEditFood: (FoodEntry) -> Void
     let onRemoveFood: (FoodEntry) -> Void
+    let onMoveFoodToMeal: (UUID, Meal.MealType, Meal.MealType) -> Void
+    let onReorderFoods: (Int, Int) -> Void
 
     var totalCalories: Double {
         meal.foodEntries.reduce(0) { $0 + $1.calories }
@@ -61,46 +66,78 @@ struct MealCard: View {
                         .font(DSTypography.body)
                         .foregroundStyle(DSColors.textSecondary)
                         .padding(.vertical, DSSpacing.xs)
+                        .dropDestination(for: FoodEntryTransfer.self) { items, _ in
+                            handleDrop(items: items)
+                            return true
+                        }
                 } else {
                     VStack(spacing: DSSpacing.xs) {
-                        ForEach(meal.foodEntries, id: \.id) { entry in
-                            FoodEntryRow(
+                        ForEach(Array(meal.foodEntries.enumerated()), id: \.element.id) { index, entry in
+                            SwipeableFoodEntryRow(
                                 entry: entry,
-                                onRemove: { onRemoveFood(entry) }
+                                onEdit: { onEditFood(entry) },
+                                onDelete: { onRemoveFood(entry) }
                             )
+                            .draggable(FoodEntryTransfer(
+                                entryId: entry.id,
+                                sourceMealType: mealType
+                            )) {
+                                // Drag preview
+                                HStack {
+                                    Text(entry.foodItem?.name ?? "Food")
+                                        .font(DSTypography.body)
+                                        .padding(.horizontal, DSSpacing.sm)
+                                        .padding(.vertical, DSSpacing.xs)
+                                        .background(DSColors.cardBackground)
+                                        .clipShape(RoundedRectangle(cornerRadius: DSCornerRadius.sm))
+                                }
+                            }
+                            .dropDestination(for: FoodEntryTransfer.self) { items, _ in
+                                handleDrop(items: items, targetIndex: index)
+                                return true
+                            }
                         }
+                        .onMove { from, to in
+                            onReorderFoods(from.first ?? 0, to)
+                        }
+                    }
+                    .dropDestination(for: FoodEntryTransfer.self) { items, _ in
+                        handleDrop(items: items)
+                        return true
                     }
                 }
             }
         }
     }
+
+    // MARK: - Drag & Drop Handling
+
+    private func handleDrop(items: [FoodEntryTransfer], targetIndex: Int? = nil) {
+        guard let item = items.first else { return }
+
+        // Check if this is a cross-meal move or reorder within same meal
+        if item.sourceMealType == mealType {
+            // Reorder within same meal
+            if let targetIndex = targetIndex,
+               let sourceIndex = meal.foodEntries.firstIndex(where: { $0.id == item.entryId }) {
+                onReorderFoods(sourceIndex, targetIndex)
+            }
+        } else {
+            // Move to different meal
+            onMoveFoodToMeal(item.entryId, item.sourceMealType, mealType)
+        }
+    }
 }
 
-// MARK: - Food Entry Row
-private struct FoodEntryRow: View {
-    let entry: FoodEntry
-    let onRemove: () -> Void
+// MARK: - Transferable Data
 
-    var body: some View {
-        HStack(spacing: DSSpacing.sm) {
-            VStack(alignment: .leading, spacing: 2) {
-                Text(entry.foodItem?.name ?? String(localized: "Unknown"))
-                    .font(DSTypography.body)
-                    .foregroundStyle(DSColors.textPrimary)
+/// Transferable data for drag-and-drop operations
+struct FoodEntryTransfer: Codable, Transferable {
+    let entryId: UUID
+    let sourceMealType: Meal.MealType
 
-                Text("\(entry.displayAmount) • \(Int(entry.calories)) \(String(localized: "kcal"))")
-                    .font(DSTypography.caption)
-                    .foregroundStyle(DSColors.textSecondary)
-            }
-
-            Spacer()
-
-            Button(action: onRemove) {
-                Image(systemName: "minus.circle.fill")
-                    .foregroundStyle(.red)
-            }
-        }
-        .padding(.vertical, DSSpacing.xxs)
+    static var transferRepresentation: some TransferRepresentation {
+        CodableRepresentation(contentType: UTType(exportedAs: "com.antrain.foodentry"))
     }
 }
 
@@ -109,8 +146,12 @@ private struct FoodEntryRow: View {
     VStack {
         MealCard(
             meal: meal,
+            mealType: .breakfast,
             onAddFood: {},
-            onRemoveFood: { _ in }
+            onEditFood: { _ in },
+            onRemoveFood: { _ in },
+            onMoveFoodToMeal: { _, _, _ in },
+            onReorderFoods: { _, _ in }
         )
     }
     .padding()

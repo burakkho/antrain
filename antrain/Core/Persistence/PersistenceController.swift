@@ -49,7 +49,6 @@ final class PersistenceController {
                 WorkoutTemplate.self,
                 TemplateExercise.self,
                 TrainingProgram.self,
-                ProgramWeek.self,
                 ProgramDay.self,
                 ChatMessage.self,
                 ChatConversation.self
@@ -290,7 +289,7 @@ final class PersistenceController {
         }
 
         // Get preset program DTOs
-        let programDTOs = ProgramLibrary.allPrograms
+        let programDTOs = ProgramLibrary().getAllPresetPrograms()
 
         // Convert DTOs to models and insert
         for programDTO in programDTOs {
@@ -298,16 +297,8 @@ final class PersistenceController {
             let program = programDTO.toModel(templateFinder: findTemplate)
 
             // Verify program has days with templates
-            var totalDays = 0
-            var daysWithTemplates = 0
-            for week in program.weeks {
-                for day in week.days {
-                    totalDays += 1
-                    if day.template != nil {
-                        daysWithTemplates += 1
-                    }
-                }
-            }
+            let totalDays = program.days.count
+            let daysWithTemplates = program.days.filter { $0.template != nil }.count
 
             context.insert(program)
             print("  ✓ Added: \(program.name) - \(daysWithTemplates)/\(totalDays) days have templates")
@@ -347,7 +338,6 @@ final class PersistenceController {
         try context.delete(model: WorkoutTemplate.self)
         try context.delete(model: TemplateExercise.self)
         try context.delete(model: TrainingProgram.self)
-        try context.delete(model: ProgramWeek.self)
         try context.delete(model: ProgramDay.self)
         try context.delete(model: ChatMessage.self)
         try context.delete(model: ChatConversation.self)
@@ -452,7 +442,6 @@ extension PersistenceController {
                 WorkoutTemplate.self,
                 TemplateExercise.self,
                 TrainingProgram.self,
-                ProgramWeek.self,
                 ProgramDay.self,
                 ChatMessage.self,
                 ChatConversation.self

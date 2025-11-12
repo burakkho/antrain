@@ -58,11 +58,11 @@ struct TemplateExerciseSelectionView: View {
                 allExercises: allExercises
             )
         }
-        .alert("Error Loading Exercises", isPresented: .constant(errorMessage != nil)) {
-            Button("OK") {
+        .alert(Text("Error Loading Exercises"), isPresented: .constant(errorMessage != nil)) {
+            Button(String(localized: "OK")) {
                 errorMessage = nil
             }
-            Button("Retry") {
+            Button(String(localized: "Retry")) {
                 Task {
                     await loadExercises()
                 }
@@ -255,16 +255,16 @@ private struct ExerciseMultiPickerSheet: View {
                     .listStyle(.plain)
                 }
             }
-            .navigationTitle("Add Exercises")
+            .navigationTitle(Text("Add Exercises"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") {
+                    Button(String(localized: "Cancel")) {
                         dismiss()
                     }
                 }
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Done") {
+                    Button(String(localized: "Done")) {
                         dismiss()
                     }
                     .fontWeight(.semibold)

@@ -26,108 +26,150 @@ struct MetConLogView: View {
     private func formContent(viewModel: MetConLogViewModel) -> some View {
         @Bindable var viewModel = viewModel
         Form {
-                    // MetCon Type
-                    Section("MetCon Type") {
-                        Picker("Type", selection: $viewModel.metconType) {
-                            ForEach(MetConType.allCases, id: \.self) { type in
-                                Text(type.rawValue).tag(type)
-                            }
-                        }
-                        .pickerStyle(.menu)
+            // MetCon Type
+            Section {
+                Picker("Type", selection: $viewModel.metconType) {
+                    ForEach(MetConType.allCases, id: \.self) { type in
+                        Text(type.rawValue).tag(type)
+                    }
+                }
+                .pickerStyle(.menu)
 
-                        Text(viewModel.metconType.description)
-                            .font(DSTypography.caption)
+                Text(viewModel.metconType.description)
+                    .font(DSTypography.caption)
+                    .foregroundStyle(DSColors.textSecondary)
+            } header: {
+                Text("MetCon Type")
+            }
+
+            // Duration
+            Section {
+                DSTimeField(title: "", duration: $viewModel.duration)
+            } header: {
+                Text("Duration")
+            }
+
+            // Rounds (for AMRAP/EMOM)
+            if viewModel.metconType == .amrap || viewModel.metconType == .emom {
+                Section {
+                    HStack {
+                        TextField("Rounds", value: $viewModel.rounds, format: .number)
+                            .keyboardType(.numberPad)
+                        Text("rounds")
                             .foregroundStyle(DSColors.textSecondary)
                     }
+                } header: {
+                    Text("Rounds Completed")
+                }
+            }
 
-                    // Duration
-                    Section("Duration") {
-                        HStack {
-                            TextField("Minutes", value: $viewModel.durationMinutes, format: .number.precision(.fractionLength(0)))
-                                .keyboardType(.numberPad)
-                                .onChange(of: viewModel.durationMinutes) { _, _ in
-                                    viewModel.updateDuration()
-                                }
-                            Text("min")
-                                .foregroundStyle(DSColors.textSecondary)
-                        }
+            // Workout Description
+            Section {
+                TextField(
+                    "21-15-9\nthruster\npull up",
+                    text: $viewModel.workoutDescription,
+                    axis: .vertical
+                )
+                .lineLimit(5...10)
+                .font(DSTypography.body)
+            } header: {
+                Text("Workout Description")
+            } footer: {
+                Text("Describe the exercises and rep scheme")
+                    .font(DSTypography.caption)
+                    .foregroundStyle(DSColors.textSecondary)
+            }
 
-                        HStack {
-                            TextField("Seconds", value: $viewModel.durationSeconds, format: .number.precision(.fractionLength(0)))
-                                .keyboardType(.numberPad)
-                                .onChange(of: viewModel.durationSeconds) { _, _ in
-                                    viewModel.updateDuration()
-                                }
-                            Text("sec")
-                                .foregroundStyle(DSColors.textSecondary)
-                        }
-                    }
+            // Score
+            Section {
+                TextField(
+                    scorePlaceholder(for: viewModel.metconType),
+                    text: $viewModel.score,
+                    axis: .vertical
+                )
+                .lineLimit(2...4)
+                .font(DSTypography.body)
+            } header: {
+                Text("Score")
+            } footer: {
+                Text(scoreFooter(for: viewModel.metconType))
+                    .font(DSTypography.caption)
+                    .foregroundStyle(DSColors.textSecondary)
+            }
 
-                    // Rounds (for AMRAP/EMOM)
-                    if viewModel.metconType == .amrap || viewModel.metconType == .emom {
-                        Section("Rounds Completed") {
-                            HStack {
-                                TextField("Rounds", value: $viewModel.rounds, format: .number)
-                                    .keyboardType(.numberPad)
-                                Text("rounds")
-                                    .foregroundStyle(DSColors.textSecondary)
+            // Save Button
+            Section {
+                DSPrimaryButton(
+                    title: "Save Workout",
+                    action: {
+                        Task {
+                            do {
+                                try await viewModel.saveWorkout()
+                                dismiss()
+                            } catch {
+                                // Error handled by viewModel
                             }
                         }
-                    }
+                    },
+                    isLoading: viewModel.isLoading,
+                    isDisabled: !viewModel.canSave
+                )
+            }
 
-                    // Result / Notes
-                    Section("Result / WOD Description") {
-                        TextField(
-                            viewModel.metconType == .forTime
-                                ? "Time to complete (e.g., 12:34)"
-                                : "Describe the workout and your performance",
-                            text: $viewModel.result,
-                            axis: .vertical
-                        )
-                        .lineLimit(5...10)
-                    }
-
-                    // Additional Notes
-                    Section("Additional Notes (Optional)") {
-                        TextField("How did it feel?", text: $viewModel.notes, axis: .vertical)
-                            .lineLimit(3...6)
-                    }
-
-                    // Save Button
-                    Section {
-                        DSPrimaryButton(
-                            title: "Save Workout",
-                            action: {
-                                Task {
-                                    do {
-                                        try await viewModel.saveWorkout()
-                                        dismiss()
-                                    } catch {
-                                        // Error handled by viewModel
-                                    }
-                                }
-                            },
-                            isLoading: viewModel.isLoading,
-                            isDisabled: !viewModel.canSave
-                        )
-                    }
-
-                    if let errorMessage = viewModel.errorMessage {
-                        Section {
-                            Text(errorMessage)
-                                .font(DSTypography.caption)
-                                .foregroundStyle(DSColors.error)
-                        }
-                    }
+            // Error Message
+            if let errorMessage = viewModel.errorMessage {
+                Section {
+                    Text(errorMessage)
+                        .font(DSTypography.caption)
+                        .foregroundStyle(DSColors.error)
+                }
+            }
         }
-        .navigationTitle("Log MetCon")
+        .scrollDismissesKeyboard(.interactively)
+        .navigationTitle(Text("Log MetCon"))
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .cancellationAction) {
-                Button("Cancel") {
+                Button(String(localized: "Cancel")) {
                     dismiss()
                 }
             }
+        }
+    }
+
+    // MARK: - Helper Methods
+
+    private func scorePlaceholder(for type: MetConType) -> String {
+        switch type {
+        case .forTime:
+            return "12:34"
+        case .amrap:
+            return "8 rounds + 5 reps"
+        case .emom:
+            return "Completed all rounds"
+        case .tabata:
+            return "8 rounds completed"
+        case .chipper:
+            return "15:23"
+        case .other:
+            return "Your result"
+        }
+    }
+
+    private func scoreFooter(for type: MetConType) -> String {
+        switch type {
+        case .forTime:
+            return "Enter your completion time"
+        case .amrap:
+            return "Total rounds and reps completed"
+        case .emom:
+            return "Describe your performance"
+        case .tabata:
+            return "Rounds completed or performance notes"
+        case .chipper:
+            return "Your completion time"
+        case .other:
+            return "Enter your result or performance"
         }
     }
 }

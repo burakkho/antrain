@@ -21,7 +21,7 @@ struct WorkoutProgramsView: View {
                     ProgressView()
                 }
             }
-            .navigationTitle("Programs")
+            .navigationTitle(Text("Programs"))
             .navigationBarTitleDisplayMode(.large)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
@@ -54,7 +54,13 @@ struct WorkoutProgramsView: View {
                 }
             }
             .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("SwitchToProgramsTab"))) { _ in
-                // Reload data when program is activated
+                // Program etkinleştirildiğinde verileri yeniden yükle
+                Task {
+                    await viewModel?.loadData()
+                }
+            }
+            .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("WorkoutSaved"))) { _ in
+                // Bir antrenman kaydedildiğinde (örn. LiftingSession'dan) verileri yeniden yükle
                 Task {
                     await viewModel?.loadData()
                 }
@@ -78,12 +84,12 @@ struct WorkoutProgramsView: View {
     @ViewBuilder
     private func activeProgramContent(viewModel: ProgramProgressTimelineViewModel) -> some View {
         ScrollView {
-            VStack(spacing: DSSpacing.lg) {
+            VStack(spacing: DSSpacing.md) {
                 // Active Program Card
                 if let activeProgram = viewModel.activeProgram {
                     ActiveProgramCard(
                         program: activeProgram,
-                        currentWeekNumber: viewModel.currentWeekNumber,
+                        currentDayNumber: viewModel.currentDayNumber,
                         todayWorkout: viewModel.todayWorkout,
                         onStartWorkout: {
                             if let todayWorkout = viewModel.todayWorkout,
@@ -91,9 +97,9 @@ struct WorkoutProgramsView: View {
                                 workoutManager.startWorkoutFromProgram(template, programDay: todayWorkout)
                             }
                         },
-                        onNextWeek: {
+                        onNextDay: {
                             Task {
-                                await viewModel.advanceToNextWeek()
+                                await viewModel.advanceToNextDay()
                             }
                         }
                     )
@@ -103,24 +109,13 @@ struct WorkoutProgramsView: View {
                 // Quick Actions for Programs
                 programActionsSection
 
-                // Workout Streak Card
-                if viewModel.streakDays > 0 {
-                    WorkoutStreakCard(
-                        streakDays: viewModel.streakDays,
-                        adherencePercentage: viewModel.adherencePercentage
-                    )
-                    .padding(.horizontal, DSSpacing.md)
-                }
-
-                // Week Overview Card
-                WeekOverviewCard(
-                    currentWeek: viewModel.currentWeekNumber,
-                    totalWeeks: viewModel.totalWeeks,
-                    workoutsThisWeek: viewModel.workoutsCompletedThisWeek,
-                    totalWorkoutsThisWeek: viewModel.totalWorkoutsThisWeek,
-                    totalVolumeThisWeek: viewModel.totalVolumeThisWeek
+                ProgramProgressSummaryView(
+                    streakDays: viewModel.streakDays,
+                    adherencePercentage: viewModel.adherencePercentage,
+                    currentDay: viewModel.currentDayNumber,
+                    totalDays: viewModel.totalDays,
+                    completedWorkouts: viewModel.completedWorkouts
                 )
-                .padding(.horizontal, DSSpacing.md)
 
                 // Timeline Section
                 VStack(alignment: .leading, spacing: DSSpacing.md) {
@@ -151,20 +146,19 @@ struct WorkoutProgramsView: View {
                 .fontWeight(.semibold)
                 .padding(.horizontal, DSSpacing.md)
 
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: DSSpacing.sm) {
+            HStack(spacing: DSSpacing.sm) {
                     ProgramActionCard(
                         icon: "book.fill",
-                        title: "Browse",
-                        subtitle: "All Programs"
+                        title: String(localized: "Browse"),
+                        subtitle: String(localized: "All Programs")
                     ) {
                         showProgramsList = true
                     }
 
                     ProgramActionCard(
                         icon: "calendar",
-                        title: "Calendar",
-                        subtitle: "View Schedule"
+                        title: String(localized: "Calendar"),
+                        subtitle: String(localized: "View Schedule")
                     ) {
                         // Switch to Workouts tab and open calendar view
                         NotificationCenter.default.post(name: NSNotification.Name("SwitchToWorkoutsCalendar"), object: nil)
@@ -172,8 +166,8 @@ struct WorkoutProgramsView: View {
 
                     ProgramActionCard(
                         icon: "chart.line.uptrend.xyaxis",
-                        title: "Progress",
-                        subtitle: "View Stats"
+                        title: String(localized: "Progress"),
+                        subtitle: String(localized: "View Stats")
                     ) {
                         showProgressStats = true
                     }
@@ -181,7 +175,6 @@ struct WorkoutProgramsView: View {
                 .padding(.horizontal, DSSpacing.md)
             }
         }
-    }
 
     // MARK: - No Program State
 
@@ -208,7 +201,7 @@ struct WorkoutProgramsView: View {
                 Button {
                     showProgramsList = true
                 } label: {
-                    Label("Browse Programs", systemImage: "book.fill")
+                    Label(String(localized: "Browse Programs"), systemImage: "book.fill")
                         .font(DSTypography.body)
                         .fontWeight(.semibold)
                         .padding()
@@ -224,24 +217,105 @@ struct WorkoutProgramsView: View {
             VStack(spacing: DSSpacing.sm) {
                 InfoCard(
                     icon: "chart.line.uptrend.xyaxis",
-                    title: "Structured Progress",
-                    description: "Follow proven programs with progressive overload"
+                    title: String(localized: "Structured Progress"),
+                    description: String(localized: "Follow proven programs with progressive overload")
                 )
 
                 InfoCard(
                     icon: "calendar.badge.clock",
-                    title: "Weekly Planning",
-                    description: "Know exactly what to do each training day"
+                    title: String(localized: "Weekly Planning"),
+                    description: String(localized: "Know exactly what to do each training day")
                 )
 
                 InfoCard(
                     icon: "trophy.fill",
-                    title: "Track Results",
-                    description: "Monitor your progress and celebrate achievements"
+                    title: String(localized: "Track Results"),
+                    description: String(localized: "Monitor your progress and celebrate achievements")
                 )
             }
             .padding(.horizontal, DSSpacing.md)
         }
+    }
+}
+
+// MARK: - Program Progress Summary View
+
+private struct ProgramProgressSummaryView: View {
+    let streakDays: Int
+    let adherencePercentage: Double
+    let currentDay: Int
+    let totalDays: Int
+    let completedWorkouts: Int
+
+    var body: some View {
+        VStack(spacing: DSSpacing.md) {
+            if streakDays > 0 {
+                DSCard {
+                    HStack(spacing: DSSpacing.md) {
+                        Image(systemName: "flame.fill")
+                            .font(.system(size: 40))
+                            .foregroundStyle(.orange)
+
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("\(streakDays) Day Streak", comment: "Workout streak title")
+                                .font(DSTypography.title3)
+                                .fontWeight(.bold)
+
+                            Text("\(Int(adherencePercentage))% Program Adherence", comment: "Adherence percentage")
+                                .font(DSTypography.caption)
+                                .foregroundStyle(DSColors.textSecondary)
+                        }
+
+                        Spacer()
+
+                        Text("🔥")
+                            .font(.system(size: 32))
+                    }
+                }
+            }
+
+            DSCard {
+                VStack(alignment: .leading, spacing: DSSpacing.md) {
+                    HStack {
+                        Text("Day \(currentDay) of \(totalDays)", comment: "Current day indicator")
+                            .font(DSTypography.title3)
+                            .fontWeight(.semibold)
+
+                        Spacer()
+
+                        Text("\(completedWorkouts) workouts", comment: "Total workouts completed")
+                            .font(DSTypography.caption)
+                            .foregroundStyle(DSColors.textSecondary)
+                    }
+
+                    ProgressView(value: Double(currentDay), total: Double(totalDays))
+                        .tint(DSColors.primary)
+
+                    HStack(spacing: DSSpacing.lg) {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("Progress", comment: "Progress percentage label")
+                                .font(DSTypography.caption)
+                                .foregroundStyle(DSColors.textSecondary)
+                            Text("\(Int((Double(currentDay) / Double(totalDays)) * 100))%")
+                                .font(DSTypography.body)
+                                .fontWeight(.semibold)
+                        }
+
+                        Spacer()
+
+                        VStack(alignment: .trailing, spacing: 2) {
+                            Text("Remaining", comment: "Remaining days label")
+                                .font(DSTypography.caption)
+                                .foregroundStyle(DSColors.textSecondary)
+                            Text("\(totalDays - currentDay) days")
+                                .font(DSTypography.body)
+                                .fontWeight(.semibold)
+                        }
+                    }
+                }
+            }
+        }
+        .padding(.horizontal, DSSpacing.md)
     }
 }
 
@@ -323,11 +397,17 @@ private struct InfoCard: View {
 // MARK: - Preview
 
 #Preview("Active Program") {
+    @Previewable @State var workoutManager = ActiveWorkoutManager()
+
     WorkoutProgramsView()
         .environmentObject(AppDependencies.preview)
+        .environment(workoutManager)
 }
 
 #Preview("No Program") {
+    @Previewable @State var workoutManager = ActiveWorkoutManager()
+
     WorkoutProgramsView()
         .environmentObject(AppDependencies.preview)
+        .environment(workoutManager)
 }

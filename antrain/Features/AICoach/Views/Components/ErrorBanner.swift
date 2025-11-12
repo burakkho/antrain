@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Combine
 
 struct ErrorBanner: View {
     let type: ErrorType
@@ -13,7 +14,6 @@ struct ErrorBanner: View {
     let onDismiss: (() -> Void)?
 
     @State private var countdown: Int = 0
-    @State private var timer: Timer?
 
     var body: some View {
         HStack(spacing: 12) {
@@ -79,25 +79,12 @@ struct ErrorBanner: View {
             // Start countdown for rate limit
             if case .rateLimitExceeded(let seconds) = type {
                 countdown = seconds
-                startCountdown()
             }
         }
-        .onDisappear {
-            // Clean up timer to prevent memory leak
-            timer?.invalidate()
-            timer = nil
-        }
-    }
-
-    // MARK: - Countdown
-
-    private func startCountdown() {
-        timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [self] _ in
+        .onReceive(Timer.publish(every: 1, on: .main, in: .common).autoconnect()) { _ in
+            // SwiftUI native timer - no memory leak, automatically cleaned up
             if countdown > 0 {
                 countdown -= 1
-            } else {
-                timer?.invalidate()
-                timer = nil
             }
         }
     }

@@ -45,6 +45,10 @@ final class ChatConversation: @unchecked Sendable {
         messages.isEmpty
     }
 
+    /// Returns messages sorted by timestamp in ascending order
+    /// - Important: SwiftData relationships must be accessed from the same actor context
+    /// where the model was fetched. This property should only be called from @MainActor
+    /// contexts or within the ModelActor that manages this conversation.
     var sortedMessages: [ChatMessage] {
         messages.sorted { $0.timestamp < $1.timestamp }
     }

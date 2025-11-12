@@ -36,43 +36,6 @@ final class DayDetailViewModel {
         }
     }
 
-    /// Intensity modifier text (from day or week)
-    var intensityModifierText: String? {
-        let modifier = day.effectiveIntensityModifier
-        guard modifier != 1.0 else { return nil }
-
-        let percentage = Int(modifier * 100)
-        let change = percentage - 100
-
-        if change > 0 {
-            return "+\(change)%"
-        } else {
-            return "\(change)%"
-        }
-    }
-
-    /// Volume modifier text (from day or week)
-    var volumeModifierText: String? {
-        let modifier = day.effectiveVolumeModifier
-        guard modifier != 1.0 else { return nil }
-
-        let percentage = Int(modifier * 100)
-        let change = percentage - 100
-
-        if change > 0 {
-            return "+\(change)%"
-        } else {
-            return "\(change)%"
-        }
-    }
-
-    /// Whether this day has any modifiers applied
-    var hasModifiers: Bool {
-        day.effectiveIntensityModifier != 1.0 ||
-        day.effectiveVolumeModifier != 1.0 ||
-        day.week?.isDeload == true
-    }
-
     // MARK: - Initialization
 
     init(day: ProgramDay) {

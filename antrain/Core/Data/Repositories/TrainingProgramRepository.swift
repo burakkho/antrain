@@ -91,7 +91,7 @@ actor TrainingProgramRepository: TrainingProgramRepositoryProtocol {
             throw TrainingProgramRepositoryError.programIsActive
         }
 
-        // Delete program (weeks and days will cascade)
+        // Delete program (days will cascade)
         modelContext.delete(program)
         try modelContext.save()
     }
@@ -104,10 +104,8 @@ actor TrainingProgramRepository: TrainingProgramRepositoryProtocol {
 
         // Filter programs that use this template and return just the names
         return allPrograms.filter { program in
-            program.weeks.contains { week in
-                week.days.contains { day in
-                    day.template?.id == template.id
-                }
+            program.days.contains { day in
+                day.template?.id == template.id
             }
         }.map { $0.name }
     }

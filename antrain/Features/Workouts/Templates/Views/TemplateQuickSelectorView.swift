@@ -43,11 +43,11 @@ struct TemplateQuickSelectorView: View {
                     }
                 }
             }
-            .navigationTitle("Select Template")
+            .navigationTitle(Text("Select Template"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") {
+                    Button(String(localized: "Cancel")) {
                         dismiss()
                     }
                 }
@@ -132,7 +132,7 @@ struct TemplateQuickSelectorView: View {
             Text("No templates found")
                 .font(.headline)
 
-            Button("Clear Search") {
+            Button(String(localized: "Clear Search")) {
                 searchText = ""
             }
             .buttonStyle(.bordered)

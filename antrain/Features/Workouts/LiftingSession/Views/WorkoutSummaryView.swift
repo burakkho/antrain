@@ -34,7 +34,7 @@ struct WorkoutSummaryView: View {
                     ProgressView("Loading...")
                 }
             }
-            .navigationTitle("Workout Summary")
+            .navigationTitle(Text("Workout Summary"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
@@ -46,13 +46,13 @@ struct WorkoutSummaryView: View {
                         Button {
                             showSaveAsTemplate = true
                         } label: {
-                            Label("Save as Template", systemImage: "doc.badge.plus")
+                            Label(String(localized: "Save as Template"), systemImage: "doc.badge.plus")
                         }
 
                         Button(role: .destructive) {
                             showDeleteConfirmation = true
                         } label: {
-                            Label("Delete Workout", systemImage: "trash")
+                            Label(String(localized: "Delete Workout"), systemImage: "trash")
                         }
                     } label: {
                         Image(systemName: "ellipsis.circle")
@@ -85,7 +85,8 @@ struct WorkoutSummaryView: View {
                         exercises: exercises,
                         workoutRepository: appDependencies.workoutRepository,
                         prRepository: appDependencies.personalRecordRepository,
-                        prDetectionService: appDependencies.prDetectionService
+                        prDetectionService: appDependencies.prDetectionService,
+                        userProfileRepository: appDependencies.userProfileRepository
                     )
                     viewModel = vm
                     Task { await vm.loadData() }
@@ -146,7 +147,7 @@ struct WorkoutSummaryView: View {
                             Spacer()
                         }
                     } else {
-                        Text("Save Workout")
+                        Text(String(localized: "Save Workout"))
                             .frame(maxWidth: .infinity)
                             .fontWeight(.semibold)
                     }

@@ -53,20 +53,20 @@ struct TemplateDetailView: View {
                         Button {
                             showEditView = true
                         } label: {
-                            Label("Edit", systemImage: "pencil")
+                            Label(String(localized: "Edit"), systemImage: "pencil")
                         }
 
                         Button {
                             showDuplicateSheet = true
                             duplicateName = "\(template.name) \(String(localized: "Copy"))"
                         } label: {
-                            Label("Duplicate", systemImage: "doc.on.doc")
+Label(String(localized: "Duplicate"), systemImage: "doc.on.doc")
                         }
 
                         Button(role: .destructive) {
                             showDeleteConfirmation = true
                         } label: {
-                            Label("Delete", systemImage: "trash")
+                            Label(String(localized: "Delete"), systemImage: "trash")
                         }
                     } label: {
                         Image(systemName: "ellipsis.circle")
@@ -78,12 +78,12 @@ struct TemplateDetailView: View {
                         showDuplicateSheet = true
                         duplicateName = "\(template.name) \(String(localized: "Copy"))"
                     } label: {
-                        Label("Duplicate", systemImage: "doc.on.doc")
+                        Label(String(localized: "Duplicate"), systemImage: "doc.on.doc")
                     }
                 }
             }
         }
-        .alert("Delete Template", isPresented: $showDeleteConfirmation) {
+        .alert(Text("Delete Template"), isPresented: $showDeleteConfirmation) {
             Button("Cancel", role: .cancel) {}
             Button("Delete", role: .destructive) {
                 Task {
@@ -238,7 +238,7 @@ struct TemplateDetailView: View {
             Button {
                 workoutManager.startWorkoutFromTemplate(viewModel.template)
             } label: {
-                Label("Start Workout", systemImage: "play.fill")
+                Label(String(localized: "Start Workout"), systemImage: "play.fill")
                     .font(.headline)
                     .frame(maxWidth: .infinity)
                     .padding()
@@ -263,16 +263,16 @@ struct TemplateDetailView: View {
                     Text("This will create a copy of '\(template.name)' that you can customize.")
                 }
             }
-            .navigationTitle("Duplicate Template")
+            .navigationTitle(Text("Duplicate Template"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") {
+                    Button(String(localized: "Cancel")) {
                         showDuplicateSheet = false
                     }
                 }
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Duplicate") {
+                    Button(String(localized: "Duplicate")) {
                         Task {
                             try? await viewModel?.duplicateTemplate(newName: duplicateName)
                             showDuplicateSheet = false

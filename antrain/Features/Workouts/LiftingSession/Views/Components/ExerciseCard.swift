@@ -1,14 +1,14 @@
 import SwiftUI
 
+// MARK: - Focus Management for Smart Navigation
+/// Unique identifier for a specific text field within a set row.
+struct SetFieldIdentifier: Hashable {
+    let setId: UUID
+    let fieldType: SetRow.Field
+}
+
 /// Exercise card with sets list, collapse/expand, and add set button
 struct ExerciseCard: View {
-    // MARK: - Focus Management for Smart Navigation
-
-    struct SetFieldIdentifier: Hashable {
-        let setId: UUID
-        let fieldType: SetRow.Field
-    }
-
     let workoutExercise: WorkoutExercise
     let isKeyboardMode: Bool
     let suggestion: ExerciseSuggestion?
@@ -21,8 +21,16 @@ struct ExerciseCard: View {
 
     @State private var isExpanded: Bool = true
     @FocusState private var focusedField: SetFieldIdentifier?
-    @State private var focusedFieldState: SetFieldIdentifier?
     @AppStorage("weightUnit") private var weightUnit: String = "Kilograms"
+
+    // Computed Binding to pass down to SetRow
+    private var setRowFocusedFieldBinding: Binding<SetFieldIdentifier?> {
+        Binding {
+            focusedField
+        } set: { newValue in
+            focusedField = newValue
+        }
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: DSSpacing.md) {
@@ -65,7 +73,7 @@ struct ExerciseCard: View {
                     HapticManager.shared.delete()
                     onDeleteExercise()
                 }) {
-                    Label("Delete Exercise", systemImage: "trash")
+                    Label(String(localized: "Delete Exercise"), systemImage: "trash")
                 }
             }
 
@@ -98,7 +106,7 @@ struct ExerciseCard: View {
                                 onDelete: {
                                     onDeleteSet(set)
                                 },
-                                focusedField: $focusedFieldState,
+                                focusedField: setRowFocusedFieldBinding,
                                 currentSetId: set.id,
                                 onNavigateToNextSet: { currentFieldType in
                                     navigateToNextSet(from: index, fieldType: currentFieldType)
@@ -158,11 +166,8 @@ struct ExerciseCard: View {
                 HapticManager.shared.delete()
                 onDeleteExercise()
             }) {
-                Label("Delete", systemImage: "trash")
+                Label(String(localized: "Delete"), systemImage: "trash")
             }
-        }
-        .onChange(of: focusedFieldState) { _, newValue in
-            focusedField = newValue
         }
     }
 
@@ -265,10 +270,10 @@ struct ExerciseCard: View {
         if nextIndex < workoutExercise.sets.count {
             let nextSet = workoutExercise.sets[nextIndex]
             // Focus on the SAME field type in the next set
-            focusedFieldState = SetFieldIdentifier(setId: nextSet.id, fieldType: fieldType)
+            focusedField = SetFieldIdentifier(setId: nextSet.id, fieldType: fieldType)
         } else {
             // Last set - dismiss keyboard
-            focusedFieldState = nil
+            focusedField = nil
         }
     }
 
@@ -280,10 +285,10 @@ struct ExerciseCard: View {
         if previousIndex >= 0 {
             let previousSet = workoutExercise.sets[previousIndex]
             // Focus on the SAME field type in the previous set
-            focusedFieldState = SetFieldIdentifier(setId: previousSet.id, fieldType: fieldType)
+            focusedField = SetFieldIdentifier(setId: previousSet.id, fieldType: fieldType)
         } else {
             // First set - dismiss keyboard
-            focusedFieldState = nil
+            focusedField = nil
         }
     }
 }

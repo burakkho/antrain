@@ -18,7 +18,10 @@ enum GeminiConfig {
     static let apiVersion = "v1beta"
 
     static var generateContentURL: URL {
-        URL(string: "\(baseURL)/\(apiVersion)/models/\(modelName):generateContent")!
+        guard let url = URL(string: "\(baseURL)/\(apiVersion)/models/\(modelName):generateContent") else {
+            fatalError("Failed to construct Gemini API URL. Check base URL configuration.")
+        }
+        return url
     }
 
     // MARK: - API Key (Base64 Obfuscated)

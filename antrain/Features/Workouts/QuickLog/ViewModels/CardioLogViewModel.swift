@@ -30,10 +30,6 @@ final class CardioLogViewModel {
     var errorMessage: String?
     var weightUnit: String = "Kilograms"  // User preference for distance unit
 
-    // Duration input helpers (for UI)
-    var durationMinutes: Double = 0
-    var durationSeconds: Double = 0
-
     // MARK: - Computed Properties
 
     var canSave: Bool {
@@ -69,11 +65,6 @@ final class CardioLogViewModel {
     }
 
     // MARK: - Actions
-
-    /// Update duration from minutes and seconds input
-    func updateDuration() {
-        duration = (durationMinutes * 60) + durationSeconds
-    }
 
     /// Save cardio workout
     func saveWorkout() async throws {

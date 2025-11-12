@@ -11,7 +11,7 @@ struct PersonalRecordsAnalysisView: View {
         Group {
             if let viewModel {
                 if viewModel.isLoading {
-                    DSLoadingView(message: "Loading personal records...")
+DSLoadingView(message: "Loading personal records...")
                 } else if let errorMessage = viewModel.errorMessage {
                     DSErrorView(
                         errorMessage: LocalizedStringKey(errorMessage),
@@ -28,7 +28,7 @@ struct PersonalRecordsAnalysisView: View {
                 DSLoadingView(message: "Loading personal records...")
             }
         }
-        .navigationTitle("Personal Records")
+        .navigationTitle(Text("Personal Records"))
         .navigationBarTitleDisplayMode(.large)
         .onAppear {
             if viewModel == nil {

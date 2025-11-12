@@ -28,13 +28,13 @@ struct SaveWorkoutAsTemplateView: View {
                     ProgressView()
                 }
             }
-            .navigationTitle("Save as Template")
+            .navigationTitle(Text("Save as Template"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 toolbarContent
             }
-            .alert("Error", isPresented: .constant(viewModel?.error != nil)) {
-                Button("OK") {
+            .alert(Text("Error"), isPresented: .constant(viewModel?.error != nil)) {
+                Button(String(localized: "OK")) {
                     viewModel?.clearError()
                 }
             } message: {
@@ -119,7 +119,7 @@ struct SaveWorkoutAsTemplateView: View {
     @ToolbarContentBuilder
     private var toolbarContent: some ToolbarContent {
         ToolbarItem(placement: .cancellationAction) {
-            Button("Cancel") {
+            Button(String(localized: "Cancel")) {
                 dismiss()
             }
             .disabled(isSaving)

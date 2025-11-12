@@ -49,6 +49,17 @@ actor NutritionRepository: NutritionRepositoryProtocol {
         return try modelContext.fetch(descriptor)
     }
 
+    func fetchLogs(since startDate: Date) async throws -> [NutritionLog] {
+        let predicate = #Predicate<NutritionLog> { log in
+            log.date >= startDate
+        }
+        let descriptor = FetchDescriptor<NutritionLog>(
+            predicate: predicate,
+            sortBy: [SortDescriptor(\.date, order: .reverse)]
+        )
+        return try modelContext.fetch(descriptor)
+    }
+
     func saveLog(_ log: NutritionLog) async throws {
         modelContext.insert(log)
         try modelContext.save()
@@ -115,6 +126,106 @@ actor NutritionRepository: NutritionRepositoryProtocol {
             meal.foodEntries.removeAll { $0.id == foodEntryId }
             try modelContext.save()
         }
+    }
+
+    func editFoodEntry(
+        in log: NutritionLog,
+        mealType: Meal.MealType,
+        foodEntryId: UUID,
+        newAmount: Double,
+        newUnit: ServingUnit
+    ) async throws {
+        guard let meal = log.meals.first(where: { $0.name == mealType.rawValue }),
+              let foodEntry = meal.foodEntries.first(where: { $0.id == foodEntryId }) else {
+            throw RepositoryError.notFound
+        }
+
+        foodEntry.amount = newAmount
+        foodEntry.selectedUnit = newUnit
+        try modelContext.save()
+    }
+
+    func editFoodEntryById(
+        logId: UUID,
+        mealType: Meal.MealType,
+        foodEntryId: UUID,
+        newAmount: Double,
+        unitId: UUID
+    ) async throws {
+        // Fetch log
+        let logDescriptor = FetchDescriptor<NutritionLog>(
+            predicate: #Predicate { $0.id == logId }
+        )
+        guard let log = try modelContext.fetch(logDescriptor).first else {
+            throw RepositoryError.notFound
+        }
+
+        // Fetch unit
+        let unitDescriptor = FetchDescriptor<ServingUnit>(
+            predicate: #Predicate { $0.id == unitId }
+        )
+        guard let unit = try modelContext.fetch(unitDescriptor).first else {
+            throw RepositoryError.notFound
+        }
+
+        // Update food entry
+        guard let meal = log.meals.first(where: { $0.name == mealType.rawValue }),
+              let foodEntry = meal.foodEntries.first(where: { $0.id == foodEntryId }) else {
+            throw RepositoryError.notFound
+        }
+
+        foodEntry.amount = newAmount
+        foodEntry.selectedUnit = unit
+        try modelContext.save()
+    }
+
+    func moveFoodEntryToMeal(
+        in log: NutritionLog,
+        foodEntryId: UUID,
+        fromMealType: Meal.MealType,
+        toMealType: Meal.MealType
+    ) async throws {
+        guard let fromMeal = log.meals.first(where: { $0.name == fromMealType.rawValue }),
+              let toMeal = log.meals.first(where: { $0.name == toMealType.rawValue }),
+              let entryIndex = fromMeal.foodEntries.firstIndex(where: { $0.id == foodEntryId }) else {
+            throw RepositoryError.notFound
+        }
+
+        // Remove from source meal
+        let foodEntry = fromMeal.foodEntries.remove(at: entryIndex)
+
+        // Add to destination meal with updated order index
+        foodEntry.orderIndex = toMeal.foodEntries.count
+        toMeal.foodEntries.append(foodEntry)
+
+        try modelContext.save()
+    }
+
+    func reorderFoodEntries(
+        in log: NutritionLog,
+        mealType: Meal.MealType,
+        fromIndex: Int,
+        toIndex: Int
+    ) async throws {
+        guard let meal = log.meals.first(where: { $0.name == mealType.rawValue }) else {
+            throw RepositoryError.notFound
+        }
+
+        guard fromIndex >= 0, fromIndex < meal.foodEntries.count,
+              toIndex >= 0, toIndex < meal.foodEntries.count else {
+            throw RepositoryError.invalidOperation
+        }
+
+        // Move the entry
+        let movedEntry = meal.foodEntries.remove(at: fromIndex)
+        meal.foodEntries.insert(movedEntry, at: toIndex)
+
+        // Update order indices
+        for (index, entry) in meal.foodEntries.enumerated() {
+            entry.orderIndex = index
+        }
+
+        try modelContext.save()
     }
 
     // MARK: - Food Items

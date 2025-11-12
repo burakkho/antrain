@@ -64,11 +64,11 @@ struct ProgramDetailView: View {
             }
             .padding()
         }
-        .alert("Error", isPresented: Binding(
+        .alert(Text("Error"), isPresented: Binding(
             get: { viewModel.errorMessage != nil },
             set: { if !$0 { viewModel.clearError() } }
         )) {
-            Button("OK") {
+            Button(String(localized: "OK")) {
                 viewModel.clearError()
             }
         } message: {
@@ -77,13 +77,13 @@ struct ProgramDetailView: View {
             }
         }
         .confirmationDialog(
-            "Activate Program?",
+            Text("Activate Program?"),
             isPresented: Binding(
                 get: { viewModel.showActivateConfirmation },
                 set: { viewModel.showActivateConfirmation = $0 }
             )
         ) {
-            Button("Activate") {
+            Button(String(localized: "Activate")) {
                 Task {
                     await viewModel.activateProgram()
                     if viewModel.errorMessage == nil {
@@ -91,18 +91,18 @@ struct ProgramDetailView: View {
                     }
                 }
             }
-            Button("Cancel", role: .cancel) {}
+            Button(String(localized: "Cancel"), role: .cancel) {}
         } message: {
             Text("This will replace your current active program.")
         }
-        .alert("Program Activated!", isPresented: $showSuccessAlert) {
-            Button("Go to Programs") {
+        .alert(Text("Program Activated!"), isPresented: $showSuccessAlert) {
+            Button(String(localized: "Go to Programs")) {
                 // Send notification to switch to Programs tab
                 NotificationCenter.default.post(name: NSNotification.Name("SwitchToProgramsTab"), object: nil)
                 // Dismiss all sheets to go back to main view
                 dismiss()
             }
-            Button("OK") {
+            Button(String(localized: "OK")) {
                 dismiss()
             }
         } message: {
@@ -111,18 +111,17 @@ struct ProgramDetailView: View {
         .sheet(isPresented: $showWorkoutPreview) {
             NavigationStack {
                 if let previewDay = previewDay,
-                   let template = previewDay.template,
-                   let week = previewDay.week {
+                   let template = previewDay.template {
                     WorkoutPreviewView(
                         programDay: previewDay,
                         template: template,
-                        weekModifier: week.intensityModifier
+                        weekModifier: 1.0  // No week-based modifiers in day-based system
                     )
                     .navigationTitle(previewDay.displayName)
                     .navigationBarTitleDisplayMode(.inline)
                     .toolbar {
                         ToolbarItem(placement: .topBarTrailing) {
-                            Button("Done") {
+                            Button(String(localized: "Done")) {
                                 showWorkoutPreview = false
                             }
                         }
@@ -134,11 +133,11 @@ struct ProgramDetailView: View {
                             .font(.system(size: 60))
                             .foregroundStyle(.orange)
 
-                        Text("Şablon Bulunamadı", comment: "Error: Template not found")
+                        Text("Template not found", comment: "Error: Template not found")
                             .font(.title2)
                             .fontWeight(.bold)
 
-                        Text("Bu gün için antrenman şablonu yüklenemedi. Bu durum şablon silindiğinde veya düzgün oluşturulmadığında meydana gelebilir.",
+                        Text("The workout template for today could not be loaded. This can happen if the template was deleted or was not created properly.",
                              comment: "Error message explaining why template couldn't be loaded")
                             .font(.body)
                             .foregroundStyle(.secondary)
@@ -148,18 +147,18 @@ struct ProgramDetailView: View {
                         Button {
                             showWorkoutPreview = false
                         } label: {
-                            Text("Kapat", comment: "Button: Close")
+                            Text("Close", comment: "Button: Close")
                                 .frame(maxWidth: .infinity)
                         }
                         .buttonStyle(.borderedProminent)
                         .padding(.horizontal)
                     }
                     .padding()
-                    .navigationTitle(String(localized: "Önizleme", comment: "Title: Preview"))
+                    .navigationTitle(String(localized: "Preview", comment: "Title: Preview"))
                     .navigationBarTitleDisplayMode(.inline)
                     .toolbar {
                         ToolbarItem(placement: .topBarTrailing) {
-                            Button(String(localized: "Tamam", comment: "Button: Done")) {
+                            Button(String(localized: "Done", comment: "Button: Done")) {
                                 showWorkoutPreview = false
                             }
                         }
@@ -170,10 +169,10 @@ struct ProgramDetailView: View {
         .sheet(isPresented: $showShareSheet) {
             ProgramShareView(program: program)
         }
-    }
+}
 
     @ViewBuilder
-    private func headerSection(viewModel: ProgramDetailViewModel) -> some View {
+    func headerSection(viewModel: ProgramDetailViewModel) -> some View {
         VStack(alignment: .leading, spacing: 12) {
             // Category & Difficulty
             HStack {
@@ -208,41 +207,21 @@ struct ProgramDetailView: View {
             HStack(spacing: 20) {
                 statItem(
                     icon: "calendar",
-                    value: "\(program.durationWeeks)",
-                    label: "Weeks"
-                )
-
-                statItem(
-                    icon: "figure.strengthtraining.traditional",
-                    value: String(format: "%.0f", program.trainingDaysPerWeek),
-                    label: "Days/Week"
+                    value: "\(program.totalDays)",
+                    label: String(localized: "Days")
                 )
 
                 statItem(
                     icon: "clock",
                     value: formatDuration(program.estimatedTotalDuration),
-                    label: "Total Time"
+                    label: String(localized: "Total Time")
                 )
-            }
-
-            // Progression pattern
-            HStack {
-                Image(systemName: "chart.line.uptrend.xyaxis")
-                    .foregroundStyle(.blue)
-                Text(program.progressionPattern.displayName)
-                    .font(.subheadline)
-            }
-            .padding()
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .background {
-                RoundedRectangle(cornerRadius: 10)
-                    .fill(Color.blue.opacity(0.1))
             }
         }
     }
 
     @ViewBuilder
-    private func actionButtons(viewModel: ProgramDetailViewModel) -> some View {
+    func actionButtons(viewModel: ProgramDetailViewModel) -> some View {
         VStack(spacing: 12) {
             // Activate button
             Button {
@@ -252,38 +231,28 @@ struct ProgramDetailView: View {
                     ProgressView()
                         .tint(.white)
                 } else {
-                    Label("Activate Program", systemImage: "play.fill")
+                    Label(String(localized: "Activate Program"), systemImage: "play.fill")
                 }
             }
             .buttonStyle(.borderedProminent)
             .frame(maxWidth: .infinity)
             .disabled(viewModel.isActivating)
 
-            // Preview workout button (Phase 6)
-            if let firstDay = viewModel.firstWorkoutDay {
-                Button {
-                    previewDay = firstDay
-                    showWorkoutPreview = true
-                } label: {
-                    Label("Preview First Workout", systemImage: "eye")
-                }
-                .buttonStyle(.bordered)
-                .frame(maxWidth: .infinity)
-            }
+
         }
     }
 
     @ViewBuilder
-    private func weeksSection(viewModel: ProgramDetailViewModel) -> some View {
+    func weeksSection(viewModel: ProgramDetailViewModel) -> some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("Program Schedule")
                 .font(.headline)
 
-            ForEach(viewModel.sortedWeeks) { week in
+            ForEach(viewModel.sortedDays) { day in
                 NavigationLink {
-                    WeekDetailView(week: week)
+                    DayDetailView(day: day)
                 } label: {
-                    WeekCard(week: week)
+                    DayCard(day: day)
                 }
                 .buttonStyle(.plain)
             }
@@ -291,7 +260,7 @@ struct ProgramDetailView: View {
     }
 
     @ViewBuilder
-    private func statItem(icon: String, value: String, label: String) -> some View {
+    func statItem(icon: String, value: String, label: String) -> some View {
         VStack(spacing: 4) {
             Image(systemName: icon)
                 .font(.title3)
@@ -306,17 +275,19 @@ struct ProgramDetailView: View {
         .frame(maxWidth: .infinity)
     }
 
-    private func formatDuration(_ duration: TimeInterval) -> String {
+    func formatDuration(_ duration: TimeInterval) -> String {
         let hours = Int(duration) / 3600
         if hours < 1 {
             let minutes = Int(duration) / 60
-            return "\(minutes)m"
+            return "\(minutes)\(String(localized: "m"))"
         }
-        return "\(hours)h"
+        return "\(hours)\(String(localized: "h"))"
     }
 }
 
 #Preview {
+    @Previewable @State var workoutManager = ActiveWorkoutManager()
+
     NavigationStack {
         ProgramDetailView(
             program: TrainingProgram(
@@ -324,10 +295,10 @@ struct ProgramDetailView: View {
                 programDescription: "Push/Pull/Legs split for hypertrophy",
                 category: .bodybuilding,
                 difficulty: .intermediate,
-                durationWeeks: 12,
-                progressionPattern: .linear
+                totalDays: 84  // 12 weeks = 84 days
             )
         )
         .environmentObject(AppDependencies.preview)
+        .environment(workoutManager)
     }
 }

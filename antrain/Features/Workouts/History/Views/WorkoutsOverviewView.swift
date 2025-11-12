@@ -44,7 +44,7 @@ struct WorkoutsOverviewView: View {
                     DSLoadingView(message: "Loading workouts...")
                 }
             }
-            .navigationTitle("Workouts")
+.navigationTitle(Text("Workouts"))
             .navigationBarTitleDisplayMode(.large)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
@@ -154,13 +154,13 @@ struct WorkoutsOverviewView: View {
             Button {
                 viewMode = .list
             } label: {
-                Label("List View", systemImage: "list.bullet")
+                Label(String(localized: "List View"), systemImage: "list.bullet")
             }
 
             Button {
                 viewMode = .calendar
             } label: {
-                Label("Calendar View", systemImage: "calendar")
+                Label(String(localized: "Calendar View"), systemImage: "calendar")
             }
         } label: {
             Image(systemName: viewMode == .list ? "list.bullet" : "calendar")
@@ -223,7 +223,7 @@ struct WorkoutsOverviewView: View {
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
                     ToolbarItem(placement: .topBarLeading) {
-                        Button("Close") {
+                        Button(String(localized: "Close")) {
                             showWorkoutPreview = false
                         }
                     }
@@ -232,7 +232,7 @@ struct WorkoutsOverviewView: View {
                             showWorkoutPreview = false
                             workoutManager.startWorkoutFromProgram(template, programDay: previewDay)
                         } label: {
-                            Label("Start", systemImage: "play.fill")
+                            Label(String(localized: "Start"), systemImage: "play.fill")
                         }
                     }
                 }
@@ -330,7 +330,7 @@ enum HistoryViewMode {
             }
             .padding(.vertical, DSSpacing.md)
         }
-        .navigationTitle("Workouts")
+        .navigationTitle(Text("Workouts"))
         .navigationBarTitleDisplayMode(.large)
     }
 }

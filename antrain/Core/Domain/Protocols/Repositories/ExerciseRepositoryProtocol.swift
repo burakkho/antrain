@@ -48,6 +48,7 @@ enum RepositoryError: LocalizedError {
     case deleteFailed
     case notFound
     case cannotDeletePreset
+    case invalidOperation
 
     var errorDescription: String? {
         switch self {
@@ -61,6 +62,8 @@ enum RepositoryError: LocalizedError {
             return "Data not found"
         case .cannotDeletePreset:
             return "Cannot delete preset exercise"
+        case .invalidOperation:
+            return "Invalid operation"
         }
     }
 }

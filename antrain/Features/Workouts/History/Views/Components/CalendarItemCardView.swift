@@ -20,7 +20,7 @@ struct CalendarItemCardView: View {
                     Button(role: .destructive) {
                         onDelete?(workout)
                     } label: {
-                        Label("Delete", systemImage: "trash")
+                        Label(String(localized: "Delete"), systemImage: "trash")
                     }
                 }
 
@@ -47,7 +47,7 @@ struct CalendarItemCardView: View {
                             onStartWorkout?(template, programDay)
                         }
                     } label: {
-                        Label("Start", systemImage: "play.fill")
+                        Label(String(localized: "Start"), systemImage: "play.fill")
                     }
                     .tint(.green)
                 }
@@ -56,7 +56,7 @@ struct CalendarItemCardView: View {
                         // Skip workout (mark as completed with empty data)
                         // TODO: Implement skip logic
                     } label: {
-                        Label("Skip", systemImage: "forward.fill")
+                        Label(String(localized: "Skip"), systemImage: "forward.fill")
                     }
                     .tint(.orange)
                 }

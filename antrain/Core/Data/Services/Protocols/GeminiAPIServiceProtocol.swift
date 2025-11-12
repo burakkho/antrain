@@ -15,13 +15,15 @@ protocol GeminiAPIServiceProtocol {
     ///   - context: Workout context data
     ///   - chatHistory: Recent chat messages for conversation context
     ///   - isNewUser: Whether user needs onboarding (incomplete profile)
+    ///   - useFullContext: Whether to send full context (first message) or minimal context (follow-up)
     /// - Returns: AI response text
     /// - Throws: GeminiAPIError if the request fails
     func sendMessage(
         _ message: String,
         context: WorkoutContext,
         chatHistory: [ChatHistoryItem],
-        isNewUser: Bool
+        isNewUser: Bool,
+        useFullContext: Bool
     ) async throws -> String
 }
 

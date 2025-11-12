@@ -32,11 +32,15 @@ struct QuickActionChips: View {
             cachedActions = buildActions(context: context, isNewUser: isNewUser)
         }
         .onChange(of: context?.hasActiveProgram) { _, _ in
-            // Recompute when important context changes
+            // Recompute when program status changes
+            cachedActions = buildActions(context: context, isNewUser: isNewUser)
+        }
+        .onChange(of: context?.recentWorkouts.count ?? 0) { _, _ in
+            // Recompute when workout count changes (new workouts logged)
             cachedActions = buildActions(context: context, isNewUser: isNewUser)
         }
         .onChange(of: isNewUser) { _, _ in
-            // Recompute when user status changes
+            // Recompute when user status changes (profile completed)
             cachedActions = buildActions(context: context, isNewUser: isNewUser)
         }
     }

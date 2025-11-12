@@ -56,11 +56,11 @@ struct BodyweightHistoryView: View {
                     }
                 }
             }
-            .navigationTitle("Weight History")
+            .navigationTitle(Text("Weight History"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Done") {
+                    Button(String(localized: "Done")) {
                         dismiss()
                     }
                 }

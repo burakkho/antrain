@@ -3,12 +3,13 @@
 //  antrain
 //
 //  Created by Claude Code on 2025-11-05.
+//  Updated: Simplified to day-based system (removed week concept)
 //
 
 import Foundation
 import SwiftData
 
-/// Training program (MacroCycle) containing multiple weeks of structured workouts
+/// Training program containing a sequence of workout days
 @Model
 final class TrainingProgram: @unchecked Sendable {
     // MARK: - Properties
@@ -28,8 +29,8 @@ final class TrainingProgram: @unchecked Sendable {
     /// Difficulty level
     var difficulty: DifficultyLevel
 
-    /// Total duration in weeks
-    var durationWeeks: Int
+    /// Total duration in days
+    var totalDays: Int
 
     /// Whether this is a custom user program or preset
     var isCustom: Bool
@@ -40,14 +41,11 @@ final class TrainingProgram: @unchecked Sendable {
     /// Last used date (optional)
     var lastUsedAt: Date?
 
-    /// Progression pattern
-    var progressionPattern: WeekProgressionPattern
-
     // MARK: - Relationships
 
-    /// Program weeks (MicroCycles)
-    @Relationship(deleteRule: .cascade, inverse: \ProgramWeek.program)
-    var weeks: [ProgramWeek] = []
+    /// Program days
+    @Relationship(deleteRule: .cascade, inverse: \ProgramDay.program)
+    var days: [ProgramDay] = []
 
     // MARK: - Initialization
 
@@ -56,8 +54,7 @@ final class TrainingProgram: @unchecked Sendable {
         programDescription: String? = nil,
         category: ProgramCategory,
         difficulty: DifficultyLevel,
-        durationWeeks: Int,
-        progressionPattern: WeekProgressionPattern = .linear,
+        totalDays: Int,
         isCustom: Bool = true,
         createdAt: Date = Date()
     ) {
@@ -66,34 +63,37 @@ final class TrainingProgram: @unchecked Sendable {
         self.programDescription = programDescription
         self.category = category
         self.difficulty = difficulty
-        self.durationWeeks = durationWeeks
-        self.progressionPattern = progressionPattern
+        self.totalDays = totalDays
         self.isCustom = isCustom
         self.createdAt = createdAt
     }
 
     // MARK: - Computed Properties
 
-    /// Total number of weeks in the program
-    var totalWeeks: Int {
-        weeks.count
+    /// Number of training days (non-rest days)
+    var trainingDaysCount: Int {
+        days.filter { $0.hasWorkout }.count
     }
 
-    /// Number of training days per week (average)
-    var trainingDaysPerWeek: Double {
-        guard !weeks.isEmpty else { return 0 }
-        let totalDays = weeks.reduce(0) { $0 + $1.days.count }
-        return Double(totalDays) / Double(weeks.count)
+    /// Number of rest days
+    var restDaysCount: Int {
+        days.filter { $0.isRestDay }.count
     }
 
     /// Estimated total duration in hours
     var estimatedTotalDuration: TimeInterval {
-        weeks.reduce(0) { $0 + $1.estimatedDuration }
+        days.reduce(0) { $0 + $1.estimatedDuration }
     }
 
-    /// Check if program is complete (all weeks configured)
+    /// Check if program is complete (all days configured)
     var isComplete: Bool {
-        weeks.count == durationWeeks && weeks.allSatisfy { !$0.days.isEmpty }
+        days.count == totalDays
+    }
+
+    /// Progress percentage (0.0 - 1.0)
+    var completionPercentage: Double {
+        guard totalDays > 0 else { return 0 }
+        return Double(days.count) / Double(totalDays)
     }
 
     // MARK: - Business Logic
@@ -110,18 +110,26 @@ final class TrainingProgram: @unchecked Sendable {
         }
 
         // Duration validation
-        guard durationWeeks > 0 && durationWeeks <= 52 else {
-            throw ValidationError.invalidValue("Duration must be between 1-52 weeks")
+        guard totalDays > 0 && totalDays <= 365 else {
+            throw ValidationError.invalidValue("Total days must be between 1-365")
         }
 
-        // Week validation
-        guard !weeks.isEmpty else {
-            throw ValidationError.businessRuleViolation("Program must have at least one week configured")
+        // Day validation
+        guard !days.isEmpty else {
+            throw ValidationError.businessRuleViolation("Program must have at least one day configured")
         }
 
-        // Validate each week
-        for week in weeks {
-            try week.validate()
+        // Validate each day
+        for day in days {
+            try day.validate()
+        }
+
+        // Validate day numbers are sequential
+        let dayNumbers = days.map { $0.dayNumber }.sorted()
+        for (index, dayNumber) in dayNumbers.enumerated() {
+            guard dayNumber == index + 1 else {
+                throw ValidationError.businessRuleViolation("Day numbers must be sequential starting from 1")
+            }
         }
     }
 
@@ -132,25 +140,29 @@ final class TrainingProgram: @unchecked Sendable {
             programDescription: programDescription,
             category: category,
             difficulty: difficulty,
-            durationWeeks: durationWeeks,
-            progressionPattern: progressionPattern,
+            totalDays: totalDays,
             isCustom: true,
             createdAt: Date()
         )
 
-        // Deep copy weeks
-        for week in weeks {
-            let newWeek = week.duplicate()
-            newWeek.program = newProgram
-            newProgram.weeks.append(newWeek)
+        // Deep copy days
+        for day in days.sorted() {
+            let newDay = day.duplicate()
+            newDay.program = newProgram
+            newProgram.days.append(newDay)
         }
 
         return newProgram
     }
 
-    /// Get week by number (1-indexed)
-    func week(number: Int) -> ProgramWeek? {
-        weeks.first { $0.weekNumber == number }
+    /// Get day by number (1-indexed)
+    func day(number: Int) -> ProgramDay? {
+        days.first { $0.dayNumber == number }
+    }
+
+    /// Get sorted days
+    func sortedDays() -> [ProgramDay] {
+        days.sorted { $0.dayNumber < $1.dayNumber }
     }
 
     /// Mark program as used (update lastUsedAt)

@@ -41,17 +41,17 @@ struct ProfileEquipmentEditorSheet: View {
                     }
                 }
             }
-            .navigationTitle("Edit Equipment")
+            .navigationTitle(Text("Edit Equipment"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") {
+                    Button(String(localized: "Cancel")) {
                         dismiss()
                     }
                 }
 
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Save") {
+                    Button(String(localized: "Save")) {
                         Task {
                             await saveEquipment()
                         }

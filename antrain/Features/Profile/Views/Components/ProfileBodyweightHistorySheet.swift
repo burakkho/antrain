@@ -21,7 +21,7 @@ struct ProfileBodyweightHistorySheet: View {
                     )
                 } else {
                     List {
-                        ForEach(entries) { entry in
+                        ForEach(entries, id: \.id) { entry in
                             VStack(alignment: .leading, spacing: DSSpacing.xs) {
                                 HStack {
                                     Text(entry.date, style: .date)
@@ -52,7 +52,7 @@ struct ProfileBodyweightHistorySheet: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Done") {
+                    Button(String(localized: "Done")) {
                         dismiss()
                     }
                 }

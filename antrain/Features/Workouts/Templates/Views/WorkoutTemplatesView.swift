@@ -16,7 +16,7 @@ struct WorkoutTemplatesView: View {
             Group {
                 if let viewModel {
                     if viewModel.isLoading {
-                        DSLoadingView(message: "Loading templates...")
+DSLoadingView(message: "Loading templates...")
                     } else if let error = viewModel.error {
                         DSErrorView(
                             errorMessage: LocalizedStringKey(error.localizedDescription),
@@ -33,7 +33,7 @@ struct WorkoutTemplatesView: View {
                     DSLoadingView(message: "Loading templates...")
                 }
             }
-            .navigationTitle("Templates")
+            .navigationTitle(Text("Templates"))
             .navigationBarTitleDisplayMode(.large)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
@@ -201,7 +201,7 @@ struct WorkoutTemplatesView: View {
     private func templatesListSection(viewModel: TemplatesViewModel) -> some View {
         if viewModel.filteredTemplates.isEmpty {
             ContentUnavailableView {
-                Label("No Templates Found", systemImage: "doc.text.magnifyingglass")
+                Label(String(localized: "No Templates Found"), systemImage: "doc.text.magnifyingglass")
             } description: {
                 Text("Try adjusting your search or filter")
             }

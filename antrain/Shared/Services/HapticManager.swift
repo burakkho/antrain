@@ -25,7 +25,13 @@ final class HapticManager {
     static let shared = HapticManager()
 
     // User preference (can be disabled in settings)
-    @AppStorage("hapticsEnabled") private var hapticsEnabled: Bool = true
+    private var hapticsEnabled: Bool {
+        // Default to true if not set
+        if UserDefaults.standard.object(forKey: "hapticsEnabled") == nil {
+            return true
+        }
+        return UserDefaults.standard.bool(forKey: "hapticsEnabled")
+    }
 
     // Reusable generators (prepared for low latency)
     private let impactLight = UIImpactFeedbackGenerator(style: .light)
@@ -34,7 +40,7 @@ final class HapticManager {
     private let selectionGenerator = UISelectionFeedbackGenerator()
     private let notificationGenerator = UINotificationFeedbackGenerator()
 
-    private init() {
+    init() {
         // Prepare generators on initialization for reduced latency
         prepare()
     }

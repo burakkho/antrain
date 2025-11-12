@@ -63,6 +63,11 @@ actor UserProfileRepository: UserProfileRepositoryProtocol {
         return profile
     }
 
+    /// Save the current profile changes to persistence
+    func saveProfile() async throws {
+        try modelContext.save()
+    }
+
     /// Add a bodyweight entry to the profile
     func addBodyweightEntry(weight: Double, date: Date = Date(), notes: String? = nil) async throws -> BodyweightEntry {
         let profile = try await fetchOrCreateProfile()
@@ -125,11 +130,14 @@ actor UserProfileRepository: UserProfileRepositoryProtocol {
         try modelContext.save()
     }
 
-    /// Advance active program to next week
-    func advanceToNextWeek() async throws {
+    /// Advance active program to next day
+    /// - Returns: True if progressed, false if program completed
+    @discardableResult
+    func advanceToNextDay() async throws -> Bool {
         let profile = try await fetchOrCreateProfile()
-        profile.progressToNextWeek()
+        let progressed = profile.progressToNextDay()
         try modelContext.save()
+        return progressed
     }
 }
 

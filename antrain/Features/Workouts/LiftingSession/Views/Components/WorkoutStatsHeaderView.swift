@@ -8,6 +8,8 @@ struct WorkoutStatsHeaderView: View {
     let completedExercises: Int
     let totalExercises: Int
 
+    @AppStorage("weightUnit") private var weightUnit: String = "Kilograms"
+
     var body: some View {
         VStack(spacing: 12) {
             // Title (if available)
@@ -66,14 +68,10 @@ struct WorkoutStatsHeaderView: View {
     private var formattedVolume: String {
         // Nil safety: guard against NaN, infinity, or negative values
         guard volume.isFinite, volume >= 0 else {
-            return "0kg"
+            return "0" + Double.weightUnitSymbol(weightUnit)
         }
 
-        if volume >= 1000 {
-            return String(format: "%.0fkg", volume / 1000 * 1000)
-        } else {
-            return String(format: "%.0fkg", volume)
-        }
+        return volume.formattedWeight(unit: weightUnit)
     }
 }
 

@@ -12,10 +12,10 @@ struct HomeView: View {
     var body: some View {
         NavigationStack {
             ScrollView {
-                VStack(spacing: DSSpacing.lg) {
-                    // Welcome Message
+                VStack(spacing: DSSpacing.lg) {                
+                // Profile Summary Card
                     if let viewModel {
-                        welcomeSection(viewModel: viewModel)
+                        profileSummarySection(viewModel: viewModel)
                     }
 
                     // Quick Actions
@@ -36,7 +36,7 @@ struct HomeView: View {
                 }
                 .padding(DSSpacing.md)
             }
-            .navigationTitle("Home")
+            .navigationTitle(Text("Home"))
             .navigationBarTitleDisplayMode(.large)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
@@ -88,42 +88,23 @@ struct HomeView: View {
         }
     }
 
-    // MARK: - Welcome Section
+    // MARK: - Profile Summary Section
 
-    private func welcomeSection(viewModel: HomeViewModel) -> some View {
-        HStack {
-            if let profile = viewModel.userProfile, !profile.name.isEmpty {
-                Text("\(greetingMessage), ")
-                    .font(DSTypography.title1)
-                    .foregroundStyle(DSColors.textPrimary)
-                +
-                Text(profile.name)
-                    .font(DSTypography.title1)
-                    .fontWeight(.bold)
-                    .foregroundStyle(DSColors.primary)
-            } else {
-                Text(greetingMessage)
-                    .font(DSTypography.title1)
-                    .foregroundStyle(DSColors.textPrimary)
+    private func profileSummarySection(viewModel: HomeViewModel) -> some View {
+        Group {
+            if let profile = viewModel.userProfile {
+                NavigationLink {
+                    ProfileView()
+                } label: {
+                    HomeProfileCard(profile: profile) {
+                        // onTap action, if any specific action is needed beyond navigation
+                    }
+                }
+                .buttonStyle(PlainButtonStyle()) // To remove default NavigationLink styling
             }
-
-            Spacer()
         }
     }
 
-    private var greetingMessage: String {
-        let hour = Calendar.current.component(.hour, from: Date())
-        switch hour {
-        case 5..<12:
-            return String(localized: "Good Morning")
-        case 12..<18:
-            return String(localized: "Hello")
-        case 18..<22:
-            return String(localized: "Good Evening")
-        default:
-            return String(localized: "Hello")
-        }
-    }
 
     // MARK: - Nutrition Summary Section
 
@@ -287,7 +268,7 @@ struct HomeView: View {
             }
             .padding(DSSpacing.md)
         }
-        .navigationTitle("Home")
+        .navigationTitle(Text("Home"))
         .background(DSColors.backgroundPrimary)
     }
 }
@@ -348,7 +329,7 @@ struct HomeView: View {
             }
             .padding(DSSpacing.md)
         }
-        .navigationTitle("Home")
+        .navigationTitle(Text("Home"))
         .background(DSColors.backgroundPrimary)
     }
     .preferredColorScheme(.dark)

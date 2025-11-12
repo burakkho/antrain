@@ -50,17 +50,17 @@ struct BodyweightEntrySheet: View {
                     }
                 }
             }
-            .navigationTitle("Add Bodyweight")
+            .navigationTitle(Text("Add Bodyweight"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") {
+                    Button(String(localized: "Cancel")) {
                         dismiss()
                     }
                 }
 
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Save") {
+                    Button(String(localized: "Save")) {
                         Task {
                             await saveBodyweight()
                         }

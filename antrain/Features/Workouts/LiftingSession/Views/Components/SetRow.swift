@@ -17,7 +17,6 @@ struct SetRow: View {
     let onDelete: () -> Void
 
     // Smart navigation parameters
-    typealias SetFieldIdentifier = ExerciseCard.SetFieldIdentifier
     @Binding var focusedField: SetFieldIdentifier?
     let currentSetId: UUID
     let onNavigateToNextSet: (Field) -> Void
@@ -73,44 +72,13 @@ struct SetRow: View {
 
     // MARK: - Focus Helpers
 
-    private var isRepsFocused: Bool {
-        focusedField?.setId == currentSetId && focusedField?.fieldType == .reps
-    }
-
-    private var isWeightFocused: Bool {
-        focusedField?.setId == currentSetId && focusedField?.fieldType == .weight
-    }
-
-    private func focusReps() {
-        focusedField = SetFieldIdentifier(setId: currentSetId, fieldType: .reps)
-    }
-
-    private func focusWeight() {
-        focusedField = SetFieldIdentifier(setId: currentSetId, fieldType: .weight)
-    }
-
-    // Computed binding for reps focus
-    private var repsFocusBinding: Binding<Bool> {
+    private func isFocused(_ field: Field) -> Binding<Bool> {
         Binding(
-            get: { isRepsFocused },
+            get: { focusedField?.setId == currentSetId && focusedField?.fieldType == field },
             set: { newValue in
                 if newValue {
-                    focusedField = SetFieldIdentifier(setId: currentSetId, fieldType: .reps)
-                } else if isRepsFocused {
-                    focusedField = nil
-                }
-            }
-        )
-    }
-
-    // Computed binding for weight focus
-    private var weightFocusBinding: Binding<Bool> {
-        Binding(
-            get: { isWeightFocused },
-            set: { newValue in
-                if newValue {
-                    focusedField = SetFieldIdentifier(setId: currentSetId, fieldType: .weight)
-                } else if isWeightFocused {
+                    focusedField = SetFieldIdentifier(setId: currentSetId, fieldType: field)
+                } else if focusedField?.setId == currentSetId && focusedField?.fieldType == field {
                     focusedField = nil
                 }
             }
@@ -161,13 +129,13 @@ struct SetRow: View {
                         switch direction {
                         case .next:
                             // Move to weight field in the same set
-                            focusWeight()
+                            focusedField = SetFieldIdentifier(setId: currentSetId, fieldType: .weight)
                         case .previous:
                             // Move to previous set's reps field (column-based)
                             onNavigateToPreviousSet(.reps)
                         }
                     },
-                    externalFocus: repsFocusBinding
+                    externalFocus: isFocused(.reps)
                 )
                 .strikethrough(set.isCompleted, color: DSColors.textPrimary)
 
@@ -195,10 +163,10 @@ struct SetRow: View {
                             onNavigateToNextSet(.weight)
                         case .previous:
                             // Move back to reps in the same set
-                            focusReps()
+                            focusedField = SetFieldIdentifier(setId: currentSetId, fieldType: .reps)
                         }
                     },
-                    externalFocus: weightFocusBinding
+                    externalFocus: isFocused(.weight)
                 )
                 .strikethrough(set.isCompleted, color: DSColors.textPrimary)
 
@@ -273,7 +241,7 @@ struct SetRow: View {
 // MARK: - Preview
 
 #Preview {
-    @Previewable @State var focusedField: SetRow.SetFieldIdentifier? = nil
+    @Previewable @State var focusedField: SetFieldIdentifier? = nil
 
     let set1 = WorkoutSet(reps: 10, weight: 80, isCompleted: false)
     let set2 = WorkoutSet(reps: 10, weight: 80, isCompleted: true)

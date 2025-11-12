@@ -48,53 +48,85 @@ final class ProfileViewModel {
     func updateName(_ name: String) async throws {
         guard let profile = userProfile else { return }
         profile.update(name: name)
-        await loadProfile()
+        // Profile updates are automatically saved via SwiftData
     }
 
     /// Update height
     func updateHeight(_ height: Double) async throws {
         guard let profile = userProfile else { return }
         profile.update(height: height)
-        await loadProfile()
+        // Profile updates are automatically saved via SwiftData
     }
 
     /// Update gender
     func updateGender(_ gender: UserProfile.Gender) async throws {
         guard let profile = userProfile else { return }
         profile.update(gender: gender)
-        await loadProfile()
+        // Profile updates are automatically saved via SwiftData
     }
 
     /// Update date of birth
     func updateDateOfBirth(_ dateOfBirth: Date) async throws {
         guard let profile = userProfile else { return }
         profile.update(dateOfBirth: dateOfBirth)
-        await loadProfile()
+        // Profile updates are automatically saved via SwiftData
     }
 
     /// Update activity level
     func updateActivityLevel(_ activityLevel: UserProfile.ActivityLevel) async throws {
         guard let profile = userProfile else { return }
         profile.update(activityLevel: activityLevel)
-        await loadProfile()
+        // Profile updates are automatically saved via SwiftData
+    }
+
+    /// Update fitness level
+    func updateFitnessLevel(_ fitnessLevel: UserProfile.FitnessLevel) async throws {
+        guard let profile = userProfile else { return }
+        profile.update(fitnessLevel: fitnessLevel)
+        // Profile updates are automatically saved via SwiftData
+    }
+
+    /// Update fitness goals
+    func updateFitnessGoals(_ fitnessGoals: [UserProfile.FitnessGoal]) async throws {
+        guard let profile = userProfile else { return }
+        profile.update(fitnessGoals: fitnessGoals)
+        // Profile updates are automatically saved via SwiftData
+    }
+
+    /// Update weekly workout frequency
+    func updateWeeklyWorkoutFrequency(_ frequency: Int) async throws {
+        guard let profile = userProfile else { return }
+        profile.update(weeklyWorkoutFrequency: frequency)
+        // Profile updates are automatically saved via SwiftData
+    }
+
+    /// Update available equipment
+    func updateAvailableEquipment(_ equipment: UserProfile.Equipment) async throws {
+        guard let profile = userProfile else { return }
+        profile.update(availableEquipment: equipment)
+        // Profile updates are automatically saved via SwiftData
     }
 
     // MARK: - Bodyweight Tracking
 
     /// Add bodyweight entry
     func addBodyweightEntry(weight: Double, date: Date, notes: String?) async throws {
-        _ = try await userProfileRepository.addBodyweightEntry(
+        guard let profile = userProfile else { return }
+        let entry = try await userProfileRepository.addBodyweightEntry(
             weight: weight,
             date: date,
             notes: notes
         )
-        await loadProfile()
+        // Update local profile (SwiftData automatically syncs)
+        profile.bodyweightEntries.append(entry)
     }
 
     /// Delete bodyweight entry
     func deleteBodyweightEntry(_ entry: BodyweightEntry) async throws {
+        guard let profile = userProfile else { return }
         try await userProfileRepository.deleteBodyweightEntry(entry)
-        await loadProfile()
+        // Remove from local profile (SwiftData automatically syncs)
+        profile.bodyweightEntries.removeAll { $0.id == entry.id }
     }
 
     /// Get bodyweight history

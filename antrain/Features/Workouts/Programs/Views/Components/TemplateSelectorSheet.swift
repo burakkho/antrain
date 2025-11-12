@@ -27,18 +27,18 @@ struct TemplateSelectorSheet: View {
                     templateList
                 }
             }
-            .navigationTitle("Select Template")
+            .navigationTitle(Text("Select Template"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    Button("Cancel") {
+                    Button(String(localized: "Cancel")) {
                         dismiss()
                     }
                 }
 
                 if selectedTemplate != nil {
                     ToolbarItem(placement: .topBarTrailing) {
-                        Button("Clear") {
+                        Button(String(localized: "Clear")) {
                             selectedTemplate = nil
                             dismiss()
                         }
@@ -82,7 +82,7 @@ struct TemplateSelectorSheet: View {
                     .foregroundStyle(.primary)
 
                 HStack(spacing: 8) {
-                    Label("\(template.exerciseCount) exercises", systemImage: "dumbbell.fill")
+                    Label(String(localized: "\(template.exerciseCount) exercises"), systemImage: "dumbbell.fill")
                         .font(.caption)
 
                     if template.estimatedDuration > 0 {
@@ -128,7 +128,7 @@ struct TemplateSelectorSheet: View {
     @ViewBuilder
     private var emptyState: some View {
         ContentUnavailableView {
-            Label("No Templates", systemImage: "doc.text.magnifyingglass")
+            Label(String(localized: "No Templates"), systemImage: "doc.text.magnifyingglass")
         } description: {
             Text("Create a template in the Templates tab to use it in programs")
         }

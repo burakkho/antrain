@@ -14,7 +14,7 @@ struct PrivacyPolicyView: View {
             }
             .padding(DSSpacing.lg)
         }
-        .navigationTitle("Privacy Policy")
+        .navigationTitle(Text("Privacy Policy"))
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {

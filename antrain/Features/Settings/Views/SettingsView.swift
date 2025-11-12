@@ -112,11 +112,11 @@ struct SettingsView: View {
                     NavigationLink {
                         PrivacyPolicyView()
                     } label: {
-                        Label("Privacy Policy", systemImage: "hand.raised.fill")
+                        Label(String(localized: "Privacy Policy"), systemImage: "hand.raised.fill")
                     }
                 }
             }
-            .navigationTitle("Settings")
+            .navigationTitle(Text("Settings"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
@@ -137,8 +137,8 @@ struct SettingsView: View {
                 type: viewModel?.toastType ?? .info,
                 duration: 3.0
             )
-            .alert("Enable Notifications", isPresented: $showPermissionAlert) {
-                Button("Allow") {
+            .alert(Text("Enable Notifications"), isPresented: $showPermissionAlert) {
+                Button(String(localized: "Allow")) {
                     Task {
                         await requestNotificationPermission()
                     }

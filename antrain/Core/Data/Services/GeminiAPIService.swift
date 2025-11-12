@@ -34,7 +34,8 @@ final class GeminiAPIService: GeminiAPIServiceProtocol {
         _ message: String,
         context: WorkoutContext,
         chatHistory: [ChatHistoryItem],
-        isNewUser: Bool
+        isNewUser: Bool,
+        useFullContext: Bool = true
     ) async throws -> String {
         // Validate message
         guard !message.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
@@ -54,7 +55,8 @@ final class GeminiAPIService: GeminiAPIServiceProtocol {
             context: context,
             chatHistory: chatHistory,
             language: language,
-            isNewUser: isNewUser
+            isNewUser: isNewUser,
+            useFullContext: useFullContext
         )
 
         // Log request for debugging
@@ -127,7 +129,8 @@ final class GeminiAPIService: GeminiAPIServiceProtocol {
         context: WorkoutContext,
         chatHistory: [ChatHistoryItem],
         language: String,
-        isNewUser: Bool
+        isNewUser: Bool,
+        useFullContext: Bool
     ) throws -> URLRequest {
         var request = URLRequest(url: GeminiConfig.generateContentURL)
         request.httpMethod = "POST"
@@ -142,7 +145,8 @@ final class GeminiAPIService: GeminiAPIServiceProtocol {
             context: context,
             chatHistory: chatHistory,
             language: language,
-            isNewUser: isNewUser
+            isNewUser: isNewUser,
+            useFullContext: useFullContext
         )
 
         request.httpBody = try JSONSerialization.data(withJSONObject: requestBody)
@@ -155,11 +159,23 @@ final class GeminiAPIService: GeminiAPIServiceProtocol {
         context: WorkoutContext,
         chatHistory: [ChatHistoryItem],
         language: String,
-        isNewUser: Bool
+        isNewUser: Bool,
+        useFullContext: Bool
     ) -> [String: Any] {
-        // Build system prompt with context
-        let contextString = context.toPromptString(language: language)
+        // Build system prompt with context (full or minimal based on useFullContext flag)
+        // First message: Send full context for comprehensive understanding
+        // Follow-up messages: Send minimal context to save tokens (detailed context already sent)
+        let contextString = useFullContext
+            ? context.toPromptString(language: language)
+            : context.toMinimalPromptString()
         let systemPrompt = GeminiConfig.systemPrompt(language: language, userContext: contextString, isNewUser: isNewUser)
+
+        // Log context optimization
+        if useFullContext {
+            print("📊 [GeminiAPI] Using FULL context (\(contextString.count) chars)")
+        } else {
+            print("📊 [GeminiAPI] Using MINIMAL context (\(contextString.count) chars) - Token optimization active")
+        }
 
         // Build contents array with chat history
         var contents: [[String: Any]] = []

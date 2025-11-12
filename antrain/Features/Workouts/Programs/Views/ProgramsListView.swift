@@ -21,10 +21,10 @@ struct ProgramsListView: View {
                 ProgressView()
             }
         }
-        .navigationTitle("Training Programs")
+        .navigationTitle(Text("Training Programs"))
         .toolbar {
             ToolbarItem(placement: .cancellationAction) {
-                Button("Done") {
+                Button(String(localized: "Done")) {
                     dismiss()
                 }
             }
@@ -51,11 +51,11 @@ struct ProgramsListView: View {
             ProgressView("Loading programs...")
         } else if let error = viewModel.errorMessage {
             ContentUnavailableView {
-                Label("Error Loading Programs", systemImage: "exclamationmark.triangle")
+                Label(String(localized: "Error Loading Programs"), systemImage: "exclamationmark.triangle")
             } description: {
                 Text(error)
             } actions: {
-                Button("Try Again") {
+                Button(String(localized: "Try Again")) {
                     Task {
                         await viewModel.loadPrograms()
                     }
@@ -70,11 +70,11 @@ struct ProgramsListView: View {
 
     private var emptyState: some View {
         ContentUnavailableView {
-            Label("No Programs Available", systemImage: "calendar.badge.exclamationmark")
+            Label(String(localized: "No Programs Available"), systemImage: "calendar.badge.exclamationmark")
         } description: {
             Text("Preset programs will appear here once loaded")
         } actions: {
-            Button("Reload") {
+            Button(String(localized: "Reload")) {
                 Task {
                     await viewModel?.loadPrograms()
                 }
@@ -200,8 +200,11 @@ private struct FilterChip: View {
 }
 
 #Preview {
+    @Previewable @State var workoutManager = ActiveWorkoutManager()
+
     NavigationStack {
         ProgramsListView()
             .environmentObject(AppDependencies.preview)
+            .environment(workoutManager)
     }
 }

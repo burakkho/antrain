@@ -47,11 +47,12 @@ struct LiftingSessionView: View {
                     DSLoadingView(message: "Starting workout...")
                 }
             }
-            .navigationTitle("Lifting Session")
+            .navigationTitle(String(localized: "Lifting Session"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button(viewModel?.hasData == true ? "Minimize" : "Cancel") {
+                    let buttonTitle: LocalizedStringKey = viewModel?.hasData == true ? "Minimize" : "Cancel"
+                    Button(buttonTitle) {
                         if viewModel?.hasData == true {
                             // Minimize workout
                             workoutManager?.minimizeWorkout()
@@ -106,7 +107,7 @@ struct LiftingSessionView: View {
                 ToolbarItem(placement: .primaryAction) {
                     if let viewModel, viewModel.canSave {
                         Menu {
-                            Button("Finish Workout") {
+                            Button(String(localized: "Finish Workout")) {
                                 viewModel.showSummary = true
                             }
 
@@ -206,11 +207,11 @@ struct LiftingSessionView: View {
                 isPresented: $showCancelConfirmation,
                 titleVisibility: .visible
             ) {
-                Button("Discard", role: .destructive) {
+                Button(String(localized: "Discard"), role: .destructive) {
                     workoutManager?.cancelWorkout()
                     dismiss()
                 }
-                Button("Keep Editing", role: .cancel) {}
+                Button(String(localized: "Keep Editing"), role: .cancel) {}
             } message: {
                 Text("Your workout data will be lost.")
             }
@@ -234,7 +235,7 @@ struct LiftingSessionView: View {
 
     // MARK: - Empty State
 
-    private func emptyState(viewModel: LiftingSessionViewModel) -> some View {
+    func emptyState(viewModel: LiftingSessionViewModel) -> some View {
         VStack(spacing: 32) {
             DSEmptyState(
                 icon: "dumbbell",
@@ -282,7 +283,7 @@ struct LiftingSessionView: View {
 
     // MARK: - Exercises List
 
-    private func exercisesList(viewModel: LiftingSessionViewModel) -> some View {
+    func exercisesList(viewModel: LiftingSessionViewModel) -> some View {
         ScrollView {
             VStack(spacing: DSSpacing.md) {
                 // Workout Statistics Header

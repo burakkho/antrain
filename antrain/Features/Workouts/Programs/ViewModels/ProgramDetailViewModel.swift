@@ -46,16 +46,12 @@ final class ProgramDetailViewModel {
 
     // MARK: - Computed Properties
 
-    var sortedWeeks: [ProgramWeek] {
-        program.weeks.sorted()
+    var sortedDays: [ProgramDay] {
+        program.sortedDays()
     }
 
-    var weekCount: Int {
-        program.weeks.count
-    }
-
-    var averageTrainingDaysPerWeek: Double {
-        program.trainingDaysPerWeek
+    var dayCount: Int {
+        program.totalDays
     }
 
     var estimatedTotalDuration: TimeInterval {
@@ -69,20 +65,17 @@ final class ProgramDetailViewModel {
     /// Get the first workout day with a valid template
     /// This computed property forces template relationships to load
     var firstWorkoutDay: ProgramDay? {
-        guard let firstWeek = sortedWeeks.first else { return nil }
-
-        // Sort days and find first one with a template
-        let sortedDays = firstWeek.days.sorted(by: { $0.dayOfWeek < $1.dayOfWeek })
+        let sortedDays = program.sortedDays()
 
         for day in sortedDays {
             // Explicitly access template to trigger SwiftData to load the relationship
             if let template = day.template, !template.name.isEmpty {
-                print("✓ Found first workout: \(day.displayName) with template '\(template.name)'")
+                print("✓ Found first workout: Day \(day.dayNumber) with template '\(template.name)'")
                 return day
             }
         }
 
-        print("⚠️ No workout day found with valid template in first week")
+        print("⚠️ No workout day found with valid template")
         return nil
     }
 
@@ -155,7 +148,7 @@ final class ProgramDetailViewModel {
         errorMessage = nil
     }
 
-    func loadWeekDetail(for week: ProgramWeek) -> WeekDetailViewModel {
-        WeekDetailViewModel(week: week)
+    func loadDayDetail(for day: ProgramDay) -> DayDetailViewModel {
+        DayDetailViewModel(day: day)
     }
 }

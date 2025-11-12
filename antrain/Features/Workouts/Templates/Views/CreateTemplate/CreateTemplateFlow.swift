@@ -75,7 +75,7 @@ struct CreateTemplateFlow: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") {
+                    Button(String(localized: "Cancel")) {
                         if hasChanges {
                             showCancelConfirmation = true
                         } else {
@@ -84,7 +84,7 @@ struct CreateTemplateFlow: View {
                     }
                 }
             }
-            .alert("Discard Changes?", isPresented: $showCancelConfirmation) {
+            .alert(Text("Discard Changes?"), isPresented: $showCancelConfirmation) {
                 Button("Keep Editing", role: .cancel) {}
                 Button("Discard", role: .destructive) {
                     dismiss()
@@ -92,8 +92,8 @@ struct CreateTemplateFlow: View {
             } message: {
                 Text("Are you sure you want to discard your changes?")
             }
-            .alert("Error", isPresented: .constant(viewModel.error != nil)) {
-                Button("OK") {
+            .alert(Text("Error"), isPresented: .constant(viewModel.error != nil)) {
+                Button(String(localized: "OK")) {
                     viewModel.clearError()
                 }
             } message: {
@@ -158,7 +158,7 @@ struct CreateTemplateFlow: View {
                         viewModel.previousStep()
                     }
                 } label: {
-                    Label("Back", systemImage: "chevron.left")
+                    Label(String(localized: "Back"), systemImage: "chevron.left")
                         .frame(maxWidth: .infinity)
                         .padding()
                         .background(Color(.systemGray5))

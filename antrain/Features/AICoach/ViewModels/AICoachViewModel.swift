@@ -98,9 +98,10 @@ final class AICoachViewModel {
 
     // MARK: - Load Data
 
-    func loadMessages() async {
+    func loadMessages(limit: Int = 50) async {
         do {
-            messages = try await chatRepository.fetchAllMessages()
+            // Load most recent N messages for performance (default: 50)
+            messages = try await chatRepository.fetchAllMessages(limit: limit)
         } catch {
             print("Error loading messages: \(error)")
         }
@@ -144,7 +145,15 @@ final class AICoachViewModel {
         errorMessage = nil
         errorType = nil
 
-        // Create and show user message immediately with sending state
+        // Ensure context is loaded before sending
+        if workoutContext == nil {
+            await loadContext()
+        }
+
+        // Determine if this is the first message (for progressive context optimization)
+        let isFirstMessage = messages.isEmpty
+
+        // Create and show user message immediately with sending state (optimistic update)
         let tempMessage = ChatMessage(
             content: text,
             isFromUser: true,
@@ -153,10 +162,14 @@ final class AICoachViewModel {
         tempMessage.isSending = true
         messages.append(tempMessage)
 
-        // Save to database (wait for completion but user sees message immediately)
+        // Save to database and get persisted message
+        let savedUserMessage: ChatMessage
         do {
-            _ = try await chatRepository.saveMessage(content: text, isFromUser: true)
-            tempMessage.isSending = false
+            savedUserMessage = try await chatRepository.saveMessage(content: text, isFromUser: true)
+            // Replace temp message with persisted message
+            if let index = messages.firstIndex(where: { $0.id == tempMessage.id }) {
+                messages[index] = savedUserMessage
+            }
         } catch {
             errorMessage = String(localized: "Failed to save message")
             // Remove failed message from UI
@@ -169,11 +182,6 @@ final class AICoachViewModel {
         // Show loading state
         isLoading = true
 
-        // Ensure context is loaded
-        if workoutContext == nil {
-            await loadContext()
-        }
-
         // Send to Gemini API
         do {
             // Convert ChatMessage to Sendable DTO to avoid actor isolation issues
@@ -183,7 +191,8 @@ final class AICoachViewModel {
                 text,
                 context: workoutContext ?? WorkoutContext.empty(),
                 chatHistory: chatHistory,
-                isNewUser: isNewUser
+                isNewUser: isNewUser,
+                useFullContext: isFirstMessage
             )
 
             // Save AI response

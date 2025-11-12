@@ -28,6 +28,11 @@ final class DailyNutritionViewModel {
     var toastMessage: LocalizedStringKey = ""
     var toastType: DSToast.ToastType = .error
 
+    // Edit state
+    var isEditingFood = false
+    var editingFoodEntry: FoodEntry?
+    var editingMealType: Meal.MealType?
+
     // Daily macro goals (loaded from UserProfile)
     var dailyCaloriesGoal: Double = 2000
     var dailyProteinGoal: Double = 150
@@ -162,6 +167,100 @@ final class DailyNutritionViewModel {
             await loadTodayLog()
         } catch {
             showToastMessage("Failed to remove food", type: .error)
+        }
+    }
+
+    func startEditingFood(foodEntry: FoodEntry, mealType: Meal.MealType) {
+        editingFoodEntry = foodEntry
+        editingMealType = mealType
+        isEditingFood = true
+    }
+
+    func cancelEditingFood() {
+        editingFoodEntry = nil
+        editingMealType = nil
+        isEditingFood = false
+    }
+
+    func editFood(
+        foodEntryId: UUID,
+        mealType: Meal.MealType,
+        newAmount: Double,
+        newUnit: ServingUnit
+    ) async {
+        guard let log = nutritionLog else {
+            showToastMessage("No nutrition log available", type: .error)
+            return
+        }
+
+        // Extract IDs to avoid Sendable warnings
+        let logId = log.id
+        let unitId = newUnit.id
+
+        do {
+            try await nutritionRepository.editFoodEntryById(
+                logId: logId,
+                mealType: mealType,
+                foodEntryId: foodEntryId,
+                newAmount: newAmount,
+                unitId: unitId
+            )
+
+            // Clear edit state
+            cancelEditingFood()
+
+            // Refresh log
+            await loadTodayLog()
+
+            showToastMessage("Food updated successfully", type: .success)
+        } catch {
+            showToastMessage("Failed to update food", type: .error)
+        }
+    }
+
+    func moveFoodToMeal(
+        foodEntryId: UUID,
+        fromMealType: Meal.MealType,
+        toMealType: Meal.MealType
+    ) async {
+        guard let log = nutritionLog else { return }
+
+        // Don't move if source and destination are the same
+        guard fromMealType != toMealType else { return }
+
+        do {
+            try await nutritionRepository.moveFoodEntryToMeal(
+                in: log,
+                foodEntryId: foodEntryId,
+                fromMealType: fromMealType,
+                toMealType: toMealType
+            )
+
+            await loadTodayLog()
+            showToastMessage("Food moved to \(toMealType.rawValue)", type: .success)
+        } catch {
+            showToastMessage("Failed to move food", type: .error)
+        }
+    }
+
+    func reorderFoods(
+        in mealType: Meal.MealType,
+        fromIndex: Int,
+        toIndex: Int
+    ) async {
+        guard let log = nutritionLog else { return }
+
+        do {
+            try await nutritionRepository.reorderFoodEntries(
+                in: log,
+                mealType: mealType,
+                fromIndex: fromIndex,
+                toIndex: toIndex
+            )
+
+            await loadTodayLog()
+        } catch {
+            showToastMessage("Failed to reorder foods", type: .error)
         }
     }
 

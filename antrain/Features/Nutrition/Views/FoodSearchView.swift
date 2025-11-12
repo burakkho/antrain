@@ -14,6 +14,8 @@ struct FoodSearchView: View {
 
     @Bindable var viewModel: FoodSearchViewModel
     let onSelect: (FoodItem, Double, ServingUnit) -> Void
+    var isEditMode: Bool
+    var editingEntry: FoodEntry?
 
     @State private var selectedFood: FoodItem?
     @State private var selectedUnit: ServingUnit?  // Will be set immediately when food is selected
@@ -32,7 +34,7 @@ struct FoodSearchView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") {
+                    Button(String(localized: "Cancel")) {
                         if selectedFood != nil {
                             selectedFood = nil
                             selectedUnit = nil
@@ -45,11 +47,18 @@ struct FoodSearchView: View {
 
                 if selectedFood != nil {
                     ToolbarItem(placement: .confirmationAction) {
-                        Button("Add") {
+                        Button(isEditMode ? "Update" : "Add") {
                             addFood()
                         }
                         .disabled(amount.isEmpty || Double(amount) == nil)
                     }
+                }
+            }
+            .onAppear {
+                if let entry = editingEntry {
+                    selectedFood = entry.foodItem
+                    selectedUnit = entry.selectedUnit
+                    amount = String(entry.amount)
                 }
             }
         }
@@ -276,6 +285,8 @@ private struct MacroLabel: View {
         ),
         onSelect: { food, amount, unit in
             print("Selected: \(food.name), \(amount) \(unit.unitDescription)")
-        }
+        },
+        isEditMode: false,
+        editingEntry: nil
     )
 }

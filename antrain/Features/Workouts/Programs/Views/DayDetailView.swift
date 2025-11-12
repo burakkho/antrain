@@ -60,11 +60,6 @@ struct DayDetailView: View {
                 if let notes = day.notes, !notes.isEmpty {
                     notesSection(notes: notes)
                 }
-
-                // Week context
-                if let week = day.week {
-                    WeekContextCard(week: week)
-                }
             }
             .padding()
         }
@@ -75,7 +70,7 @@ struct DayDetailView: View {
     @ViewBuilder
     private func notesSection(notes: String) -> some View {
         VStack(alignment: .leading, spacing: DSSpacing.sm) {
-            Label("Notes", systemImage: "note.text")
+            Label(String(localized: "Notes"), systemImage: "note.text")
                 .font(DSTypography.headline)
 
             Text(notes)
@@ -99,7 +94,7 @@ struct DayDetailView: View {
                 workoutManager.startWorkoutFromProgram(template, programDay: day)
             }
         } label: {
-            Label("Start", systemImage: "play.fill")
+            Label(String(localized: "Start"), systemImage: "play.fill")
                 .font(DSTypography.body)
                 .fontWeight(.semibold)
         }
@@ -110,6 +105,8 @@ struct DayDetailView: View {
 // MARK: - Previews
 
 #Preview("Training Day") {
+    @Previewable @State var workoutManager = ActiveWorkoutManager()
+
     NavigationStack {
         DayDetailView(
             day: {
@@ -146,36 +143,32 @@ struct DayDetailView: View {
 
                 template.exercises = [ex1, ex2, ex3]
 
-                let week = ProgramWeek(
-                    weekNumber: 3,
-                    name: "Hypertrophy Phase",
-                    phaseTag: .hypertrophy,
-                    intensityModifier: 1.05
-                )
-
                 let day = ProgramDay(
-                    dayOfWeek: 2,
+                    dayNumber: 15,
                     name: "Push Day",
                     notes: "Focus on progressive overload. Track all weights.",
                     template: template
                 )
-                day.week = week
 
                 return day
             }()
         )
         .environmentObject(AppDependencies.preview)
+        .environment(workoutManager)
     }
 }
 
 #Preview("Rest Day") {
+    @Previewable @State var workoutManager = ActiveWorkoutManager()
+
     NavigationStack {
         DayDetailView(
             day: ProgramDay(
-                dayOfWeek: 1,
+                dayNumber: 7,
                 notes: "Light stretching and mobility work recommended"
             )
         )
         .environmentObject(AppDependencies.preview)
+        .environment(workoutManager)
     }
 }

@@ -27,6 +27,20 @@ protocol WorkoutRepositoryProtocol: Actor {
     /// - Returns: Array of recent workouts, sorted by date (most recent first)
     func fetchRecent(limit: Int) async throws -> [Workout]
 
+    /// Fetch workouts within a date range (database-level filtering)
+    /// - Parameters:
+    ///   - startDate: Start of date range (inclusive)
+    ///   - endDate: End of date range (exclusive)
+    /// - Returns: Workouts in date range, sorted by date (most recent first)
+    func fetchByDateRange(startDate: Date, endDate: Date) async throws -> [Workout]
+
+    /// Fetch recent workouts with date range and limit (database-level filtering)
+    /// - Parameters:
+    ///   - startDate: Start of date range (inclusive)
+    ///   - limit: Maximum number of workouts to return
+    /// - Returns: Recent workouts in range, sorted by date (most recent first)
+    func fetchRecent(since startDate: Date, limit: Int) async throws -> [Workout]
+
     /// Save (insert or update) a workout
     func save(_ workout: Workout) async throws
 

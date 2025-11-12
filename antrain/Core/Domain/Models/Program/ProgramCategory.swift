@@ -11,6 +11,8 @@ import Foundation
 enum ProgramCategory: String, Codable, CaseIterable, Sendable {
     case powerlifting
     case bodybuilding
+    case strength
+    case calisthenics
     case strengthTraining
     case crossfit
     case generalFitness
@@ -23,6 +25,10 @@ enum ProgramCategory: String, Codable, CaseIterable, Sendable {
             return String(localized: "Powerlifting", comment: "Program category: Powerlifting")
         case .bodybuilding:
             return String(localized: "Bodybuilding", comment: "Program category: Bodybuilding")
+        case .strength:
+            return String(localized: "Strength", comment: "Program category: Strength")
+        case .calisthenics:
+            return String(localized: "Calisthenics", comment: "Program category: Calisthenics")
         case .strengthTraining:
             return String(localized: "Strength Training", comment: "Program category: Strength Training")
         case .crossfit:
@@ -41,6 +47,10 @@ enum ProgramCategory: String, Codable, CaseIterable, Sendable {
             return "figure.strengthtraining.traditional"
         case .bodybuilding:
             return "figure.strengthtraining.functional"
+        case .strength:
+            return "dumbbell.fill"
+        case .calisthenics:
+            return "figure.flexibility"
         case .strengthTraining:
             return "dumbbell.fill"
         case .crossfit:

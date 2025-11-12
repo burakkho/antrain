@@ -101,22 +101,22 @@ struct NutritionSettingsView: View {
                             .font(DSTypography.body)
                         }
 
-                        Button("Add Weight Entry") {
+                        Button(String(localized: "Add Weight Entry")) {
                             showBodyweightEntry = true
                         }
 
                         if viewModel.userProfile?.bodyweightEntries.isEmpty == false {
-                            Button("View Weight History") {
+                            Button(String(localized: "View Weight History")) {
                                 showBodyweightHistory = true
                             }
                         }
                     }
                 }
-                .navigationTitle("Nutrition Settings")
+                .navigationTitle(Text("Nutrition Settings"))
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
                     ToolbarItem(placement: .cancellationAction) {
-                        Button("Done") {
+                        Button(String(localized: "Done")) {
                             dismiss()
                         }
                     }

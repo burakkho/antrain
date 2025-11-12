@@ -413,7 +413,7 @@ struct ProteinFoods {
             ]
         ),
         FoodDTO(
-            name: String(localized: "Turkish Sausage (Sucuk)"),
+            name: String(localized: "Turkish Sausage"),
             calories: 467, protein: 18, carbs: 2, fats: 43,
             servingSize: 50,
             category: .protein,

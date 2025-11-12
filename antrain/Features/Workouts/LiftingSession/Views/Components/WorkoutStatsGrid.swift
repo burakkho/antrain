@@ -7,6 +7,8 @@ struct WorkoutStatsGrid: View {
     let durationDisplay: String
     let totalVolume: Double
 
+    @AppStorage("weightUnit") private var weightUnit: String = "Kilograms"
+
     var body: some View {
         Section {
             VStack(spacing: 12) {
@@ -19,7 +21,7 @@ struct WorkoutStatsGrid: View {
                 // Row 2
                 HStack(spacing: 12) {
                     statBox(title: "Duration", value: durationDisplay, icon: "clock.fill")
-                    statBox(title: "Volume", value: String(format: "%.0f kg", totalVolume), icon: "scalemass.fill")
+                    statBox(title: "Volume", value: totalVolume.formattedWeight(unit: weightUnit), icon: "scalemass.fill")
                 }
             }
             .listRowInsets(EdgeInsets(top: 12, leading: 16, bottom: 12, trailing: 16))

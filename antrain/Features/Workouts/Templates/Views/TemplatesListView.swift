@@ -38,10 +38,10 @@ struct TemplatesListView: View {
                     loadingView
                 }
             }
-            .navigationTitle("Templates")
+            .navigationTitle(Text("Templates"))
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Done") {
+                    Button(String(localized: "Done")) {
                         dismiss()
                     }
                 }
@@ -61,7 +61,7 @@ struct TemplatesListView: View {
                     }
                 }
             }
-            .alert("Delete Template", isPresented: .constant(templateToDelete != nil)) {
+            .alert(Text("Delete Template"), isPresented: .constant(templateToDelete != nil)) {
                 Button("Cancel", role: .cancel) {
                     templateToDelete = nil
                 }
@@ -73,19 +73,19 @@ struct TemplatesListView: View {
                     Text("Are you sure you want to delete '\(template.name)'?")
                 }
             }
-            .alert("Cannot Delete Template", isPresented: $showUsageWarning) {
+            .alert(Text("Cannot Delete Template"), isPresented: $showUsageWarning) {
                 Button("OK", role: .cancel) {
                     templateUsagePrograms = []
                 }
             } message: {
                 usageWarningMessage
             }
-            .alert("Duplicate Template", isPresented: .constant(templateToDuplicate != nil)) {
+            .alert(Text("Duplicate Template"), isPresented: .constant(templateToDuplicate != nil)) {
                 TextField("Template name", text: $duplicateName)
                 Button("Cancel", role: .cancel) {
                     resetDuplicateState()
                 }
-                Button("Duplicate") {
+                Button(String(localized: "Duplicate")) {
                     handleTemplateDuplication()
                 }
             } message: {

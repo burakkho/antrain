@@ -45,11 +45,11 @@ struct ExerciseSelectionView: View {
                     }
                 }
             }
-            .navigationTitle("Select Exercise")
+            .navigationTitle(Text("Select Exercise"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") {
+                    Button(String(localized: "Cancel")) {
                         dismiss()
                     }
                 }

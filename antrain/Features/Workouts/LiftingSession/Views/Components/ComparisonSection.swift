@@ -5,12 +5,16 @@ struct ComparisonSection: View {
     let volumeChange: Double?
     let workoutComparison: WorkoutComparison?
 
+    @AppStorage("weightUnit") private var weightUnit: String = "Kilograms"
+
     var body: some View {
         Section {
             if let volumeChange {
+                let sign = volumeChange > 0 ? "+" : ""
+                let formattedChange = abs(volumeChange).formattedWeight(unit: weightUnit)
                 comparisonRow(
                     title: "Volume",
-                    value: String(format: "%+.0f kg", volumeChange),
+                    value: "\(sign)\(formattedChange)",
                     isPositive: volumeChange > 0
                 )
             }
@@ -29,7 +33,7 @@ struct ComparisonSection: View {
                 )
             }
         } header: {
-            Label("vs Last Workout", systemImage: "chart.line.uptrend.xyaxis")
+            Label(String(localized: "vs Last Workout"), systemImage: "chart.line.uptrend.xyaxis")
         }
     }
 

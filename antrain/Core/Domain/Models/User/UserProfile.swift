@@ -28,14 +28,28 @@ final class UserProfile: @unchecked Sendable {
     var createdAt: Date
     var updatedAt: Date
 
+    // AI Coach Onboarding Fields
+    /// User's fitness experience level
+    var fitnessLevel: FitnessLevel?
+    /// User's fitness goals (can have multiple)
+    var fitnessGoals: [FitnessGoal] = []
+    /// How many days per week user can train
+    var weeklyWorkoutFrequency: Int?
+    /// Available equipment for workouts
+    var availableEquipment: Equipment?
+
     // Training Programs v2.0 Additions
     /// Currently active training program (nullify on delete to prevent orphan reference)
     @Relationship(deleteRule: .nullify)
     var activeProgram: TrainingProgram?
     /// Date when the active program was started
     var activeProgramStartDate: Date?
-    /// Current week number in the active program (1-indexed)
-    var currentWeekNumber: Int?
+    /// Current day number in the active program (1-indexed, 1-totalDays)
+    var currentDayNumber: Int?
+
+    // Onboarding state
+    /// Track if user has completed initial onboarding wizard
+    var hasCompletedInitialOnboarding: Bool = false
 
     // MARK: - Gender Enum
 
@@ -113,6 +127,139 @@ final class UserProfile: @unchecked Sendable {
         }
     }
 
+    // MARK: - Fitness Level Enum
+
+    /// User's fitness experience level
+    enum FitnessLevel: String, Codable, CaseIterable {
+        case beginner = "Beginner"
+        case intermediate = "Intermediate"
+        case advanced = "Advanced"
+
+        var localizedName: LocalizedStringKey {
+            switch self {
+            case .beginner:
+                return "Beginner"
+            case .intermediate:
+                return "Intermediate"
+            case .advanced:
+                return "Advanced"
+            }
+        }
+
+        var displayName: String {
+            switch self {
+            case .beginner:
+                return String(localized: "Beginner")
+            case .intermediate:
+                return String(localized: "Intermediate")
+            case .advanced:
+                return String(localized: "Advanced")
+            }
+        }
+
+        var description: String {
+            switch self {
+            case .beginner:
+                return String(localized: "0-1 year of training experience")
+            case .intermediate:
+                return String(localized: "1-3 years of training experience")
+            case .advanced:
+                return String(localized: "3+ years of training experience")
+            }
+        }
+    }
+
+    // MARK: - Fitness Goal Enum
+
+    /// User's fitness goals (can have multiple)
+    enum FitnessGoal: String, Codable, CaseIterable {
+        case muscleGain = "Muscle Gain"
+        case fatLoss = "Fat Loss"
+        case strength = "Strength"
+        case endurance = "Endurance"
+
+        var localizedName: LocalizedStringKey {
+            switch self {
+            case .muscleGain:
+                return "Muscle Gain"
+            case .fatLoss:
+                return "Fat Loss"
+            case .strength:
+                return "Strength"
+            case .endurance:
+                return "Endurance"
+            }
+        }
+
+        var displayName: String {
+            switch self {
+            case .muscleGain:
+                return String(localized: "Muscle Gain")
+            case .fatLoss:
+                return String(localized: "Fat Loss")
+            case .strength:
+                return String(localized: "Strength")
+            case .endurance:
+                return String(localized: "Endurance")
+            }
+        }
+
+        var icon: String {
+            switch self {
+            case .muscleGain:
+                return "💪"
+            case .fatLoss:
+                return "🔥"
+            case .strength:
+                return "⚡️"
+            case .endurance:
+                return "🏃"
+            }
+        }
+    }
+
+    // MARK: - Equipment Enum
+
+    /// Available equipment for workouts
+    enum Equipment: String, Codable, CaseIterable {
+        case gym = "Gym"
+        case home = "Home"
+        case minimal = "Minimal"
+
+        var localizedName: LocalizedStringKey {
+            switch self {
+            case .gym:
+                return "Gym"
+            case .home:
+                return "Home"
+            case .minimal:
+                return "Minimal"
+            }
+        }
+
+        var displayName: String {
+            switch self {
+            case .gym:
+                return String(localized: "Gym")
+            case .home:
+                return String(localized: "Home")
+            case .minimal:
+                return String(localized: "Minimal")
+            }
+        }
+
+        var description: String {
+            switch self {
+            case .gym:
+                return String(localized: "Full gym access")
+            case .home:
+                return String(localized: "Home equipment (dumbbells, bench, etc.)")
+            case .minimal:
+                return String(localized: "Bodyweight only or minimal equipment")
+            }
+        }
+    }
+
     // MARK: - Relationships
 
     @Relationship(deleteRule: .cascade, inverse: \BodyweightEntry.userProfile)
@@ -179,7 +326,11 @@ final class UserProfile: @unchecked Sendable {
         dailyCalorieGoal: Double? = nil,
         dailyProteinGoal: Double? = nil,
         dailyCarbsGoal: Double? = nil,
-        dailyFatsGoal: Double? = nil
+        dailyFatsGoal: Double? = nil,
+        fitnessLevel: FitnessLevel? = nil,
+        fitnessGoals: [FitnessGoal]? = nil,
+        weeklyWorkoutFrequency: Int? = nil,
+        availableEquipment: Equipment? = nil
     ) {
         if let name = name {
             self.name = name
@@ -207,6 +358,18 @@ final class UserProfile: @unchecked Sendable {
         }
         if let dailyFatsGoal = dailyFatsGoal {
             self.dailyFatsGoal = dailyFatsGoal
+        }
+        if let fitnessLevel = fitnessLevel {
+            self.fitnessLevel = fitnessLevel
+        }
+        if let fitnessGoals = fitnessGoals {
+            self.fitnessGoals = fitnessGoals
+        }
+        if let weeklyWorkoutFrequency = weeklyWorkoutFrequency {
+            self.weeklyWorkoutFrequency = weeklyWorkoutFrequency
+        }
+        if let availableEquipment = availableEquipment {
+            self.availableEquipment = availableEquipment
         }
         self.updatedAt = Date()
     }
@@ -248,7 +411,7 @@ extension UserProfile {
     func activateProgram(_ program: TrainingProgram) {
         self.activeProgram = program
         self.activeProgramStartDate = Date()
-        self.currentWeekNumber = 1
+        self.currentDayNumber = 1
         self.updatedAt = Date()
 
         // Mark program as used
@@ -259,75 +422,92 @@ extension UserProfile {
     func deactivateProgram() {
         self.activeProgram = nil
         self.activeProgramStartDate = nil
-        self.currentWeekNumber = nil
+        self.currentDayNumber = nil
         self.updatedAt = Date()
     }
 
-    /// Get today's workout from the active program
-    /// - Returns: ProgramDay for today, or nil if no active program or no workout today
+    /// Get current day's workout from the active program
+    /// - Returns: ProgramDay for current day number, or nil if no active program
     func getTodaysWorkout() -> ProgramDay? {
         guard let activeProgram = activeProgram,
-              let startDate = activeProgramStartDate else {
+              let dayNumber = currentDayNumber else {
             return nil
         }
 
-        let calendar = Calendar.current
-        let today = Date()
-
-        // Calculate days since program started
-        let daysSinceStart = calendar.dateComponents([.day], from: startDate, to: today).day ?? 0
-
-        // Calculate current week number (1-indexed)
-        let currentWeek = (daysSinceStart / 7) + 1
-
-        // Get current day of week (1 = Sunday, 2 = Monday, ..., 7 = Saturday)
-        let currentDayOfWeek = calendar.component(.weekday, from: today)
-
-        // Find the workout for today
-        return activeProgram.weeks
-            .first { $0.weekNumber == currentWeek }?
-            .days
-            .first { $0.dayOfWeek == currentDayOfWeek }
+        return activeProgram.day(number: dayNumber)
     }
 
-    /// Progress to the next week in the active program
-    func progressToNextWeek() {
-        guard let current = currentWeekNumber,
+    /// Progress to the next day in the active program
+    /// - Returns: True if progressed, false if program is complete
+    @discardableResult
+    func progressToNextDay() -> Bool {
+        guard let current = currentDayNumber,
               let program = activeProgram else {
-            return
+            return false
         }
 
         // Don't exceed program duration
-        if current < program.durationWeeks {
-            currentWeekNumber = current + 1
+        if current < program.totalDays {
+            currentDayNumber = current + 1
             updatedAt = Date()
+            return true
+        } else {
+            // Program completed
+            return false
         }
     }
 
     /// Check if the active program is completed
     var isProgramCompleted: Bool {
-        guard let currentWeek = currentWeekNumber,
+        guard let currentDay = currentDayNumber,
               let program = activeProgram else {
             return false
         }
-        return currentWeek > program.durationWeeks
+        return currentDay > program.totalDays
     }
 
-    /// Get the current week from the active program
-    var currentProgramWeek: ProgramWeek? {
-        guard let weekNumber = currentWeekNumber,
+    /// Get the current day from the active program
+    var currentProgramDay: ProgramDay? {
+        guard let dayNumber = currentDayNumber,
               let program = activeProgram else {
             return nil
         }
-        return program.week(number: weekNumber)
+        return program.day(number: dayNumber)
     }
 
     /// Calculate program progress percentage (0.0 - 1.0)
     var programProgress: Double {
-        guard let currentWeek = currentWeekNumber,
+        guard let currentDay = currentDayNumber,
               let program = activeProgram else {
             return 0.0
         }
-        return Double(currentWeek - 1) / Double(program.durationWeeks)
+        return Double(currentDay - 1) / Double(program.totalDays)
+    }
+}
+
+// MARK: - AI Coach Extensions
+
+extension UserProfile {
+    /// Check if user has completed AI onboarding (has minimum required info)
+    var hasCompletedOnboarding: Bool {
+        return fitnessLevel != nil && !fitnessGoals.isEmpty
+    }
+
+    /// Check if user needs AI onboarding
+    var needsAIOnboarding: Bool {
+        return !hasCompletedOnboarding
+    }
+
+    /// Get onboarding completion percentage
+    var onboardingProgress: Double {
+        var completedFields = 0
+        let totalFields = 4
+
+        if fitnessLevel != nil { completedFields += 1 }
+        if !fitnessGoals.isEmpty { completedFields += 1 }
+        if weeklyWorkoutFrequency != nil { completedFields += 1 }
+        if availableEquipment != nil { completedFields += 1 }
+
+        return Double(completedFields) / Double(totalFields)
     }
 }

@@ -20,20 +20,16 @@ final class MetConLogViewModel {
 
     var metconType: MetConType = .amrap
     var rounds: Int = 0  // For AMRAP/EMOM
-    var result: String = ""  // For Time result or general notes
+    var workoutDescription: String = ""  // WOD description (exercises, rep schemes)
+    var score: String = ""  // Performance result/score
     var duration: TimeInterval = 0  // seconds
-    var notes: String = ""
     var isLoading = false
     var errorMessage: String?
-
-    // Duration input helpers (for UI)
-    var durationMinutes: Double = 0
-    var durationSeconds: Double = 0
 
     // MARK: - Computed Properties
 
     var canSave: Bool {
-        duration > 0 && !result.isEmpty
+        duration > 0 && !workoutDescription.isEmpty && !score.isEmpty
     }
 
     // MARK: - Initialization
@@ -44,15 +40,10 @@ final class MetConLogViewModel {
 
     // MARK: - Actions
 
-    /// Update duration from minutes and seconds input
-    func updateDuration() {
-        duration = (durationMinutes * 60) + durationSeconds
-    }
-
     /// Save metcon workout
     func saveWorkout() async throws {
         guard canSave else {
-            throw ValidationError.businessRuleViolation("Please enter duration and result/notes")
+            throw ValidationError.businessRuleViolation("Please enter duration, workout description, and score")
         }
 
         isLoading = true
@@ -64,13 +55,13 @@ final class MetConLogViewModel {
                 date: Date(),
                 type: .metcon,
                 duration: duration,
-                notes: notes.isEmpty ? nil : notes
+                notes: workoutDescription
             )
 
             // Set metcon-specific data
             workout.metconType = metconType.rawValue
             workout.metconRounds = rounds > 0 ? rounds : nil
-            workout.metconResult = result
+            workout.metconResult = score
 
             // Validate and save
             try workout.validate()

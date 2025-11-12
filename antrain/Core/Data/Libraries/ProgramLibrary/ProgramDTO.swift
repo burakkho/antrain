@@ -14,75 +14,40 @@ struct ProgramDTO: Sendable {
     let description: String
     let category: ProgramCategory
     let difficulty: DifficultyLevel
-    let durationWeeks: Int
-    let progressionPattern: WeekProgressionPattern
-    let weeks: [WeekDTO]
+    let totalDays: Int
+    let days: [DayDTO]
 
     init(
         name: String,
         description: String,
         category: ProgramCategory,
         difficulty: DifficultyLevel,
-        durationWeeks: Int,
-        progressionPattern: WeekProgressionPattern,
-        weeks: [WeekDTO]
+        totalDays: Int,
+        days: [DayDTO]
     ) {
         self.name = name
         self.description = description
         self.category = category
         self.difficulty = difficulty
-        self.durationWeeks = durationWeeks
-        self.progressionPattern = progressionPattern
-        self.weeks = weeks
-    }
-}
-
-/// Data Transfer Object for a program week
-struct WeekDTO: Sendable {
-    let weekNumber: Int
-    let name: String?
-    let phaseTag: TrainingPhase?
-    let intensityModifier: Double
-    let volumeModifier: Double
-    let isDeload: Bool
-    let notes: String?
-    let days: [DayDTO]
-
-    init(
-        weekNumber: Int,
-        name: String? = nil,
-        phaseTag: TrainingPhase? = nil,
-        intensityModifier: Double = 1.0,
-        volumeModifier: Double = 1.0,
-        isDeload: Bool = false,
-        notes: String? = nil,
-        days: [DayDTO]
-    ) {
-        self.weekNumber = weekNumber
-        self.name = name
-        self.phaseTag = phaseTag
-        self.intensityModifier = intensityModifier
-        self.volumeModifier = volumeModifier
-        self.isDeload = isDeload
-        self.notes = notes
+        self.totalDays = totalDays
         self.days = days
     }
 }
 
 /// Data Transfer Object for a program day
 struct DayDTO: Sendable {
-    let dayOfWeek: Int  // 1=Sunday, 2=Monday, etc.
+    let dayNumber: Int  // 1-indexed day number in program
     let name: String?
     let templateName: String?  // Reference to template by name
     let notes: String?
 
     init(
-        dayOfWeek: Int,
+        dayNumber: Int,
         name: String? = nil,
         templateName: String? = nil,
         notes: String? = nil
     ) {
-        self.dayOfWeek = dayOfWeek
+        self.dayNumber = dayNumber
         self.name = name
         self.templateName = templateName
         self.notes = notes
@@ -101,41 +66,17 @@ extension ProgramDTO {
             programDescription: description,
             category: category,
             difficulty: difficulty,
-            durationWeeks: durationWeeks,
-            progressionPattern: progressionPattern,
+            totalDays: totalDays,
             isCustom: false
-        )
-
-        for weekDTO in weeks {
-            let week = weekDTO.toModel(templateFinder: templateFinder)
-            week.program = program
-            program.weeks.append(week)
-        }
-
-        return program
-    }
-}
-
-extension WeekDTO {
-    /// Convert DTO to ProgramWeek model
-    func toModel(templateFinder: (String) -> WorkoutTemplate?) -> ProgramWeek {
-        let week = ProgramWeek(
-            weekNumber: weekNumber,
-            name: name,
-            notes: notes,
-            phaseTag: phaseTag,
-            intensityModifier: intensityModifier,
-            volumeModifier: volumeModifier,
-            isDeload: isDeload
         )
 
         for dayDTO in days {
             let day = dayDTO.toModel(templateFinder: templateFinder)
-            day.week = week
-            week.days.append(day)
+            day.program = program
+            program.days.append(day)
         }
 
-        return week
+        return program
     }
 }
 
@@ -148,7 +89,7 @@ extension DayDTO {
         }
 
         return ProgramDay(
-            dayOfWeek: dayOfWeek,
+            dayNumber: dayNumber,
             name: name,
             notes: notes,
             template: template
