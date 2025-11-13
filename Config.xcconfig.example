@@ -1,0 +1,14 @@
+// Configuration file for API keys and sensitive data
+//
+// SETUP INSTRUCTIONS:
+// 1. Copy this file and rename it to "Config.xcconfig" (remove .example)
+// 2. Replace YOUR_GEMINI_API_KEY with your actual Gemini API key
+// 3. Never commit Config.xcconfig to version control
+//
+// To get a Gemini API key:
+// 1. Visit https://makersuite.google.com/app/apikey
+// 2. Create a new API key
+// 3. Paste it below
+
+// Gemini API Key
+GEMINI_API_KEY = YOUR_GEMINI_API_KEY

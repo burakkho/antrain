@@ -18,7 +18,9 @@
 		</dict>
 	</array>
 	<key>NSUserNotificationsUsageDescription</key>
-	<string>Antrain sends you workout reminders 
+	<string>Antrain sends you workout reminders
   based on your training program schedule.</string>
+	<key>GEMINI_API_KEY</key>
+	<string>$(GEMINI_API_KEY)</string>
 </dict>
 </plist> 

@@ -24,27 +24,34 @@ enum GeminiConfig {
         return url
     }
 
-    // MARK: - API Key (Base64 Obfuscated)
+    // MARK: - API Key
 
-    /// Base64 obfuscated API key - decoded at runtime
-    /// Using Base64 encoding for basic obfuscation
-    /// Original: AIzaSyCG9xag9OjA4V82Aua9oophQUKixLRXu9E
-    private static let encodedKey = "QUl6YVN5Q0c5eGFnOU9qQTRWODJBdWE5b29waFFVS2l4TFJYdTlF"
-
+    /// Reads API key from Info.plist (configured via Config.xcconfig)
+    /// The key is stored in Config.xcconfig and injected at build time
     static var apiKey: String {
-        guard let data = Data(base64Encoded: encodedKey),
-              let decodedString = String(data: data, encoding: .utf8) else {
-            fatalError("Failed to decode API key")
+        guard let apiKey = Bundle.main.object(forInfoDictionaryKey: "GEMINI_API_KEY") as? String,
+              !apiKey.isEmpty,
+              apiKey != "YOUR_GEMINI_API_KEY" else {
+            fatalError("""
+                ⚠️ GEMINI_API_KEY not found or invalid!
+
+                Setup instructions:
+                1. Copy Config.xcconfig.example to Config.xcconfig
+                2. Add your Gemini API key to Config.xcconfig
+                3. Get your API key from: https://makersuite.google.com/app/apikey
+
+                Note: Config.xcconfig is gitignored for security
+                """)
         }
 
         // Validate API key format (Google API keys start with "AIza")
-        if !decodedString.hasPrefix("AIza") {
-            print("⚠️ [GeminiConfig] Warning: API key doesn't start with 'AIza'. Got: \(decodedString.prefix(10))...")
-            fatalError("Invalid API key format")
+        guard apiKey.hasPrefix("AIza") else {
+            print("⚠️ [GeminiConfig] Warning: API key doesn't start with 'AIza'. Got: \(apiKey.prefix(10))...")
+            fatalError("Invalid API key format. Google API keys should start with 'AIza'")
         }
 
-        print("🔑 [GeminiConfig] API Key validated: \(decodedString.prefix(10))...")
-        return decodedString
+        print("🔑 [GeminiConfig] API Key validated: \(apiKey.prefix(10))...")
+        return apiKey
     }
 
     // MARK: - Request Configuration

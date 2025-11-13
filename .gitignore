@@ -119,3 +119,6 @@ docs/api/
 # Antrain specific
 *.backup
 workout_data.csv
+
+# API Keys and sensitive configuration
+Config.xcconfig
